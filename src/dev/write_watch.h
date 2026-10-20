@@ -29,4 +29,9 @@ void StartWriteWatch(rex::memory::Memory* memory, uint32_t guest_address,
 // Removes the breakpoint and logs every writer seen since StartWriteWatch.
 void StopWriteWatch();
 
+// Logs where every other thread of the process is right now, `samples` times `interval_ms` apart:
+// the thread's name and call chain, recompiled frames as guest functions, the others as module and
+// nearest export. Shows where the game hangs without a debugger (input script `stacks`).
+void LogThreadStacks(int samples = 3, int interval_ms = 250);
+
 }  // namespace ssarecomp

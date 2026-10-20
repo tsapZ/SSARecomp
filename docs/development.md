@@ -122,7 +122,9 @@ or menu); `watch <addr> [<value>]` / `unwatch` log which guest functions (with t
 write a guest address, through a hardware write breakpoint (`src/dev/write_watch.cpp`), with the
 guest registers and 1 KB of guest stack at the first hit; `watch <addr> <value> <snap> <words>` also
 copies guest memory at the first hit (e.g. the text a parser is reading), `watchread <addr>` traps
-reads too, and `dump <addr> <words>` logs guest memory. Full syntax in
+reads too, `dump <addr> <words>` logs guest memory, and `stacks [<samples>]` logs where every
+thread is (call chains, recompiled frames named by guest function): finds where the game hangs
+without a debugger. Full syntax in
 `src/dev/input_script.h`. For RenderDoc, start the game through `renderdoccmd capture`; the capture
 spans whole guest frames (RenderDoc's own triggers capture host frames, and one guest frame's GPU
 work is spread over several of them).

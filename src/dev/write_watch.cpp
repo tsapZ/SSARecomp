@@ -66,8 +66,8 @@ std::thread g_refresher;  // puts the breakpoint on threads started after StartW
 bool g_reads = false;      // debug register mode 11 (read or write) instead of 01 (write)
 
 // Walks the stack from the exception context with the binary's own unwind data (no symbols needed).
-void Unwind(CONTEXT ctx, uintptr_t* frames) {
-  for (int i = 0; i < kFrames; ++i) {
+void Unwind(CONTEXT ctx, uintptr_t* frames, int count) {
+  for (int i = 0; i < count; ++i) {
     frames[i] = uintptr_t(ctx.Rip);
     DWORD64 image_base = 0;
     PRUNTIME_FUNCTION fn = RtlLookupFunctionEntry(ctx.Rip, &image_base, nullptr);
@@ -82,16 +82,16 @@ void Unwind(CONTEXT ctx, uintptr_t* frames) {
                        &establisher, nullptr);
     }
     if (!ctx.Rip) {
-      for (int k = i + 1; k < kFrames; ++k) frames[k] = 0;
+      for (int k = i + 1; k < count; ++k) frames[k] = 0;
       return;
     }
   }
 }
 
 // Unwind may walk into frames without unwind data and read garbage; a fault ends the chain.
-void UnwindSafe(const CONTEXT& ctx, uintptr_t* frames) {
+void UnwindSafe(const CONTEXT& ctx, uintptr_t* frames, int count = kFrames) {
   __try {
-    Unwind(ctx, frames);
+    Unwind(ctx, frames, count);
   } __except (EXCEPTION_EXECUTE_HANDLER) {
   }
 }
@@ -114,7 +114,7 @@ LONG CALLBACK OnException(PEXCEPTION_POINTERS info) {
     g_snapshot_taken.store(true);
   }
   if (i < kMaxHits) {
-    UnwindSafe(*ctx, g_hits[i].frames);
+    UnwindSafe(*ctx, g_hits[i].frames, kFrames);
     const DWORD64 regs[16] = {ctx->Rax, ctx->Rcx, ctx->Rdx, ctx->Rbx, ctx->Rsp, ctx->Rbp,
                               ctx->Rsi, ctx->Rdi, ctx->R8,  ctx->R9,  ctx->R10, ctx->R11,
                               ctx->R12, ctx->R13, ctx->R14, ctx->R15};
@@ -194,6 +194,65 @@ std::pair<uint32_t, uintptr_t> GuestFunctionAt(uintptr_t rip) {
   if (it == table.begin()) return {0, 0};
   --it;
   return {it->second, rip - it->first};
+}
+
+// A host frame outside the recompiled code: module, and the nearest export below it if the module
+// exports any (the SDK DLLs do, so their frames read as SDK function names).
+std::string HostFrameName(uintptr_t address) {
+  HMODULE module = nullptr;
+  if (!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                              GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                          reinterpret_cast<LPCWSTR>(address), &module)) {
+    return fmt::format("{:X}", address);
+  }
+  char path[MAX_PATH] = {};
+  GetModuleFileNameA(module, path, MAX_PATH);
+  const char* name = std::strrchr(path, '\\');
+  name = name ? name + 1 : path;
+  const auto base = reinterpret_cast<uintptr_t>(module);
+  const auto* nt = reinterpret_cast<const IMAGE_NT_HEADERS*>(
+      base + reinterpret_cast<const IMAGE_DOS_HEADER*>(base)->e_lfanew);
+  const auto& dir = nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+  const char* best = nullptr;
+  uintptr_t best_rva = 0;
+  if (dir.Size) {
+    const auto* exports = reinterpret_cast<const IMAGE_EXPORT_DIRECTORY*>(base + dir.VirtualAddress);
+    const auto* functions = reinterpret_cast<const DWORD*>(base + exports->AddressOfFunctions);
+    const auto* names = reinterpret_cast<const DWORD*>(base + exports->AddressOfNames);
+    const auto* ordinals = reinterpret_cast<const WORD*>(base + exports->AddressOfNameOrdinals);
+    const uintptr_t rva = address - base;
+    for (DWORD i = 0; i < exports->NumberOfNames; ++i) {
+      const DWORD f = functions[ordinals[i]];
+      if (f <= rva && f > best_rva) {
+        best_rva = f;
+        best = reinterpret_cast<const char*>(base + names[i]);
+      }
+    }
+  }
+  if (best) return fmt::format("{}!{}+0x{:X}", name, best, address - base - best_rva);
+  return fmt::format("{}+0x{:X}", name, address - base);
+}
+
+// One frame of a sampled call chain: a guest function if the address is recompiled code (in the
+// executable, within the range of the recompiled functions), else a host name.
+std::string FrameName(uintptr_t address) {
+  static uintptr_t exe_base = reinterpret_cast<uintptr_t>(GetModuleHandleW(nullptr));
+  static uintptr_t code_end = [] {
+    uintptr_t end = 0;
+    for (const PPCFuncMapping* m = PPCFuncMappings; m->host; ++m) {
+      end = std::max(end, reinterpret_cast<uintptr_t>(m->host));
+    }
+    return end + 0x10000;
+  }();
+  HMODULE module = nullptr;
+  GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                         GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                     reinterpret_cast<LPCWSTR>(address), &module);
+  if (reinterpret_cast<uintptr_t>(module) == exe_base && address < code_end) {
+    const auto [guest, offset] = GuestFunctionAt(address);
+    if (guest) return fmt::format("sub_{:08X}+0x{:X}", guest, offset);
+  }
+  return HostFrameName(address);
 }
 
 #endif  // _WIN32
@@ -300,6 +359,66 @@ void StopWriteWatch() {
       }
     }
   }
+#endif
+}
+
+void LogThreadStacks(int samples, int interval_ms) {
+#ifdef _WIN32
+  constexpr int kStackFrames = 14;
+  struct Sample {
+    DWORD id;
+    std::string name;
+    uintptr_t frames[kStackFrames];
+  };
+  const DWORD pid = GetCurrentProcessId(), self = GetCurrentThreadId();
+  for (int s = 0; s < samples; ++s) {
+    if (s) std::this_thread::sleep_for(std::chrono::milliseconds(interval_ms));
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+    if (snapshot == INVALID_HANDLE_VALUE) return;
+    // Room for every thread before any is suspended: a suspended thread may hold the heap lock.
+    std::vector<Sample> taken(512);
+    size_t count = 0;
+    THREADENTRY32 entry{};
+    entry.dwSize = sizeof(entry);
+    for (BOOL ok = Thread32First(snapshot, &entry); ok && count < taken.size();
+         ok = Thread32Next(snapshot, &entry)) {
+      if (entry.th32OwnerProcessID != pid || entry.th32ThreadID == self) continue;
+      HANDLE thread = OpenThread(THREAD_GET_CONTEXT | THREAD_SUSPEND_RESUME |
+                                     THREAD_QUERY_LIMITED_INFORMATION,
+                                 FALSE, entry.th32ThreadID);
+      if (!thread) continue;
+      Sample& sample = taken[count];
+      sample.id = entry.th32ThreadID;
+      std::fill(std::begin(sample.frames), std::end(sample.frames), 0);
+      if (SuspendThread(thread) != DWORD(-1)) {
+        CONTEXT ctx{};
+        ctx.ContextFlags = CONTEXT_FULL;
+        if (GetThreadContext(thread, &ctx)) UnwindSafe(ctx, sample.frames, kStackFrames);
+        ResumeThread(thread);
+        PWSTR description = nullptr;
+        if (SUCCEEDED(GetThreadDescription(thread, &description)) && description) {
+          for (const wchar_t* c = description; *c; ++c) sample.name += *c < 128 ? char(*c) : '?';
+          LocalFree(description);
+        }
+        ++count;
+      }
+      CloseHandle(thread);
+    }
+    CloseHandle(snapshot);
+    REXLOG_INFO("Stacks: sample {}/{}, {} threads", s + 1, samples, count);
+    for (size_t i = 0; i < count; ++i) {
+      std::string chain;
+      for (uintptr_t frame : taken[i].frames) {
+        if (!frame) break;
+        chain += (chain.empty() ? "" : " <- ") + FrameName(frame);
+      }
+      REXLOG_INFO("Stacks:   {} '{}': {}", taken[i].id, taken[i].name, chain);
+    }
+  }
+#else
+  (void)samples;
+  (void)interval_ms;
+  REXLOG_WARN("Stacks: only on Windows");
 #endif
 }
 

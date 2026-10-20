@@ -12,7 +12,7 @@ See [docs/STATUS.md](docs/STATUS.md) and [docs/roadmap.md](docs/roadmap.md).
 | Area | State |
 |---|---|
 | Build | ✅ codegen and build work |
-| Boot | ⬜ |
+| Boot | ✅ title screen, main menu, save slots |
 | Portal | ⬜ (the portal code is in, not tried with this game) |
 
 ## Building

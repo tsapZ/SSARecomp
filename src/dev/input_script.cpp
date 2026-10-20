@@ -58,6 +58,7 @@ struct Event {
     kWatch,
     kUnwatch,
     kDump,
+    kStacks,
     kQuit
   } kind;
   double start = 0.0;     // seconds since the timeline started
@@ -183,6 +184,10 @@ bool ParseScript(std::istream& in, std::vector<Event>& events) {
       e.kind = Event::Kind::kWatch;
     } else if (cmd == "unwatch") {
       e.kind = Event::Kind::kUnwatch;
+    } else if (cmd == "stacks") {
+      e.kind = Event::Kind::kStacks;
+      e.frames = 3;
+      if (words >> e.frames) ok = e.frames > 0 && e.frames <= 50;
     } else if (cmd == "dump") {
       std::string address;
       ok = bool(words >> address >> e.frames) && e.frames > 0 && e.frames <= 4096;
@@ -358,6 +363,8 @@ class ScriptInputDriver final : public rex::input::InputDriver {
                           e.words.size() == 4 ? e.words[3] : 0);
         } else if (e.kind == Event::Kind::kUnwatch) {
           StopWriteWatch();
+        } else if (e.kind == Event::Kind::kStacks) {
+          LogThreadStacks(int(e.frames));
         } else if (e.kind == Event::Kind::kDump) {
           for (uint32_t i = 0; i < e.frames; i += 8) {
             std::string line;

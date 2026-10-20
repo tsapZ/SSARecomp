@@ -22,6 +22,8 @@
 //                            (src/dev/write_watch.h)
 //   watchread <hex addr>     the same for reads and writes
 //   unwatch                  ends the watch and logs the writers
+//   stacks [<samples>]       logs where every thread is (call chains named by guest function),
+//                            3 samples 250 ms apart by default: finds where the game hangs
 //   renderdoc [n]            captures the next n guest frames with an attached RenderDoc
 //   player <n>               the scripted controller plays as player n (1-4) from now on
 //   key <name>               presses a key for the app's key binds (F4, F6, F9; names as in the

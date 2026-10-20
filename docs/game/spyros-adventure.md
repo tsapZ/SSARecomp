@@ -28,5 +28,8 @@ What we know about the game and the dump this project targets, and what still ha
   `.str` (227), `.lsa`, `.bnk` / `.pck` (audio), `.bik` (Bink 1 movies), `.fnt`, in folders
   `levels\`, `models\`, `textures\`, `text\`, `ui\`. So none of that code was taken over;
   the portal menu draws its own cards until this game's formats are read.
+- **It sets up the GPU ring buffer three times** (`VdInitializeRingBuffer`, when it recreates its
+  device); Swap Force does once. The SDK needed a fix for that (fork branch
+  `fix/ring-buffer-reinit`, docs/STATUS.md 2026-10-20).
 - **No game hooks yet.** Every hook of SwapForceRecomp is at an address in its own executable;
   none of them apply here.
