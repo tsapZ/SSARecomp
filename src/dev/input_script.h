@@ -14,14 +14,22 @@
 //   log <text>               writes a log line, to find a point of the timeline in the log
 //   fps <seconds>            measures the guest frame rate over that time and logs it
 //   scan <hex> [<hex> ...]   logs where this big-endian u32 sequence is in guest memory
+//                            (hit0, hit1, ... in the order logged)
 //   poke <hex addr> <hex>    writes a big-endian u32 to guest memory
 //   dump <hex addr> <words>  logs that many big-endian u32 from guest memory, 8 per line
+//   save <hex addr> <hex bytes> <file>
+//                            writes that much guest memory to a file, unchanged (big-endian;
+//                            pages that are not mapped come out as zeros): snapshots at
+//                            different moments, compared offline, find state fields
 //   watch <hex addr> [<hex> [<hex snapshot addr> <hex words>]]
 //                            logs which guest functions write this address, only writes of that
 //                            big-endian value if given, and copies guest memory at the first hit
 //                            (src/dev/write_watch.h)
 //   watchread <hex addr>     the same for reads and writes
 //   unwatch                  ends the watch and logs the writers
+//   For watch, watchread and dump the address can also be hit<n>[+<hex>]: the n-th hit of the
+//   last scan, plus an offset, or *<hex>[+<hex>]: the pointer stored at that address when the
+//   command runs, plus an offset. For data whose heap address changes from run to run.
 //   stacks [<samples>]       logs where every thread is (call chains named by guest function),
 //                            3 samples 250 ms apart by default: finds where the game hangs
 //   renderdoc [n]            captures the next n guest frames with an attached RenderDoc
@@ -30,6 +38,7 @@
 //                            bind_* settings), e.g. to open an overlay
 //   place <slot> <file>      puts a figure file straight onto the emulated portal's slot (0-15),
 //                            past the portal menu, e.g. a second sidekick for the portal check
+//   remove <slot>            takes the figure off that slot again
 //   quit                     ends the game
 // Buttons: a b x y start back guide up down left right lb rb ls rs lt rt, or several pressed
 // together joined with + (tap back+y)

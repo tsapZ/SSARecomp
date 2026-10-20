@@ -127,7 +127,12 @@ guest registers and 1 KB of guest stack at the first hit; `watch <addr> <value> 
 copies guest memory at the first hit (e.g. the text a parser is reading), `watchread <addr>` traps
 reads too, `dump <addr> <words>` logs guest memory, and `stacks [<samples>]` logs where every
 thread is (call chains, recompiled frames named by guest function): finds where the game hangs
-without a debugger. Full syntax in
+without a debugger. `save <addr> <bytes> <file>` writes guest memory to a file: snapshots at
+different moments (prompt, play, pause menu), compared offline, show which fields belong to a
+state. For data whose heap address changes from run to run, `watch`, `watchread` and `dump` take
+`hit<n>[+<off>]` (the n-th hit of the last `scan`) or `*<addr>[+<off>]` (the pointer stored there)
+as the address. `remove <slot>` takes a figure off the emulated portal again. (Taken over from
+GiantsRecomp, where they found its portal prompt.) Full syntax in
 `src/dev/input_script.h`. For RenderDoc, start the game through `renderdoccmd capture`; the capture
 spans whole guest frames (RenderDoc's own triggers capture host frames, and one guest frame's GPU
 work is spread over several of them).

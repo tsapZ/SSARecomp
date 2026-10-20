@@ -1,5 +1,6 @@
 #include "input_script.h"
 
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
@@ -55,9 +56,11 @@ struct Event {
     kPlayer,
     kKey,
     kPlace,
+    kRemove,
     kWatch,
     kUnwatch,
     kDump,
+    kSave,
     kStacks,
     kQuit
   } kind;
@@ -70,7 +73,71 @@ struct Event {
   std::string text;
   uint32_t frames = 0;  // renderdoc: guest frames to capture; player: the player (1-4); place: slot
   std::vector<uint32_t> words;  // scan: the sequence; poke: address and value
+  int hit = -1;  // watch, dump: words[0] is an offset from this hit of the last scan
+  uint32_t pointer = 0;  // watch, dump: if nonzero, words[0] is an offset from the u32 stored here
 };
+
+// The hits of the last scan, for hit<n> addresses. Only the script thread uses it.
+std::vector<uint32_t> g_scan_hits;
+
+// Whether [address, address + size) is committed, readable guest memory: a dump or a pointer read
+// anywhere else would end the game with a guest access violation.
+bool Readable(rex::memory::Memory* memory, uint32_t address, uint32_t size) {
+  for (uint64_t at = address; at < uint64_t(address) + size;) {
+    rex::memory::BaseHeap* heap = memory->LookupHeap(uint32_t(at));
+    rex::memory::HeapAllocationInfo info{};
+    if (!heap || !heap->QueryRegionInfo(uint32_t(at), &info) ||
+        !(info.state & rex::memory::kMemoryAllocationCommit) ||
+        !(info.protect & rex::memory::kMemoryProtectRead) || !info.region_size) {
+      return false;
+    }
+    // The region is counted in whole pages from the one that holds `at`.
+    at = (at & ~uint64_t(heap->page_size() - 1)) + info.region_size;
+  }
+  return true;
+}
+
+// An address word: a hex address, hit<n>[+<hex>] (sets e.hit) or *<hex>[+<hex>] (sets
+// e.pointer); for the last two it returns the offset.
+uint32_t ParseAddress(const std::string& word, Event& e) {
+  size_t used = 0;
+  if (word.rfind("hit", 0) == 0) {
+    e.hit = std::stoi(word.substr(3), &used);
+    used += 3;
+  } else if (word.rfind("*", 0) == 0) {
+    e.pointer = uint32_t(std::stoul(word.substr(1), &used, 16));
+    used += 1;
+  } else {
+    return uint32_t(std::stoul(word, nullptr, 16));
+  }
+  if (used == word.size()) return 0;
+  if (word[used] != '+') throw std::invalid_argument(word);
+  return uint32_t(std::stoul(word.substr(used + 1), nullptr, 16));
+}
+
+// Resolves a hit<n> address against the last scan, or a *<hex> one through guest memory; false
+// (and a log line) if there was no such hit.
+bool ResolveAddress(rex::memory::Memory* memory, const Event& e, uint32_t& address) {
+  address = e.words[0];
+  if (e.pointer) {
+    if (!Readable(memory, e.pointer, 4)) {
+      REXLOG_WARN("Input script: {} through {:08X}, which isn't mapped", e.text, e.pointer);
+      return false;
+    }
+    uint32_t v;
+    std::memcpy(&v, memory->TranslateVirtual<const uint8_t*>(e.pointer), 4);
+    address += rex::byte_swap(v);
+    return true;
+  }
+  if (e.hit < 0) return true;
+  if (size_t(e.hit) >= g_scan_hits.size()) {
+    REXLOG_WARN("Input script: {} needs scan hit {}, the last scan had {}", e.text, e.hit,
+                g_scan_hits.size());
+    return false;
+  }
+  address += g_scan_hits[e.hit];
+  return true;
+}
 
 bool ParseOneButton(const std::string& name, Event& e) {
   static const struct {
@@ -179,6 +246,7 @@ bool ParseScript(std::istream& in, std::vector<Event>& events) {
     } else if (cmd == "watch" || cmd == "watchread") {
       e.text = cmd;
       std::string word;
+      if (words >> word) e.words.push_back(ParseAddress(word, e));
       while (words >> word) e.words.push_back(uint32_t(std::stoul(word, nullptr, 16)));
       ok = e.words.size() == 1 || e.words.size() == 2 || e.words.size() == 4;
       e.kind = Event::Kind::kWatch;
@@ -191,16 +259,30 @@ bool ParseScript(std::istream& in, std::vector<Event>& events) {
     } else if (cmd == "dump") {
       std::string address;
       ok = bool(words >> address >> e.frames) && e.frames > 0 && e.frames <= 4096;
-      if (ok) e.words.push_back(uint32_t(std::stoul(address, nullptr, 16)));
+      if (ok) e.words.push_back(ParseAddress(address, e));
+      e.text = cmd;
       e.kind = Event::Kind::kDump;
     } else if (cmd == "key") {
       ok = bool(words >> e.text) && rex::ui::ParseVirtualKey(e.text) != rex::ui::VirtualKey::kNone;
       e.kind = Event::Kind::kKey;
+    } else if (cmd == "save") {
+      std::string address, size;
+      ok = bool(words >> address >> size);
+      std::getline(words >> std::ws, e.text);
+      ok = ok && !e.text.empty();
+      if (ok) {
+        e.words.push_back(uint32_t(std::stoul(address, nullptr, 16)));
+        e.words.push_back(uint32_t(std::stoul(size, nullptr, 16)));
+      }
+      e.kind = Event::Kind::kSave;
     } else if (cmd == "place") {
       ok = bool(words >> e.frames) && e.frames < 16;
       std::getline(words >> std::ws, e.text);
       ok = ok && !e.text.empty();
       e.kind = Event::Kind::kPlace;
+    } else if (cmd == "remove") {
+      ok = bool(words >> e.frames) && e.frames < 16;
+      e.kind = Event::Kind::kRemove;
     } else if (cmd == "quit") {
       e.kind = Event::Kind::kQuit;
     } else {
@@ -234,6 +316,7 @@ void ScanGuestMemory(rex::memory::Memory* memory, const std::vector<uint32_t>& w
     return rex::byte_swap(v);
   };
   uint32_t hits = 0;
+  g_scan_hits.clear();
   for (const auto& range : kRanges) {
     uint64_t address = range.start;
     while (address < range.end && hits < kMaxScanHits) {
@@ -260,7 +343,9 @@ void ScanGuestMemory(rex::memory::Memory* memory, const std::vector<uint32_t>& w
             const uint32_t v = read(host + 4 * (i + k));
             around += k == 0 ? fmt::format(" [{:08X}]", v) : fmt::format(" {:08X}", v);
           }
-          REXLOG_INFO("Input script: scan hit at {:08X}:{}", info.base_address + 4 * i, around);
+          REXLOG_INFO("Input script: scan hit {} at {:08X}:{}", hits, info.base_address + 4 * i,
+                      around);
+          g_scan_hits.push_back(info.base_address + 4 * i);
           ++hits;
         }
       }
@@ -357,7 +442,9 @@ class ScriptInputDriver final : public rex::input::InputDriver {
           skylanders::menu_input::SetDevicePlayer(kScriptDevice, e.frames - 1);
           REXLOG_INFO("Input script: now playing as player {}", e.frames);
         } else if (e.kind == Event::Kind::kWatch) {
-          StartWriteWatch(memory, e.words[0],
+          uint32_t address;
+          if (!ResolveAddress(memory, e, address)) continue;
+          StartWriteWatch(memory, address,
                           e.words.size() > 1 ? std::optional<uint32_t>(e.words[1]) : std::nullopt,
                           e.text == "watchread", e.words.size() == 4 ? e.words[2] : 0,
                           e.words.size() == 4 ? e.words[3] : 0);
@@ -365,15 +452,39 @@ class ScriptInputDriver final : public rex::input::InputDriver {
           StopWriteWatch();
         } else if (e.kind == Event::Kind::kStacks) {
           LogThreadStacks(int(e.frames));
+        } else if (e.kind == Event::Kind::kSave) {
+          // Pages that aren't committed (or readable) are written as zeros, so any range works.
+          std::ofstream file(std::filesystem::u8path(e.text), std::ios::binary);
+          const std::vector<char> zeros(0x1000);
+          for (uint64_t page = e.words[0]; page < uint64_t(e.words[0]) + e.words[1];
+               page += 0x1000) {
+            rex::memory::BaseHeap* heap = memory->LookupHeap(uint32_t(page));
+            rex::memory::HeapAllocationInfo info{};
+            const bool readable = heap && heap->QueryRegionInfo(uint32_t(page), &info) &&
+                                  (info.state & rex::memory::kMemoryAllocationCommit) &&
+                                  (info.protect & rex::memory::kMemoryProtectRead);
+            const auto size = std::streamsize(
+                std::min<uint64_t>(0x1000, uint64_t(e.words[0]) + e.words[1] - page));
+            file.write(readable ? memory->TranslateVirtual<const char*>(uint32_t(page)) : zeros.data(),
+                       size);
+          }
+          REXLOG_INFO("Input script: saved {:08X}+{:X} to {}{}", e.words[0], e.words[1], e.text,
+                      file ? "" : " (failed)");
         } else if (e.kind == Event::Kind::kDump) {
+          uint32_t address;
+          if (!ResolveAddress(memory, e, address)) continue;
+          if (!Readable(memory, address, 4 * e.frames)) {
+            REXLOG_WARN("Input script: dump {:08X}: not mapped", address);
+            continue;
+          }
           for (uint32_t i = 0; i < e.frames; i += 8) {
             std::string line;
             for (uint32_t k = i; k < e.frames && k < i + 8; ++k) {
               uint32_t v;
-              std::memcpy(&v, memory->TranslateVirtual<const uint8_t*>(e.words[0] + 4 * k), 4);
+              std::memcpy(&v, memory->TranslateVirtual<const uint8_t*>(address + 4 * k), 4);
               line += fmt::format(" {:08X}", rex::byte_swap(v));
             }
-            REXLOG_INFO("Input script: dump {:08X}:{}", e.words[0] + 4 * i, line);
+            REXLOG_INFO("Input script: dump {:08X}:{}", address + 4 * i, line);
           }
         } else if (e.kind == Event::Kind::kKey) {
           // Through the key binds, as a key press in the window would go.
@@ -389,6 +500,14 @@ class ScriptInputDriver final : public rex::input::InputDriver {
             run_in_ui([slot = int(e.frames), path = std::filesystem::u8path(e.text)] {
               const bool placed = skylanders::PlaceFigureFromFile(slot, path);
               REXLOG_INFO("Input script: {} slot {}", placed ? "placed in" : "could not place in",
+                          slot);
+            });
+          }
+        } else if (e.kind == Event::Kind::kRemove) {
+          if (run_in_ui) {
+            run_in_ui([slot = int(e.frames)] {
+              const bool removed = skylanders::RemoveFigureFromSlot(slot);
+              REXLOG_INFO("Input script: {} slot {}", removed ? "removed from" : "nothing in",
                           slot);
             });
           }
