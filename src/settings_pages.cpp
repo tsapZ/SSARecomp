@@ -165,6 +165,18 @@ SettingsPage GamePage() {
                     {"italian", "Italiano", "Italiano"}}};
   language.restart = true;
   page.settings.push_back(language);
+  Setting intro{"skip_intro", "Skip logo movies", "Logo-Videos Ã¼" "berspringen",
+                "Skips the Activision, XPEC and Toys for Bob logo videos and the legal notice at "
+                "start-up.",
+                "Ã" "berspringt die Logo-Videos von Activision, XPEC und Toys for Bob und den "
+                "rechtlichen Hinweis beim Start."};
+  intro.restart = true;
+  page.settings.push_back(intro);
+  page.settings.push_back({"skip_opening_movie", "Skip the opening movie",
+                           "ErÃ¶" "ffnungsfilm Ã¼" "berspringen",
+                           "Skips the movie at the start of a new game (Eon, about a minute).",
+                           "Ã" "berspringt den Film beim Start eines neuen Spiels (Eon, etwa "
+                           "eine Minute)."});
   return page;
 }
 

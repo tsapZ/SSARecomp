@@ -27,6 +27,8 @@ mnk_mode = true                           # enable keyboard/mouse controller emu
 
 ["Game"]
 # language = "auto"                       # auto (Windows language), english, french, german, spanish, italian
+skip_intro = true                         # skip the Activision, XPEC and Toys for Bob logo movies
+# skip_opening_movie = true                # skip the opening movie of a new game
 
 ["Runtime"]
 # user_data_root = "C:\\path\\to\\folder" # empty = Documents\ssarecomp

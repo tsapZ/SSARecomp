@@ -71,3 +71,9 @@ Updated at the end of every session. Only record what a build actually did.
 - **Playing:** after skipping the opening, Spyro walks, the camera follows, fire breath and the
   mission message ("Rette die Dorfbewohner") work, 30 guest FPS. Swapping Spyro for Eruptor on
   the emulated portal mid-level brings Eruptor in with his card and HUD.
+- **Intro skip** (`skip_intro`, on; `skip_opening_movie`, off; both on the F4 game page): a
+  midasm hook in BinkOpen (0x829EC1CC, found from "Not a Bink file.") sets the frame count of
+  the legal notice, the Activision, XPEC and Toys for Bob logos and optionally the new-game movie
+  (`sl_sc01.bik`, Eon, 62 s) to 1, as in Giants and Swap Force. The title screen comes after
+  about 5 s instead of 40; with the opening movie skipped, a new game goes straight to the
+  in-engine intro. Saves work: slot 1 lists its progress and three Skylanders.

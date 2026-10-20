@@ -12,7 +12,7 @@ See [docs/STATUS.md](docs/STATUS.md) and [docs/roadmap.md](docs/roadmap.md).
 | Area | State |
 |---|---|
 | Build | ✅ codegen and build work |
-| Boot | ✅ title screen, main menu, save slots |
+| Boot | ✅ title screen after ~5 s (logo movies skipped), main menu, saves |
 | In-game | ✅ first level: cutscenes with voices, then gameplay |
 | Portal | ✅ emulated portal and portal menu: figures placed, shown and swapped during play |
 

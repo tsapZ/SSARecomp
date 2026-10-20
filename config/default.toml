@@ -5,3 +5,13 @@
 # this XEX.
 #
 # Entries are added as codegen and the runtime report them.
+
+# 0x829EC1CC is in BinkOpen (sub_829EBEF8, the Bink 1 SDK's: it names "Not a Bink file." at
+# 0x8207B08C), right after its read callback filled the 44-byte header at r1+112 and just before
+# the signature compares (BIKf..BIKi). Found from that error string's only reference.
+# src/hooks/intro_skip_hook.cpp cuts the logo movies (skip_intro, on) and optionally the opening
+# movie (skip_opening_movie, off) by setting their frame count to 1; other movies pass unchanged.
+[[midasm_hook]]
+address = 0x829EC1CC
+name = "BinkHeaderLoaded"
+registers = ["r1"]
