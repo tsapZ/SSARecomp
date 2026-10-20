@@ -1,0 +1,32 @@
+# Copy next to ssarecompiled.exe, rename to "ssarecomp.toml". Full docs in README.md.
+# The in-game settings menu (F4) reads and writes this same file.
+
+["Portal"]
+portal_mode = "software"                  # "software", "hybrid", "usb" (real portal), or "none"
+portal_figures_dir = ""                   # empty = "figures" next to your saves
+# portal_figure = "C:\\path\\to\\Skylander.dump"  # loads this dump onto the portal at startup
+
+["Graphics"]
+resolution = "1920x1080"                  # startup window size
+resolution_scale = 2                      # 1-8 supersample multiplier, 1 = off
+gpu_allow_invalid_fetch_constants = true  # works around a GPU quirk, on by default
+render_target_path_d3d12 = "rtv"          # fast render target emulation; "rov" is bit-exact but much slower
+# vulkan_device = -1                      # GPU index for multi-GPU systems, -1 = auto-pick
+
+["GPU"]
+anisotropic_override = 5                  # texture filtering: 5 = 16x, 3 = 4x, 0 = off
+
+["UI"]
+# ui_scale = 1.5                          # ImGui overlay font/widget scale
+
+["UI/Presenter"]
+# present_effect = "cas"                  # sharpen the final picture (default "bilinear"); costs < 1 FPS
+
+["Input"]
+mnk_mode = true                           # enable keyboard/mouse controller emulation
+
+["Game"]
+# language = "english"                    # english, french, german, spanish, italian
+
+["Runtime"]
+# user_data_root = "C:\\path\\to\\folder" # empty = Documents\ssarecomp

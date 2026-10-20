@@ -1,0 +1,11 @@
+This installer does not include Skylanders: Spyro's Adventure or any of its data.
+
+You will need your own legal copy of the Xbox 360 disc, either as an ISO file or an
+already-extracted folder. Only the European (PAL) release is supported -- the next step
+checks this automatically.
+
+This is an alpha build and may contain bugs, crashes, or other issues.
+
+This is an unofficial fan project. It is not affiliated with, endorsed by, or connected to 
+Activision, Toys for Bob, or the owners of Skylanders. Skylanders and related names are 
+trademarks of their owners.

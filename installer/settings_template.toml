@@ -1,0 +1,41 @@
+# Copy next to ssarecompiled.exe, rename to "ssarecomp.toml". Full docs in README.md.
+# The in-game Settings overlay (F4) reads and writes this same file.
+
+["Portal"]
+portal_mode = "__PORTAL_MODE__"           # "software", "usb" (real portal), or "none"
+portal_figures_dir = ""                   # empty = "figures" next to your saves
+# portal_figure = "C:\\path\\to\\Skylander.dump"  # loads this dump onto the portal at startup
+# Portal menu: opens by itself when the game asks for a Skylander, or with the Guide button,
+# Back+Start, holding Back, or F6 on the keyboard.
+# portal_menu_open_buttons = "guide,back+start,hold_back"
+# portal_menu_auto_open = true
+
+["Graphics"]
+resolution = "__RESOLUTION__"             # startup window size
+resolution_scale = __RESOLUTION_SCALE__   # 1-8 supersample multiplier, 1 = off
+gpu_allow_invalid_fetch_constants = true  # works around a GPU quirk, on by default
+render_target_path_d3d12 = "rtv"           # fast render target emulation; "rov" is bit-exact but much slower
+# vulkan_device = -1                      # GPU index for multi-GPU systems, -1 = auto-pick
+
+["GPU"]
+anisotropic_override = 5                  # texture filtering: 5 = 16x, 3 = 4x, 0 = off
+
+["UI"]
+# ui_scale = 1.5                          # ImGui overlay font/widget scale
+
+["UI/Presenter"]
+present_effect = "cas"                   # sharpen the final picture (default "bilinear"); costs < 1 FPS.
+#                                         # Recommended with resolution_scale 2 on 1440p: the game's 3D scene is 1024x624
+
+["Input"]
+mnk_mode = true                           # enable keyboard/mouse controller emulation
+# keyboard_player = 2                     # which player the keyboard plays as (1-4)
+# Controllers (Xbox, PlayStation, most USB pads) are detected automatically: the first one
+# connected is player 1, the second player 2.
+
+["Game"]
+language = "__LANGUAGE__"                 # english, french, german, spanish, italian (EU disc: english, german)
+# skip_opening_movie = true                # skip the long opening movie of a new game
+
+["Runtime"]
+# user_data_root = "C:\\path\\to\\folder" # empty = Documents\ssarecomp

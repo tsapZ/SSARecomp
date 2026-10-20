@@ -1,0 +1,11 @@
+# ReXGlue project manifest for Skylanders: Spyro's Adventure (schema of ReXGlue SDK 0.10.0).
+
+[project]
+name = "ssarecomp"
+sdk_version = "0.10.0"
+game_root = "rom"
+
+[entrypoint]
+file_path = "rom/default.xex"
+out_directory_path = "generated/default"
+includes = ["config/default.toml"]

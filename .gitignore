@@ -1,0 +1,24 @@
+/rom/*
+!/rom/README.md
+/generated/*
+!/generated/rexglue.cmake
+/out/
+/logs/
+/scratch/
+/.worktrees/
+/dist
+/installer/staging/
+/installer/Output/
+/tools/__pycache__
+/tools/renderdoc/__pycache__
+/docs/superpowers/
+/.superpowers/
+.mcp.json
+/bin/
+
+# Game data and figure dumps: never commit
+*.iso
+*.xex
+*.sky
+*.dump
+**/figures/**/*.bin
