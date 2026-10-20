@@ -34,4 +34,10 @@ void StopWriteWatch();
 // nearest export. Shows where the game hangs without a debugger (input script `stacks`).
 void LogThreadStacks(int samples = 3, int interval_ms = 250);
 
+// When the game really crashes (an exception nothing handles, e.g. the SDK's "Unhandled guest
+// access violation"), logs the faulting thread's call chain, recompiled frames as guest functions,
+// and its guest registers, so a crash in a player's log says where in the game it happened. An
+// unhandled-exception filter, so exceptions the SDK or the game handle themselves never reach it.
+void InstallCrashReport(rex::memory::Memory* memory);
+
 }  // namespace ssarecomp

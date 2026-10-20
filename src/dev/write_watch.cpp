@@ -96,6 +96,26 @@ void UnwindSafe(const CONTEXT& ctx, uintptr_t* frames, int count = kFrames) {
   }
 }
 
+// The guest registers r0-r31 (low words) if a host register points at the recompiled code's
+// PPCContext: a host (not guest) pointer, 64-byte aligned, starting with r3, r0, r1, r2, r4 ... r31
+// (8 bytes each), whose r1 is a guest stack (0x7xxxxxxx). Returns that host register's index in
+// rax rcx rdx rbx rsp rbp rsi rdi r8-r15, or -1.
+int ReadGuestRegisters(const DWORD64 (&regs)[16], uint32_t (&guest)[32]) {
+  for (int r : {7, 6, 3, 5, 12, 13, 14, 15}) {  // rdi rsi rbx rbp r12-r15
+    const uint64_t p = regs[r];
+    if (!p || (p & 0x3F) || (p >= g_membase && p < g_membase + 0x100000000ull)) continue;
+    uint64_t raw[32];
+    if (!SafeCopy(raw, p, sizeof(raw))) continue;
+    const uint32_t r1 = uint32_t(raw[2]);
+    if (r1 < 0x40000000u || r1 >= 0x80000000u) continue;
+    static const int kOrder[32] = {3, 0, 1, 2, 4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
+                                   16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
+    for (int k = 0; k < 32; ++k) guest[kOrder[k]] = uint32_t(raw[k]);
+    return r;
+  }
+  return -1;
+}
+
 LONG CALLBACK OnException(PEXCEPTION_POINTERS info) {
   if (info->ExceptionRecord->ExceptionCode != EXCEPTION_SINGLE_STEP) return EXCEPTION_CONTINUE_SEARCH;
   CONTEXT* ctx = info->ContextRecord;
@@ -119,24 +139,10 @@ LONG CALLBACK OnException(PEXCEPTION_POINTERS info) {
                               ctx->Rsi, ctx->Rdi, ctx->R8,  ctx->R9,  ctx->R10, ctx->R11,
                               ctx->R12, ctx->R13, ctx->R14, ctx->R15};
     for (int r = 0; r < 16; ++r) g_hits[i].regs[r] = regs[r];
-    g_hits[i].guest_from = -1;
-    // A context candidate: a host (not guest) pointer, 64-byte aligned like PPCContext. The
-    // stack pointer of a guest thread (r1) lies in guest memory, which tells it apart.
-    for (int r : {7, 6, 3, 5, 12, 13, 14, 15}) {  // rdi rsi rbx rbp r12-r15
-      const uint64_t p = regs[r];
-      if (!p || (p & 0x3F) || (p >= g_membase && p < g_membase + 0x100000000ull)) continue;
-      uint64_t raw[32];
-      if (!SafeCopy(raw, p, sizeof(raw))) continue;
-      const uint32_t r1 = uint32_t(raw[2]);
-      if (r1 < 0x40000000u || r1 >= 0x80000000u) continue;  // guest stacks are at 0x7xxxxxxx
-      static const int kOrder[32] = {3, 0, 1, 2, 4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14, 15,
-                                     16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
-      for (int k = 0; k < 32; ++k) g_hits[i].guest[kOrder[k]] = uint32_t(raw[k]);
-      g_hits[i].guest_from = r;
-      if (!SafeCopy(g_hits[i].stack, g_membase + r1, sizeof(g_hits[i].stack))) {
-        memset(g_hits[i].stack, 0, sizeof(g_hits[i].stack));
-      }
-      break;
+    g_hits[i].guest_from = ReadGuestRegisters(regs, g_hits[i].guest);
+    if (g_hits[i].guest_from >= 0 &&
+        !SafeCopy(g_hits[i].stack, g_membase + g_hits[i].guest[1], sizeof(g_hits[i].stack))) {
+      memset(g_hits[i].stack, 0, sizeof(g_hits[i].stack));
     }
   }
   return EXCEPTION_CONTINUE_EXECUTION;
@@ -231,6 +237,47 @@ std::string HostFrameName(uintptr_t address) {
   }
   if (best) return fmt::format("{}!{}+0x{:X}", name, best, address - base - best_rva);
   return fmt::format("{}+0x{:X}", name, address - base);
+}
+
+std::string FrameName(uintptr_t address);
+
+LPTOP_LEVEL_EXCEPTION_FILTER g_previous_filter = nullptr;
+std::atomic<bool> g_crash_logged{false};
+
+// The unhandled-exception filter of InstallCrashReport: logs once, then lets the crash go on.
+LONG WINAPI OnCrash(PEXCEPTION_POINTERS info) {
+  if (!g_crash_logged.exchange(true)) {
+    const EXCEPTION_RECORD& record = *info->ExceptionRecord;
+    const CONTEXT& ctx = *info->ContextRecord;
+    uintptr_t frames[16] = {};
+    UnwindSafe(ctx, frames, 16);
+    std::string chain;
+    for (uintptr_t frame : frames) {
+      if (!frame) break;
+      chain += (chain.empty() ? "" : " <- ") + FrameName(frame);
+    }
+    std::string fault;
+    if (record.ExceptionCode == EXCEPTION_ACCESS_VIOLATION && record.NumberParameters >= 2) {
+      const uint64_t address = record.ExceptionInformation[1];
+      const char* kind = record.ExceptionInformation[0] == 1 ? "write" : "read";
+      fault = address >= g_membase && address < g_membase + 0x100000000ull
+                  ? fmt::format(", {} of guest {:08X}", kind, uint32_t(address - g_membase))
+                  : fmt::format(", {} of host {:X}", kind, address);
+    }
+    REXLOG_ERROR("Crash: exception {:08X}{} on thread {}; call chain: {}", record.ExceptionCode,
+                 fault, GetCurrentThreadId(), chain);
+    const DWORD64 regs[16] = {ctx.Rax, ctx.Rcx, ctx.Rdx, ctx.Rbx, ctx.Rsp, ctx.Rbp,
+                              ctx.Rsi, ctx.Rdi, ctx.R8,  ctx.R9,  ctx.R10, ctx.R11,
+                              ctx.R12, ctx.R13, ctx.R14, ctx.R15};
+    uint32_t guest[32] = {};
+    if (ReadGuestRegisters(regs, guest) >= 0) {
+      std::string text;
+      for (int r = 0; r < 32; ++r) text += fmt::format(" r{}={:08X}", r, guest[r]);
+      REXLOG_ERROR("Crash: guest registers{}", text);
+    }
+    rex::FlushLogging();
+  }
+  return g_previous_filter ? g_previous_filter(info) : EXCEPTION_CONTINUE_SEARCH;
 }
 
 // One frame of a sampled call chain: a guest function if the address is recompiled code (in the
@@ -419,6 +466,16 @@ void LogThreadStacks(int samples, int interval_ms) {
   (void)samples;
   (void)interval_ms;
   REXLOG_WARN("Stacks: only on Windows");
+#endif
+}
+
+void InstallCrashReport(rex::memory::Memory* memory) {
+#ifdef _WIN32
+  if (!memory || g_previous_filter) return;
+  if (!g_membase) g_membase = reinterpret_cast<uint64_t>(memory->virtual_membase());
+  g_previous_filter = SetUnhandledExceptionFilter(OnCrash);
+#else
+  (void)memory;
 #endif
 }
 

@@ -144,3 +144,13 @@ Updated at the end of every session. Only record what a build actually did.
   for every step, done ones closed with their result, the open ones as the plan; a play test
   issue for the owner; docs/roadmap.md with issue numbers, docs/README.md, docs/portal.md and
   docs/menus.md; the README's status table.
+- **Saves survive a crash in the middle of saving** (SDK fork `fix/save-commit-on-close`, found in
+  SwapForceRecomp, where a crash while saving left an empty save): the game saves by recreating its
+  package ("Skylanders - Slot 1": create, write, close within 0.1 s), and the old one now waits in
+  `<user data>/save-backup/pending/` until the new one is closed, then stays in
+  `save-backup/previous/`; a start after a crash in between puts it back. Checked on a test copy:
+  both saves log "saving ... anew" and "saved".
+- **No crash when B closes the portal menu's "real portal is active" message** (portal fork
+  1566231, found in SwapForceRecomp with the USB portal).
+- **Crash report in the log** (`src/dev/write_watch.cpp`, `InstallCrashReport`, from
+  SwapForceRecomp): a real crash logs the guest call chain and registers ("Crash: ...").
