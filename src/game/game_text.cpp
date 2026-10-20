@@ -2,8 +2,8 @@
 //
 // The file is a table of 2335 entries: a big-endian count at 0x7C, then that many pairs of
 // (CRC-32 of the key, offset), where the offset counts from the offset field itself to a
-// NUL-terminated string, UTF-8 or cp1252 (the file mixes both: "DÃ¼stergruft" next to
-// "Spionageausrüstung"). The keys are the game's own names ("Anvil" for Anvil Rain,
+// NUL-terminated string, UTF-8 or cp1252 (the file mixes both: "D\xC3\xBCstergruft" next to
+// "Spionageausr\xFCstung"). The keys are the game's own names ("Anvil" for Anvil Rain,
 // "GriffinUp09" for an upgrade, "propeller_hat" for a hat); the file also lists them as plain
 // strings, which is how they were found. Worked out from the file (2026-10-20): the German and
 // English tables give the same keys, e.g. "Anvil" = "Ambossregen" / "Anvil Rain".
