@@ -5,6 +5,8 @@
 
 #include <rex/cvar.h>
 
+#include "portal_rex/achievements_ui.h"
+
 namespace ssarecomp {
 namespace {
 
@@ -196,6 +198,7 @@ SettingsPage GamePage() {
                            "Skips the movie at the start of a new game (Eon, about a minute).",
                            "\xC3\x9C" "berspringt den Film beim Start eines neuen Spiels (Eon, etwa "
                            "eine Minute)."});
+  page.settings.push_back(skylanders::AchievementsSetting());
   return page;
 }
 
