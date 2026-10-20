@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
 Runs one of the analysis scripts in this folder on a RenderDoc capture, headless, through the
 portable RenderDoc in logs\toolchain (see docs/development.md for the download). qrenderdoc owns its
@@ -15,7 +15,7 @@ command line, so the capture, the output file and the script arguments go in env
 #>
 param(
     [Parameter(Mandatory = $true, Position = 0)]
-    [ValidateSet("list", "srvs", "dump", "inspect", "timings", "overhead", "consts", "cbuf")]
+    [ValidateSet("list", "srvs", "dump", "inspect", "timings", "overhead", "consts", "cbuf", "vsout")]
     [string]$Script,
     [Parameter(Mandatory = $true, Position = 1)] [string]$Capture,
     [Parameter(Mandatory = $true, Position = 2)] [string]$Out,

@@ -154,3 +154,8 @@ Updated at the end of every session. Only record what a build actually did.
   1566231, found in SwapForceRecomp with the USB portal).
 - **Crash report in the log** (`src/dev/write_watch.cpp`, `InstallCrashReport`, from
   SwapForceRecomp): a real crash logs the guest call chain and registers ("Crash: ...").
+- **SDK: vertex data the CPU rewrites in place is uploaded again** (fork `fix/vertex-buffer-cpu-writes`,
+  found in SwapForceRecomp, where the second logo movie drew with the first one's texture
+  coordinates), and **a rebuilt GPU plugin is copied next to the exe** without a relink (fork
+  `fix/stage-gpu-plugin`). Checked: boot with the logo movies, no errors. With the logos not skipped the XPEC logo shows as a small box in the middle of the screen; whether that is the movie's own framing is not checked yet. New RenderDoc script
+  `tools/renderdoc/vsout.py` (vertex shader outputs per vertex).
