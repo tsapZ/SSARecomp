@@ -10,8 +10,9 @@ Updated at the end of every session. Only record what a build actually did.
 | Game data | disc extracted into `rom/` (1,142 files), `default.xex` hash pinned |
 | Codegen | works: 323 files, no analysis errors, no `config/default.toml` entries needed so far |
 | Boot | ✅ title screen, main menu, save slots, new game, intro movies |
-| In-game | ✅ Chapter 1 (Shattered Island): the opening cutscenes play through with their voices, then the player has control |
-| Portal | ✅ emulated portal: the game resets, activates and polls it, reads a whole figure and shows its portal card ("L-Spyro") |
+| In-game | ✅ Chapter 1 (Shattered Island): the opening cutscenes play through with their voices, then the player has control: walking, camera, attacks, mission messages; 30 FPS like the console |
+| Portal | ✅ emulated portal: figures are read, shown with their portal card and swapped during play (Spyro for Eruptor); the game writes their progress back to the figure file |
+| Portal menu | ✅ opens with Guide (also on the game's "place a Skylander" screen), lists this game's figures by element, places one; German with the game |
 | SDK | our fork `tsapZ/rexglue-sdk`, branch `ssarecomp`: the rexglue-sdk commit SwapForceRecomp uses plus two fixes, each also on its own branch (`fix/ring-buffer-reinit`, `fix/xma-stream-end`) |
 
 ## 2026-10-20: session log
@@ -62,3 +63,11 @@ Updated at the end of every session. Only record what a build actually did.
 - **Language: `auto` is the new default**, the Windows display language when it is one of the
   five (else English). German checked in game: menus ("SPIEL WÄHLEN", "Skylands-Abenteuer"),
   subtitles and voices, and the voiced lines play through. The installer offers all five.
+- **Portal menu** (portal fork): opens with Guide on the game's "Bitte setze einen Skylander auf
+  das Portal of Power" screen, shows the "Spyro's Adventure" figures by element, and placing
+  Spyro through it gets the game's portal card and Hugo's line for Spyro by name. The menus took
+  German only from `language = "german"`; they now follow the language the game runs in
+  (`user_language`), so "auto" works (portal fork 5a7188c, also in SwapForceRecomp).
+- **Playing:** after skipping the opening, Spyro walks, the camera follows, fire breath and the
+  mission message ("Rette die Dorfbewohner") work, 30 guest FPS. Swapping Spyro for Eruptor on
+  the emulated portal mid-level brings Eruptor in with his card and HUD.

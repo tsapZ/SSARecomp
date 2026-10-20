@@ -14,7 +14,7 @@ See [docs/STATUS.md](docs/STATUS.md) and [docs/roadmap.md](docs/roadmap.md).
 | Build | ✅ codegen and build work |
 | Boot | ✅ title screen, main menu, save slots |
 | In-game | ✅ first level: cutscenes with voices, then gameplay |
-| Portal | ✅ emulated portal: figures are read and shown |
+| Portal | ✅ emulated portal and portal menu: figures placed, shown and swapped during play |
 
 ## Building
 

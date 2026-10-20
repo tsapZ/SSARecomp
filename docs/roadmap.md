@@ -6,7 +6,7 @@ Spyro's Adventure Recompiled, the first Skylanders game, built the same way as S
 |---|---|---|
 | 0 Repository and scaffold | ✅ | scaffold from SwapForceRecomp, disc extracted, xex pinned |
 | 1 Recompile and boot | ✅ | codegen, boot to the main menu (SDK ring buffer fix), the first level's cutscenes with voices (SDK XMA fix) |
-| 1.1 Portal | 🟡 in progress | emulated portal ✅ (figures read, portal card shown); the portal menu in this game, playing a level with figures swapped |
+| 1.1 Portal | ✅ | emulated portal, portal menu (Guide), figures swapped during play |
 | 2 In-game | ⬜ | the first levels playable, saves, figures |
 | 3 Polish | ⬜ | high frame rate, resolution, ultrawide, settings |
 
@@ -14,7 +14,7 @@ Spyro's Adventure Recompiled, the first Skylanders game, built the same way as S
 
 | When | What | Who |
 |---|---|---|
-| **Now** | The portal menu in this game; playing the first level, swapping figures | me |
-| Next | This game's own pictures and names for the portal menu cards | me |
+| **Now** | Playing further (levels, saves, the hub); what still differs from the console | me |
+| Next | This game's own pictures and names for the portal menu cards (`.lxb` files); opening the menu by itself at the game's portal prompt | me |
 | Later | This game's own pictures and texts for the menus (other file formats than Swap Force) | me |
 | After this | Giants, then the Skylanders hub | both |
