@@ -11,7 +11,7 @@ See [docs/STATUS.md](docs/STATUS.md) and [docs/roadmap.md](docs/roadmap.md).
 
 | Area | State |
 |---|---|
-| Build | ⬜ codegen not run yet |
+| Build | ✅ codegen and build work |
 | Boot | ⬜ |
 | Portal | ⬜ (the portal code is in, not tried with this game) |
 
