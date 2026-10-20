@@ -99,5 +99,10 @@ Updated at the end of every session. Only record what a build actually did.
   upgrade symbols (`upgradeNNN`), level pictures and the collection frames, not used yet. Magic
   items: Ghost Swords, Healing Elixir, Sky-Iron Shield and Winged Boots have pictures of their own
   (its Battle Mode power-ups), Anvil Rain uses the Anvil Hat's anvil; Hidden Treasure, Time
-  Twister, Sparx and the adventure packs keep the menu's symbol. Names are still the catalog's
-  English ones (the game's own names are in `text\<lang>`, not read yet).
+  Twister, Sparx and the adventure packs keep the menu's symbol.
+- **The game's own names for magic items and adventure packs** (src/game/game_text.cpp):
+  `text\<lang>\global.lxb` is a table of 2335 texts keyed by the CRC-32 of the game's key
+  ("Anvil" = "Ambossregen", "Hourglass" = "Zeitwender", "Level_036" = "Düstergruft"), strings
+  UTF-8 or cp1252 mixed. The menu shows them in the game's language. The same table has every
+  upgrade's name and description (`GriffinUp09` "Mehr Bumm!") and the hats' names and bonuses
+  (`propeller_hat`); the hats' numbers in the figure data are not mapped yet, so neither is used.
