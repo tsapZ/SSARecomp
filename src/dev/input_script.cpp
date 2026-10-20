@@ -465,8 +465,9 @@ class ScriptInputDriver final : public rex::input::InputDriver {
                                   (info.protect & rex::memory::kMemoryProtectRead);
             const auto size = std::streamsize(
                 std::min<uint64_t>(0x1000, uint64_t(e.words[0]) + e.words[1] - page));
-            file.write(readable ? memory->TranslateVirtual<const char*>(uint32_t(page)) : zeros.data(),
-                       size);
+            file.write(
+                readable ? memory->TranslateVirtual<const char*>(uint32_t(page)) : zeros.data(),
+                size);
           }
           REXLOG_INFO("Input script: saved {:08X}+{:X} to {}{}", e.words[0], e.words[1], e.text,
                       file ? "" : " (failed)");

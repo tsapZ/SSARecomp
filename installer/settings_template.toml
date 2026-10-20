@@ -13,6 +13,7 @@ portal_figures_dir = ""                   # empty = Documents\Skylanders\Figures
 ["Graphics"]
 resolution = "__RESOLUTION__"             # startup window size
 resolution_scale = __RESOLUTION_SCALE__   # 1-8 supersample multiplier, 1 = off
+frame_rate_limit = 0                      # frame rate: 0 = 30 FPS as on the console; 60, 144, 200, ...
 gpu_allow_invalid_fetch_constants = true  # works around a GPU quirk, on by default
 render_target_path_d3d12 = "rtv"           # fast render target emulation; "rov" is bit-exact but much slower
 # vulkan_device = -1                      # GPU index for multi-GPU systems, -1 = auto-pick

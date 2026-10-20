@@ -40,9 +40,10 @@ What we know about the game and the dump this project targets, and what still ha
   (`sub_822A8ED8`, swap word in r3, flipped by the vblank handler `sub_822A8DB8` from the
   interrupt callback at 0x822A4000) already gets interval 1, and `--frame_rate_limit=60` (which
   raises the SDK's vblank and VdSwap pacing to 60 Hz) still measures 30 guest FPS: the render
-  thread spends the frame in the D3D fence wait (`sub_822A05F0` from `sub_822A95C0`), so the
-  second vblank per frame is waited for elsewhere in the D3D / GPU path. Not found yet; like
-  Giants, the game logic may also assume 1/30 s per frame. Phase 3.
+  thread spends the frame in the D3D fence wait (`sub_822A05F0` from `sub_822A95C0`). Measured
+  later (2026-10-20): a frame takes about 19 ms on the test PC, so at 60 Hz every frame misses one
+  vblank and waits for the next; with a higher limit (144, 240) it runs at 50-91 FPS in Chapter 1,
+  and the game's speed stays the same (docs/STATUS.md). There is no second wait to remove.
 - **Its portal prompt** is one fixed object (`0x82C569B0`, see src/game/portal_prompt_watch.cpp),
   not Swap Force's CMagicMoment.
 - **Game hooks:** the intro skip (BinkOpen, 0x829EC1CC) so far. Every hook of SwapForceRecomp is at an address in its own executable;

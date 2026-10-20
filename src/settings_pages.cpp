@@ -117,6 +117,25 @@ SettingsPage GraphicsPage() {
 
 SettingsPage FrameRatePage() {
   SettingsPage page{"Frame rate", "Bildrate", {}};
+  // The game swaps with presentation interval 1; its 30 FPS come from the emulated vblank, which
+  // the SDK runs at 30 Hz without a limit (and a frame that misses a 60 Hz vblank waits for the
+  // next). With a higher limit it runs as fast as the PC allows: 50-91 FPS in Chapter 1 here
+  // (1080p, scale 2), the opening cutscenes take the same time (72.6 s at 30 FPS, 71.5 s), and
+  // walking covers the same ground. docs/STATUS.md, 2026-10-20.
+  page.settings.push_back(
+      {"frame_rate_limit", "Frame rate", "Bildrate",
+       "The game was made for 30 FPS and keeps its normal speed with more. Best set to your "
+       "screen's refresh rate. If your PC can't reach it, the game simply runs as fast as it can.",
+       "Das Spiel ist f\xC3\xBCr 30 FPS gemacht und l\xC3\xA4uft mit mehr normal schnell. Am "
+       "besten die Bildwiederholrate deines Bildschirms. Schafft dein PC das nicht, l\xC3\xA4uft "
+       "das Spiel einfach so schnell, wie er kann.",
+       {{"0", "30 (as on the console)", "30 (wie auf der Konsole)"},
+        {"60", "60", "60"},
+        {"120", "120", "120"},
+        {"144", "144", "144"},
+        {"165", "165", "165"},
+        {"200", "200", "200"},
+        {"240", "240", "240"}}});
   page.settings.push_back({"vsync", "VSync", "VSync",
                            "Waits for the screen before showing a frame, so the picture never "
                            "tears in two when the camera moves. Off reacts a tiny bit faster but "

@@ -11,6 +11,7 @@ Updated at the end of every session. Only record what a build actually did.
 | Codegen | works: 323 files, no analysis errors, no `config/default.toml` entries needed so far |
 | Boot | ✅ title screen, main menu, save slots, new game, intro movies |
 | In-game | ✅ Chapter 1 (Shattered Island): the opening cutscenes play through with their voices, then the player has control: walking, camera, attacks, mission messages; 30 FPS like the console |
+| Frame rate | 30 FPS by default as on the console; `frame_rate_limit` (F4 > Bildrate) lets it run as fast as the PC allows (50-91 FPS in Chapter 1 at 1080p, scale 2); cutscenes and walking keep their speed |
 | Portal | ✅ emulated portal: figures are read, shown with their portal card and swapped during play (Spyro for Eruptor); the game writes their progress back to the figure file |
 | Portal menu | ✅ opens by itself on the game's "place a Skylander" screen (or with Guide), lists this game's figures by element with the game's portraits, places one; German with the game |
 | SDK | our fork `tsapZ/rexglue-sdk`, branch `skylanders` (shared with SwapForceRecomp and later games): the rexglue-sdk commit SwapForceRecomp uses plus two fixes, each also on its own branch (`fix/ring-buffer-reinit`, `fix/xma-stream-end`) |
@@ -106,6 +107,14 @@ Updated at the end of every session. Only record what a build actually did.
   UTF-8 or cp1252 mixed. The menu shows them in the game's language. The same table has every
   upgrade's name and description (`GriffinUp09` "Mehr Bumm!") and the hats' names and bonuses
   (`propeller_hat`); the hats' numbers in the figure data are not mapped yet, so neither is used.
+- **Frame rate above 30.** The earlier finding "the swap word already has interval 1, and
+  `frame_rate_limit=60` still gives 30" held for 60: a frame takes about 19 ms here, so with a
+  60 Hz vblank each frame waits for the second one. With a higher limit the vblank comes more
+  often and the game runs as fast as it can: 72 FPS on the title screen with 144, 52 at the
+  portal prompt, 50-91 in Chapter 1 with 240 (1080p, scale 2). Game speed: the opening cutscenes
+  run through in 72.6 s at 30 FPS and 71.5 s uncapped (the second is loading), and 2.5 s of walking
+  ends at the same spot. The setting is `frame_rate_limit` on F4 > Bildrate, 0 (30 FPS) by
+  default, as in GiantsRecomp.
 - **Hats in the details view** (src/game/hats.cpp): the hat number a figure stores is the game's
   kTfbSpyroTag_Hat_* (Swap Force's executable has the enum, 1 Army ... 45 BirthdayCake), and this
   game names its hat data after it: the picture `<name>_lg` (all 45) and the text `<name>_hat`
