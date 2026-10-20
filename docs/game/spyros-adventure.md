@@ -31,5 +31,9 @@ What we know about the game and the dump this project targets, and what still ha
 - **It sets up the GPU ring buffer three times** (`VdInitializeRingBuffer`, when it recreates its
   device); Swap Force does once. The SDK needed a fix for that (fork branch
   `fix/ring-buffer-reinit`, docs/STATUS.md 2026-10-20).
+- **Its Wwise audio waits for every voice to play to its end**, which needed an SDK fix for the
+  last frame of XMA streams (fork branch `fix/xma-stream-end`).
+- **The portal API is resolved at run time** (`XexGetProcedureAddress`, XAM ordinals 0x4A1 and
+  0x4A2), not imported; the protocol is the same as in Swap Force.
 - **No game hooks yet.** Every hook of SwapForceRecomp is at an address in its own executable;
   none of them apply here.

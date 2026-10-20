@@ -1,7 +1,7 @@
 [submodule "thirdparty/rexglue-sdk"]
 	path = thirdparty/rexglue-sdk
 	url = https://github.com/tsapZ/rexglue-sdk.git
-	branch = fix/ring-buffer-reinit
+	branch = ssarecomp
 [submodule "thirdparty/skylanders-portal"]
 	path = thirdparty/skylanders-portal
 	url = https://github.com/tsapZ/skylanders-portal.git
