@@ -104,7 +104,9 @@ class SsarecompApp : public rex::ReXApp {
   }
 
   void OnPostSetup() override {
-    skylanders::InstallPortal(user_data_root() / "figures");
+    // One figure folder for every game (Documents\Skylanders\Figures), like the real figures next
+    // to the portal; the first start copies this game's old per-game folder into it.
+    skylanders::InstallPortal(skylanders::SharedFiguresDir(user_data_root()));
     ssarecomp::InstallInputScript(
         runtime()->input_system(), runtime()->memory(),
         [this]() -> uint64_t {

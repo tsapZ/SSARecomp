@@ -106,3 +106,8 @@ Updated at the end of every session. Only record what a build actually did.
   UTF-8 or cp1252 mixed. The menu shows them in the game's language. The same table has every
   upgrade's name and description (`GriffinUp09` "Mehr Bumm!") and the hats' names and bonuses
   (`propeller_hat`); the hats' numbers in the figure data are not mapped yet, so neither is used.
+- **One figure folder for every game** (the owner's call: like the real figures next to the
+  portal): `Documents\Skylanders\Figures` (portal fork `SharedFiguresDir`), shared with
+  SwapForceRecomp and later games. The first start copies the old `Documents\ssarecompigures`
+  into it and leaves a note there. Verified on a test folder (10 files copied, the recent list
+  with them).

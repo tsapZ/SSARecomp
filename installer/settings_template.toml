@@ -3,7 +3,7 @@
 
 ["Portal"]
 portal_mode = "__PORTAL_MODE__"           # "software", "usb" (real portal), or "none"
-portal_figures_dir = ""                   # empty = "figures" next to your saves
+portal_figures_dir = ""                   # empty = Documents\Skylanders\Figures, shared by every game
 # portal_figure = "C:\\path\\to\\Skylander.dump"  # loads this dump onto the portal at startup
 # Portal menu: opens by itself when the game asks for a Skylander, or with the Guide button,
 # Back+Start, holding Back, or F6 on the keyboard.
