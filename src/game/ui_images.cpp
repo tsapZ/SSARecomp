@@ -1,4 +1,5 @@
-// The game's own pictures for the portal menu, from the disc's uigameimage.str.
+// The game's own pictures for the portal menu, from the disc's uigameimage.str: the HUD
+// portraits, the element symbols and the pictures of some magic items.
 //
 // The file is "strm", its size, two words of 1 and the record count (737), then one zlib stream.
 // Unpacked it holds one record per UI picture, each an "APKF" package with a TEX, an IMG and a
@@ -113,8 +114,27 @@ const char* PortraitName(uint16_t id) {
   }
 }
 
+// Magic items with a picture of their own in the archive (its Battle Mode power-up pictures),
+// by toy id; checked by eye. Hidden Treasure, Time Twister, Sparx Dragonfly and the adventure
+// packs have none found yet.
+const char* ItemPictureName(uint16_t id) {
+  switch (id) {
+    case 200: return "anvil_lg";        // Anvil Rain: the Anvil Hat's picture, the same anvil
+    case 202: return "potion";          // Healing Elixir
+    case 203: return "crossed_swords";  // Ghost Swords
+    case 205: return "shield";          // Sky-Iron Shield
+    case 206: return "speed_boots";     // Winged Boots
+    default: return nullptr;
+  }
+}
+
 bool Wanted(std::string_view name) {
-  return (name.starts_with("toy_") && name.ends_with("_hud")) || name.starts_with("ico_element_");
+  if (name.starts_with("toy_") && name.ends_with("_hud")) return true;
+  if (name.starts_with("ico_element_")) return true;
+  for (uint16_t id = 200; id < 208; ++id) {
+    if (const char* item = ItemPictureName(id); item && name == item) return true;
+  }
+  return false;
 }
 
 // Indexes one unpacked archive; keeps the texels of the pictures the menu uses.
@@ -217,6 +237,7 @@ std::shared_ptr<const skylanders::FigureImage> Picture(const std::string& name) 
 void InstallUiImages(const std::filesystem::path& archive) {
   std::thread(Load, archive).detach();
   skylanders::SetFigureImageProvider([](uint16_t id, uint16_t /*variant*/) {
+    if (const char* item = ItemPictureName(id)) return Picture(item);
     const char* name = PortraitName(id);
     return name ? Picture(std::string("toy_") + name + "_hud") : nullptr;
   });

@@ -95,5 +95,9 @@ Updated at the end of every session. Only record what a build actually did.
   128x128 tiled DXT5). The menu now shows each Skylander's HUD portrait (`toy_<name>_hud`, the
   game's internal names, e.g. `airdragon` for Whirlwind; all 37 checked by eye) on its card and in
   the details panel, and the game's element symbols (`ico_element_<element>_l`). The archive also
-  has the round character icons, the hats (`<hat>_lg`), the collection frames and magic item
-  pictures, not used yet.
+  has the round character icons, the hats (`<hat>_lg`), larger character pictures (`<name>_vs`),
+  upgrade symbols (`upgradeNNN`), level pictures and the collection frames, not used yet. Magic
+  items: Ghost Swords, Healing Elixir, Sky-Iron Shield and Winged Boots have pictures of their own
+  (its Battle Mode power-ups), Anvil Rain uses the Anvil Hat's anvil; Hidden Treasure, Time
+  Twister, Sparx and the adventure packs keep the menu's symbol. Names are still the catalog's
+  English ones (the game's own names are in `text\<lang>`, not read yet).
