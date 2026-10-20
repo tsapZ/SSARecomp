@@ -23,6 +23,7 @@
 
 #include "dev/input_script.h"
 #include "game/portal_prompt_watch.h"
+#include "game/ui_images.h"
 #include "dev/gpu_diagnostics.h"
 #include "localization.h"
 #include "portal_rex/portal_menu.h"
@@ -121,6 +122,8 @@ class SsarecompApp : public rex::ReXApp {
     ssarecomp::StartPortalPromptWatch(runtime()->memory());
     // Items go on and off the portal only once the player's Skylander is back in the game.
     skylanders::SetGameBusyProvider([] { return ssarecomp::PortalPromptActive(); });
+    // Pictures for the portal menu from the game's own UI archive: HUD portraits, element symbols.
+    ssarecomp::InstallUiImages(game_data_root_ / "uigameimage.str");
     // Default to 16x anisotropic filtering (the SDK defaults to 4x): ground and floor textures seen
     // at a shallow angle stay sharp, for a negligible cost on PC GPUs. Only when the user hasn't set
     // it themselves.

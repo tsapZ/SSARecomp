@@ -43,6 +43,8 @@ set(SSARECOMP_SOURCES
     src/main.cpp
     src/game/kernel_stubs.cpp
     src/game/portal_prompt_watch.cpp
+    src/game/ui_images.cpp
+    src/game/xenos_dxt.cpp
     src/localization.cpp
     src/settings_pages.cpp
     src/dev/gpu_diagnostics.cpp
@@ -63,6 +65,8 @@ if(REXSDK_DIR)
     # An installed SDK ships imgui's headers next to its own; an in-tree build must point at them.
     target_include_directories(ssarecompiled PRIVATE "${REXSDK_DIR}/thirdparty/imgui")
 endif()
+# stb_image's zlib decoder for the game's UI picture archive (src/game/ui_images.cpp).
+target_include_directories(ssarecompiled PRIVATE "${REXSDK_DIR}/thirdparty/stb")
 
 # Seed a fresh build dir with the settings-file template. Never overwrites an existing one: the
 # in-game F4 Settings overlay saves the user's own changes to this exact file.

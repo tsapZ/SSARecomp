@@ -12,7 +12,7 @@ Updated at the end of every session. Only record what a build actually did.
 | Boot | ✅ title screen, main menu, save slots, new game, intro movies |
 | In-game | ✅ Chapter 1 (Shattered Island): the opening cutscenes play through with their voices, then the player has control: walking, camera, attacks, mission messages; 30 FPS like the console |
 | Portal | ✅ emulated portal: figures are read, shown with their portal card and swapped during play (Spyro for Eruptor); the game writes their progress back to the figure file |
-| Portal menu | ✅ opens by itself on the game's "place a Skylander" screen (or with Guide), lists this game's figures by element, places one; German with the game |
+| Portal menu | ✅ opens by itself on the game's "place a Skylander" screen (or with Guide), lists this game's figures by element with the game's portraits, places one; German with the game |
 | SDK | our fork `tsapZ/rexglue-sdk`, branch `ssarecomp`: the rexglue-sdk commit SwapForceRecomp uses plus two fixes, each also on its own branch (`fix/ring-buffer-reinit`, `fix/xma-stream-end`) |
 
 ## 2026-10-20: session log
@@ -90,3 +90,10 @@ Updated at the end of every session. Only record what a build actually did.
   watch took it for "player 2, place a Skylander". Now it opens the portal check, which lists
   the figures; marking Eruptor and "Fortfahren" took him off and the game went on with Spyro.
   Not checked: whether "too many magic items" uses the same value.
+- **The game's own pictures in the portal menu** (src/game/ui_images.cpp): `uigameimage.str` is a
+  zlib-packed archive of 737 UI pictures ("APKF" packages, each a Xenos texture: fetch constant,
+  128x128 tiled DXT5). The menu now shows each Skylander's HUD portrait (`toy_<name>_hud`, the
+  game's internal names, e.g. `airdragon` for Whirlwind; all 37 checked by eye) on its card and in
+  the details panel, and the game's element symbols (`ico_element_<element>_l`). The archive also
+  has the round character icons, the hats (`<hat>_lg`), the collection frames and magic item
+  pictures, not used yet.
