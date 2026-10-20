@@ -106,6 +106,13 @@ Updated at the end of every session. Only record what a build actually did.
   UTF-8 or cp1252 mixed. The menu shows them in the game's language. The same table has every
   upgrade's name and description (`GriffinUp09` "Mehr Bumm!") and the hats' names and bonuses
   (`propeller_hat`); the hats' numbers in the figure data are not mapped yet, so neither is used.
+- **Hats in the details view** (src/game/hats.cpp): the hat number a figure stores is the game's
+  kTfbSpyroTag_Hat_* (Swap Force's executable has the enum, 1 Army ... 45 BirthdayCake), and this
+  game names its hat data after it: the picture `<name>_lg` (all 45) and the text `<name>_hat`
+  (35 of them; "Kampfhut", then one line per bonus with the game's symbol, shown as the symbol's
+  picture and the number, as the game does). Found by hashing the enum's names; GiantsRecomp
+  uses the same numbering for its own hat data. Checked with a test copy of Chop Chop given hat
+  11: "Zylinder", the top hat, +5 critical hit, +5 armor.
 - **One figure folder for every game** (the owner's call: like the real figures next to the
   portal): `Documents\Skylanders\Figures` (portal fork `SharedFiguresDir`), shared with
   SwapForceRecomp and later games. The first start copies the old `Documents\ssarecomp\figures`

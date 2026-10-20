@@ -43,6 +43,7 @@ set(SSARECOMP_SOURCES
     src/main.cpp
     src/game/kernel_stubs.cpp
     src/game/game_text.cpp
+    src/game/hats.cpp
     src/game/portal_prompt_watch.cpp
     src/game/ui_images.cpp
     src/game/xenos_dxt.cpp

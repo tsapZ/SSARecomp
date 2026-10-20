@@ -29,6 +29,7 @@
 
 #include <rex/logging.h>
 
+#include "hats.h"
 #include "portal_rex/portal_menu.h"
 #include "xenos_dxt.h"
 
@@ -128,9 +129,19 @@ const char* ItemPictureName(uint16_t id) {
   }
 }
 
+// The pictures of the hat bonus symbols (hats.cpp).
+constexpr const char* kBonusPictures[] = {"elementalstrength", "armor", "criticalhit", "speed"};
+
 bool Wanted(std::string_view name) {
   if (name.starts_with("toy_") && name.ends_with("_hud")) return true;
   if (name.starts_with("ico_element_")) return true;
+  // The hats' pictures, "<hat>_lg" (hats.cpp).
+  for (uint16_t hat = 1; const char* base = HatBaseName(hat); ++hat) {
+    if (name == std::string(base) + "_lg") return true;
+  }
+  for (const char* bonus : kBonusPictures) {
+    if (name == bonus) return true;
+  }
   for (uint16_t id = 200; id < 208; ++id) {
     if (const char* item = ItemPictureName(id); item && name == item) return true;
   }
@@ -247,6 +258,10 @@ void InstallUiImages(const std::filesystem::path& archive) {
     if (key.starts_with(kElement)) {
       return Picture("ico_element_" + key.substr(kElement.size()) + "_l");
     }
+    // "hat:army" -> army_lg; "stat:armor" -> armor (hats.cpp).
+    constexpr std::string_view kHat = "hat:", kStat = "stat:";
+    if (key.starts_with(kHat)) return Picture(key.substr(kHat.size()) + "_lg");
+    if (key.starts_with(kStat)) return Picture(key.substr(kStat.size()));
     return std::shared_ptr<const skylanders::FigureImage>();
   });
 }
