@@ -90,7 +90,19 @@ Updated at the end of every session. Only record what a build actually did.
   also has mode 2; +52 tells it apart (0 = asking, 1 = too many Skylanders). Before this the
   watch took it for "player 2, place a Skylander". Now it opens the portal check, which lists
   the figures; marking Eruptor and "Fortfahren" took him off and the game went on with Spyro.
-  Not checked: whether "too many magic items" uses the same value.
+- **"Zu viele Spielzeuge auf dem Portal of Power" is no longer taken for player 2's prompt.**
+  With Anvil Rain and Darklight Crypt on the portal the game showed that screen with mode 2 and
+  +52 = 0, as for its request, and with player 2's bytes empty, so the watch logged "the game asks
+  player 2" and would have opened the menu for player 2. The selector has more cases than its
+  fields show (it checks the extra toy at +228 against the portal's slots first), so the watch
+  now reads the text the game shows instead: the HUD (static at `0x82C56AF8`, `sub_82204058`)
+  keeps its portal message at +3260, and the text element at +376 of it holds the text's hash at
+  +432 (`sub_82695070` -> `sub_8267B808`). The selector loads seven such texts: the request for
+  player 1 and for player 2, "zu viele Skylander", and four "too many" texts for toys (different
+  kinds), magic items, pets and location elements. Measured with each case on screen: the
+  request for player 1 opens the menu for player 1, the toys screen opens the portal check for
+  items (Spyro, Ambossregen, Düstergruft listed), player 2's request (pad 2 pressed A to join)
+  opens it for player 2, and "zu viele Skylander" still opens the check for Skylanders.
 - **The game's own pictures in the portal menu** (src/game/ui_images.cpp): `uigameimage.str` is a
   zlib-packed archive of 737 UI pictures ("APKF" packages, each a Xenos texture: fetch constant,
   128x128 tiled DXT5). The menu now shows each Skylander's HUD portrait (`toy_<name>_hud`, the

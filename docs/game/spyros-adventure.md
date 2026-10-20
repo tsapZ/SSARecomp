@@ -45,6 +45,8 @@ What we know about the game and the dump this project targets, and what still ha
   vblank and waits for the next; with a higher limit (144, 240) it runs at 50-91 FPS in Chapter 1,
   and the game's speed stays the same (docs/STATUS.md). There is no second wait to remove.
 - **Its portal prompt** is one fixed object (`0x82C569B0`, see src/game/portal_prompt_watch.cpp),
-  not Swap Force's CMagicMoment.
+  not Swap Force's CMagicMoment. Which screen is up is read from the shown text's hash (HUD
+  `0x82C56AF8` +3260 -> +376 -> +432), because the object's fields look the same for the request
+  and for "too many toys".
 - **Game hooks:** the intro skip (BinkOpen, 0x829EC1CC) so far. Every hook of SwapForceRecomp is at an address in its own executable;
   none of them apply here.
