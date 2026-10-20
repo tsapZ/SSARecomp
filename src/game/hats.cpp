@@ -7,10 +7,13 @@
 // "<name>_hat" in global.lxb ("tophat" without the suffix), e.g. army_hat = "&COLOR(255,255,0)
 // Kampfhut &COLOR(255,255,255)\n +15 $ICON_HAT_BUFF_ELEMENT$". The text is the hat's name, then
 // one line per bonus with the game's symbol for it instead of a word: the symbols are the
-// pictures "elementalstrength", "armor", "criticalhit" and "speed" (art keys "stat:<picture>"),
-// shown with the number as the game does. Found by hashing the enum's names (2026-10-20): 35 of
-// the 45 hats have a text; the rest (Bonehead, Crazy Hair, Devil Horns, Eyeball, 40-45) keep their
-// picture and the menu's "hat number".
+// pictures "elementalstrength", "armor", "criticalhit" and "speed" (art keys "stat:<picture>").
+// The menu shows the symbol, the number and the stat's name, which the hat text leaves out: the
+// labels of the game's stats screen, "StatsElemetal" (sic), "StatsArmor", "StatsCT" and
+// "StatsSpeed" = "Elementar: ", "R\xC3\xBCstung: ", "Kritischer Treffer: ", "Tempo: " (found by
+// hashing the table's key strings against the label texts, 2026-10-21). Found by hashing the
+// enum's names (2026-10-20): 35 of the 45 hats have a text; the rest (Bonehead, Crazy Hair, Devil
+// Horns, Eyeball, 40-45) keep their picture and the menu's "hat number".
 
 #include "hats.h"
 
@@ -43,13 +46,27 @@ constexpr const char* kHats[] = {
     "flower_pot",  "balloon", "birthday_cake",
 };
 
-// The bonus symbols in the hat texts and the pictures that show them.
-constexpr std::pair<std::string_view, const char*> kBonuses[] = {
-    {"$ICON_HAT_BUFF_ELEMENT$", "elementalstrength"},
-    {"$ICON_HAT_BUFF_ARMOR$", "armor"},
-    {"$ICON_HAT_BUFF_CRITICAL$", "criticalhit"},
-    {"$ICON_HAT_BUFF_SPEED$", "speed"},
+// The bonus symbols in the hat texts, the pictures that show them and the stats screen's label.
+struct Bonus {
+  std::string_view symbol;
+  const char* picture;
+  const char* label;
 };
+constexpr Bonus kBonuses[] = {
+    {"$ICON_HAT_BUFF_ELEMENT$", "elementalstrength", "StatsElemetal"},
+    {"$ICON_HAT_BUFF_ARMOR$", "armor", "StatsArmor"},
+    {"$ICON_HAT_BUFF_CRITICAL$", "criticalhit", "StatsCT"},
+    {"$ICON_HAT_BUFF_SPEED$", "speed", "StatsSpeed"},
+};
+
+// "Kritischer Treffer: " -> "Kritischer Treffer".
+std::string LabelName(const char* key) {
+  auto text = GameText(key);
+  if (!text) return {};
+  std::string name = *text;
+  while (!name.empty() && (name.back() == ' ' || name.back() == ':')) name.pop_back();
+  return name;
+}
 
 std::string Trim(std::string s) {
   while (!s.empty() && (s.back() == ' ' || s.back() == '\r')) s.pop_back();
@@ -96,12 +113,13 @@ std::shared_ptr<const HatInfo> Build(uint16_t hat) {
       first = false;
       continue;
     }
-    for (const auto& [symbol, picture] : kBonuses) {
-      const size_t at = line.find(symbol);
+    for (const Bonus& bonus : kBonuses) {
+      const size_t at = line.find(bonus.symbol);
       if (at == std::string::npos) continue;
       HatStat stat;
       stat.value = float(std::atoi(line.substr(0, at).c_str()));
-      stat.image = std::string("stat:") + picture;
+      stat.name = LabelName(bonus.label);
+      stat.image = std::string("stat:") + bonus.picture;
       info->stats.push_back(std::move(stat));
     }
   }

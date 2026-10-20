@@ -103,6 +103,12 @@ class SsarecompApp : public rex::ReXApp {
     // Spyro's Adventure knows only its own figures (later games' figures of the same characters
     // carry their own toy ids too).
     SetDefault("portal_menu_games", "Spyro's Adventure");
+    // Sidekicks came with Giants; this game doesn't know their toy ids (500 + their Skylander's),
+    // so the menu leaves them out (#28).
+    SetDefault("portal_menu_hidden_categories", "Sidekicks");
+    // Player 2 leaves this game's portal screen with the right stick ("RS Spiel verlassen" under
+    // the request), not with B as in Giants and Swap Force (#27).
+    SetDefault("portal_menu_leave_button", "rs");
   }
 
   void OnPostSetup() override {
