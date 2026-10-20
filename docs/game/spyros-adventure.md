@@ -43,5 +43,7 @@ What we know about the game and the dump this project targets, and what still ha
   thread spends the frame in the D3D fence wait (`sub_822A05F0` from `sub_822A95C0`), so the
   second vblank per frame is waited for elsewhere in the D3D / GPU path. Not found yet; like
   Giants, the game logic may also assume 1/30 s per frame. Phase 3.
-- **No game hooks yet.** Every hook of SwapForceRecomp is at an address in its own executable;
+- **Its portal prompt** is one fixed object (`0x82C569B0`, see src/game/portal_prompt_watch.cpp),
+  not Swap Force's CMagicMoment.
+- **Game hooks:** the intro skip (BinkOpen, 0x829EC1CC) so far. Every hook of SwapForceRecomp is at an address in its own executable;
   none of them apply here.

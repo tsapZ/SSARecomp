@@ -22,6 +22,7 @@
 #include <rex/ui/ui_event.h>
 
 #include "dev/input_script.h"
+#include "game/portal_prompt_watch.h"
 #include "dev/gpu_diagnostics.h"
 #include "localization.h"
 #include "portal_rex/portal_menu.h"
@@ -69,6 +70,7 @@ class SsarecompApp : public rex::ReXApp {
   // std::unique_ptr<rex::ui::AchievementNotificationDialog>
   // CreateAchievementNotificationDialog() override;
   void OnShutdown() override {
+    ssarecomp::StopPortalPromptWatch();
     // The menu's textures belong to the immediate drawer, which goes away right after this.
     skylanders::ShutdownPortalMenu();
     skylanders::ShutdownPlayerMenu();
@@ -115,6 +117,10 @@ class SsarecompApp : public rex::ReXApp {
     // the host's presentation rate, which is a different clock than the guest's and would have
     // reported host FPS mislabeled as "Guest".
     SetGuestFrameStats([this] { return ComputeFrameStats(); });
+    // Opens the portal menu by itself when the game shows its "place a Skylander" prompt.
+    ssarecomp::StartPortalPromptWatch(runtime()->memory());
+    // Items go on and off the portal only once the player's Skylander is back in the game.
+    skylanders::SetGameBusyProvider([] { return ssarecomp::PortalPromptActive(); });
     // Default to 16x anisotropic filtering (the SDK defaults to 4x): ground and floor textures seen
     // at a shallow angle stay sharp, for a negligible cost on PC GPUs. Only when the user hasn't set
     // it themselves.

@@ -42,6 +42,7 @@ endif()
 set(SSARECOMP_SOURCES
     src/main.cpp
     src/game/kernel_stubs.cpp
+    src/game/portal_prompt_watch.cpp
     src/localization.cpp
     src/settings_pages.cpp
     src/dev/gpu_diagnostics.cpp

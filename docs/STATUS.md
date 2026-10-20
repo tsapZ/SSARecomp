@@ -12,7 +12,7 @@ Updated at the end of every session. Only record what a build actually did.
 | Boot | ✅ title screen, main menu, save slots, new game, intro movies |
 | In-game | ✅ Chapter 1 (Shattered Island): the opening cutscenes play through with their voices, then the player has control: walking, camera, attacks, mission messages; 30 FPS like the console |
 | Portal | ✅ emulated portal: figures are read, shown with their portal card and swapped during play (Spyro for Eruptor); the game writes their progress back to the figure file |
-| Portal menu | ✅ opens with Guide (also on the game's "place a Skylander" screen), lists this game's figures by element, places one; German with the game |
+| Portal menu | ✅ opens by itself on the game's "place a Skylander" screen (or with Guide), lists this game's figures by element, places one; German with the game |
 | SDK | our fork `tsapZ/rexglue-sdk`, branch `ssarecomp`: the rexglue-sdk commit SwapForceRecomp uses plus two fixes, each also on its own branch (`fix/ring-buffer-reinit`, `fix/xma-stream-end`) |
 
 ## 2026-10-20: session log
@@ -77,3 +77,11 @@ Updated at the end of every session. Only record what a build actually did.
   (`sl_sc01.bik`, Eon, 62 s) to 1, as in Giants and Swap Force. The title screen comes after
   about 5 s instead of 40; with the opening movie skipped, a new game goes straight to the
   in-engine intro. Saves work: slot 1 lists its progress and three Skylanders.
+- **The portal menu opens by itself** at the game's "place a Skylander" prompt
+  (src/game/portal_prompt_watch.cpp). Found from the prompt text: its string table entry
+  (`0x42F96B38`, hash `0x049B83C4` for player 1, `0x9D92D27E` for player 2), a read watch on it,
+  and the code loading those hashes, `sub_827E78F0`, which picks the prompt from one object: a
+  function-local static at `0x82C569B0` (mode at +56: 2 = prompt up, 4 = a figure coming in,
+  0 = playing; player 1's and player 2's "has a Skylander" bytes at +32/+195 and +36/+194). The
+  watch polls it every 30 ms like SwapForceRecomp's magic moment watch. Verified: the menu came up
+  with the prompt, A placed Spyro from "Zuletzt", the game showed his card and Hugo's line.
