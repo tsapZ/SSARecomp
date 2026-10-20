@@ -15,6 +15,6 @@ Spyro's Adventure Recompiled, the first Skylanders game, built the same way as S
 | When | What | Who |
 |---|---|---|
 | **Now** | Playing further (levels, saves, the hub); what still differs from the console | me |
-| Next | Details view: upgrades (names and descriptions are in the text table, `<Char>Up00`-`Up10`; costs are in the game's object data, not found yet); the "too many magic items" screen | me |
+| Next | Details view: upgrades (names and descriptions are in the text table, `<Char>Up00`-`Up10`; costs not found yet: Giants' prices 500 ... 4000 are in none of this disc's data files, the unpacked global.str or the executable as a table; GiantsRecomp shows these Skylanders' upgrades with Giants' prices and pictures); the "too many magic items" screen | me |
 | Later | This game's own pictures and texts for the menus (other file formats than Swap Force) | me |
 | After this | Giants, then the Skylanders hub | both |
