@@ -35,5 +35,13 @@ What we know about the game and the dump this project targets, and what still ha
   last frame of XMA streams (fork branch `fix/xma-stream-end`).
 - **The portal API is resolved at run time** (`XexGetProcedureAddress`, XAM ordinals 0x4A1 and
   0x4A2), not imported; the protocol is the same as in Swap Force.
+- **30 FPS is not set in the swap word.** Swap Force queues its swaps with presentation
+  interval 2, which SwapForceRecomp's frame rate hook rewrites. This game's swap queue
+  (`sub_822A8ED8`, swap word in r3, flipped by the vblank handler `sub_822A8DB8` from the
+  interrupt callback at 0x822A4000) already gets interval 1, and `--frame_rate_limit=60` (which
+  raises the SDK's vblank and VdSwap pacing to 60 Hz) still measures 30 guest FPS: the render
+  thread spends the frame in the D3D fence wait (`sub_822A05F0` from `sub_822A95C0`), so the
+  second vblank per frame is waited for elsewhere in the D3D / GPU path. Not found yet; like
+  Giants, the game logic may also assume 1/30 s per frame. Phase 3.
 - **No game hooks yet.** Every hook of SwapForceRecomp is at an address in its own executable;
   none of them apply here.
