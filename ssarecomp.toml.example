@@ -26,7 +26,7 @@ anisotropic_override = 5                  # texture filtering: 5 = 16x, 3 = 4x, 
 mnk_mode = true                           # enable keyboard/mouse controller emulation
 
 ["Game"]
-# language = "english"                    # english, french, german, spanish, italian
+# language = "auto"                       # auto (Windows language), english, french, german, spanish, italian
 
 ["Runtime"]
 # user_data_root = "C:\\path\\to\\folder" # empty = Documents\ssarecomp

@@ -59,3 +59,6 @@ Updated at the end of every session. Only record what a build actually did.
 - **Fix in the SDK** (fork branch `fix/xma-stream-end`): when the input has run out, the carried
   tail becomes one final block. After it the opening plays through by itself: chapter card,
   Hugo's and Eon's lines, then gameplay with the HUD.
+- **Language: `auto` is the new default**, the Windows display language when it is one of the
+  five (else English). German checked in game: menus ("SPIEL WÄHLEN", "Skylands-Abenteuer"),
+  subtitles and voices, and the voiced lines play through. The installer offers all five.

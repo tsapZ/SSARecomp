@@ -235,10 +235,14 @@ end;
 
 function LanguageTomlValue: AnsiString;
 begin
-  if LanguageCombo.ItemIndex = 1 then
-    Result := 'german'
+  case LanguageCombo.ItemIndex of
+    1: Result := 'german';
+    2: Result := 'french';
+    3: Result := 'spanish';
+    4: Result := 'italian';
   else
     Result := 'english';
+  end;
 end;
 
 function PortalModeTomlValue: AnsiString;
@@ -395,10 +399,18 @@ begin
   LanguageCombo.Style := csDropDownList;
   LanguageCombo.Items.Add('English');
   LanguageCombo.Items.Add('Deutsch (German)');
-  if (GetUILanguage and $3FF) = $07 then
-    LanguageCombo.ItemIndex := 1
+  LanguageCombo.Items.Add('Francais (French)');
+  LanguageCombo.Items.Add('Espanol (Spanish)');
+  LanguageCombo.Items.Add('Italiano (Italian)');
+  // Preselects the Windows display language (primary language id).
+  case GetUILanguage and $3FF of
+    $07: LanguageCombo.ItemIndex := 1;
+    $0C: LanguageCombo.ItemIndex := 2;
+    $0A: LanguageCombo.ItemIndex := 3;
+    $10: LanguageCombo.ItemIndex := 4;
   else
     LanguageCombo.ItemIndex := 0;
+  end;
   LanguageCombo.Top := LanguageLabel.Top + LanguageLabel.Height + 4;
   LanguageCombo.Width := SettingsPage.SurfaceWidth;
 
