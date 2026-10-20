@@ -85,3 +85,8 @@ Updated at the end of every session. Only record what a build actually did.
   0 = playing; player 1's and player 2's "has a Skylander" bytes at +32/+195 and +36/+194). The
   watch polls it every 30 ms like SwapForceRecomp's magic moment watch. Verified: the menu came up
   with the prompt, A placed Spyro from "Zuletzt", the game showed his card and Hugo's line.
+- **Portal check on "Es befinden sich zu viele Skylander auf dem Portal of Power":** that screen
+  also has mode 2; +52 tells it apart (0 = asking, 1 = too many Skylanders). Before this the
+  watch took it for "player 2, place a Skylander". Now it opens the portal check, which lists
+  the figures; marking Eruptor and "Fortfahren" took him off and the game went on with Spyro.
+  Not checked: whether "too many magic items" uses the same value.

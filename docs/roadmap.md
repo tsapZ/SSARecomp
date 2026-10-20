@@ -15,6 +15,6 @@ Spyro's Adventure Recompiled, the first Skylanders game, built the same way as S
 | When | What | Who |
 |---|---|---|
 | **Now** | Playing further (levels, saves, the hub); what still differs from the console | me |
-| Next | This game's own pictures and names for the portal menu cards (`.lxb` files); the "too many on the portal" screen (portal check) | me |
+| Next | This game's own pictures and names for the portal menu cards (`.lxb` files); the "too many magic items" screen (check that the portal check comes up right) | me |
 | Later | This game's own pictures and texts for the menus (other file formats than Swap Force) | me |
 | After this | Giants, then the Skylanders hub | both |
