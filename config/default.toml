@@ -47,3 +47,25 @@ registers = ["r9", "r10", "r11"]
 address = 0x828924E0
 name = "SceneGridRowsHook"
 registers = ["r8", "r10"]
+
+[functions]
+# Function starts the analyzer put one instruction late (SSARecomp #33 / GiantsRecomp #23), found in
+# the whole code (a dump of guest memory with the input script's `save`): right after a `blr`, an
+# instruction that is no known start, followed by one that is. A function the analyzer reached
+# through a branch to its second instruction while its real start is only in a pointer table; such a
+# function, when called, ends the game with "Call to invalid or unregistered function". The same
+# search found the ones SuperChargersRecomp and ImaginatorsRecomp crashed on at boot, and their
+# entries fixed it. A start that was in fact the second half of the function before only splits it,
+# which the generated code handles as a tail call. No size given, the analyzer finds the end.
+0x8212D87C = {}
+0x823EC4EC = {}
+0x824D7DE4 = {}
+0x8252ADF8 = {}
+0x825703B4 = {}
+0x825710BC = {}
+0x82599F94 = {}
+0x825EA6C0 = {}
+0x82641160 = {}
+0x826F65F4 = {}
+0x827FF570 = {}
+0x82920A44 = {}
