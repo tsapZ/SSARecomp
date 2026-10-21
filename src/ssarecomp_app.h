@@ -128,6 +128,10 @@ class SsarecompApp : public rex::ReXApp {
     // The Guide button opens the portal menu (the menu hides it from the game). SDL drops Guide
     // presses unless this is on.
     SetDefault("guide_button", "true");
+    // 60 FPS unless the settings file says otherwise (the owner's wish, 2026-10-21): the game's rate
+    // follows frame_rate_limit, and it keeps its speed at more frames (measured, docs/STATUS.md).
+    // "30 as on the console" in the menu is the limit 30, so it stays when chosen.
+    SetDefault("frame_rate_limit", "60");
     // Spyro's Adventure knows only its own figures (later games' figures of the same characters
     // carry their own toy ids too).
     SetDefault("portal_menu_games", "Spyro's Adventure");

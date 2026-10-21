@@ -19,11 +19,12 @@
 // The prices are Giants' (its Minion_UpgradeCosts: 500, 700, 900, 1200, 1700, 2200, 3000, 4000);
 // this game's own table hasn't been found in its files yet (not in gamedata.lxb or tuning.lxb as
 // plain numbers), so they are to be checked against the game's upgrade screen.
-// Pictures: only the Soul Gem has one, "upgrade<toy id>" in uigameimage.str (ui_images.cpp): 32
-// pictures, one per Skylander by toy id (upgrade016 is Spyro's ground pound, "Spyros
-// Erdklopfer"; upgrade014 Gill Grunt's anchor, upgrade019 Trigger Happy's golden cannon); Dark
-// Spyro (28) has none and shows Spyro's, the legendary figures their character's. The other
-// upgrades have no picture in the game's files.
+// Pictures: the Soul Gem's is "upgrade<toy id>" in uigameimage.str (ui_images.cpp): 32 pictures,
+// one per Skylander by toy id (upgrade016 is Spyro's ground pound, "Spyros Erdklopfer";
+// upgrade014 Gill Grunt's anchor, upgrade019 Trigger Happy's golden cannon, "Infinite Ammo").
+// The two paths' six are in the character's own archive, three per path ("path:<id>:<path>:<n>",
+// ui_images.cpp). Dark Spyro (28) shows Spyro's, the legendary figures their character's. The
+// starting attacks and the four basic upgrades have no picture in the game's files.
 
 #include "upgrades.h"
 
@@ -118,6 +119,9 @@ std::string Text(const std::string& key) {
 }
 
 std::shared_ptr<const FigureUpgrades> Build(const std::string& name, uint16_t id) {
+  // Legendary figures (400 + the toy id) and Dark Spyro show their character's pictures.
+  if (id >= kLegendaryIds && id < kLegendaryIds + 100) id = uint16_t(id - kLegendaryIds);
+  if (id == 28) id = 16;
   char key[64];
   auto up = [&](int i, int bit, uint32_t cost) {
     FigureUpgrade u;
@@ -150,6 +154,8 @@ std::shared_ptr<const FigureUpgrades> Build(const std::string& name, uint16_t id
     for (int j = 0; j < kPathLength; ++j) {
       FigureUpgrade u = up(kFirstPath + kPathLength * p + j, kFirstPathBit + j, kCosts[kBasicCount + j]);
       u.alternate_bit = kFirstAlternateBit + j;
+      std::snprintf(key, sizeof(key), "path:%u:%d:%d", unsigned(id), p, j);
+      u.image = key;
       path.upgrades.push_back(std::move(u));
     }
     result->paths.push_back(std::move(path));
@@ -157,9 +163,7 @@ std::shared_ptr<const FigureUpgrades> Build(const std::string& name, uint16_t id
   FigureUpgradePath soul_gem;
   soul_gem.kind = FigureUpgradePath::Kind::kSoulGem;
   soul_gem.upgrades.push_back(up(kSoulGem, kSoulGemBit, kCosts[kBasicCount + kPathLength]));
-  // Legendary figures (400 + the toy id) and Dark Spyro show their character's picture.
-  if (id >= kLegendaryIds && id < kLegendaryIds + 100) id = uint16_t(id - kLegendaryIds);
-  std::snprintf(key, sizeof(key), "upgrade:%03u", unsigned(id == 28 ? 16 : id));
+  std::snprintf(key, sizeof(key), "upgrade:%03u", unsigned(id));
   soul_gem.upgrades.back().image = key;
   result->paths.push_back(std::move(soul_gem));
   return result;

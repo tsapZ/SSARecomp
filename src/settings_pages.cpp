@@ -146,20 +146,18 @@ SettingsPage FrameRatePage() {
   // the SDK runs at 30 Hz without a limit (and a frame that misses a 60 Hz vblank waits for the
   // next). With a higher limit it runs as fast as the PC allows: 50-91 FPS in Chapter 1 here
   // (1080p, scale 2), the opening cutscenes take the same time (72.6 s at 30 FPS, 71.5 s), and
-  // walking covers the same ground. docs/STATUS.md, 2026-10-20. Some effects step once per frame
-  // though: the portal screen's light and sparks move about twice as much between two pictures
-  // uncapped (55 FPS) as at 30 (measured 2026-10-21, #26), so the text says so.
+  // walking covers the same ground. docs/STATUS.md, 2026-10-20. The portal screen's light and
+  // sparks step once per frame (#26), but the owner's video of the console shows that screen as
+  // fast; at 60 the owner found the bounce pads and coins as in Xbox 360 videos (2026-10-21), so
+  // 60 is the default (app header).
   page.settings.push_back(
       {"frame_rate_limit", "Frame rate", "Bildrate",
-       "The game was made for 30 FPS. Walking, fights and cutscenes keep their speed with more, "
-       "but some effects run faster (the portal's light and sparks, being looked into). Best "
-       "set to your screen's refresh rate; if your PC can't reach it, the game runs as fast as "
-       "it can.",
-       "Das Spiel ist f\xC3\xBCr 30 FPS gemacht. Laufen, K\xC3\xA4mpfe und Zwischensequenzen "
-       "bleiben mit mehr normal schnell, manche Effekte laufen aber schneller (Licht und Funken "
-       "des Portals, wird untersucht). Am besten die Bildwiederholrate deines Bildschirms; "
-       "schafft dein PC das nicht, l\xC3\xA4uft das Spiel so schnell, wie er kann.",
-       {{"0", "30 (as on the console)", "30 (wie auf der Konsole)"},
+       "The game was made for 30 FPS and keeps its speed with more. Best set to your screen's "
+       "refresh rate; if your PC can't reach it, the game runs as fast as it can.",
+       "Das Spiel ist f\xC3\xBCr 30 FPS gemacht und l\xC3\xA4uft mit mehr normal schnell. Am "
+       "besten die Bildwiederholrate deines Bildschirms; schafft dein PC das nicht, l\xC3\xA4uft "
+       "das Spiel so schnell, wie er kann.",
+       {{"30", "30 (as on the console)", "30 (wie auf der Konsole)"},
         {"60", "60", "60"},
         {"120", "120", "120"},
         {"144", "144", "144"},
@@ -321,9 +319,7 @@ SettingsPage ControlsPage() {
        "Which player the keyboard is. Controllers are assigned in the player menu (L3 + R3).",
        "Welcher Spieler die Tastatur ist. Controller teilst du im Spieler-Men\xC3\xBC zu (L3 + R3).",
        {{"1", "Player 1", "Spieler 1"},
-        {"2", "Player 2", "Spieler 2"},
-        {"3", "Player 3", "Spieler 3"},
-        {"4", "Player 4", "Spieler 4"}}});
+        {"2", "Player 2", "Spieler 2"}}});
   return page;
 }
 
