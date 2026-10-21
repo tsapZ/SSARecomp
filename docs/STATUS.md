@@ -249,3 +249,8 @@ Updated at the end of every session. Only record what a build actually did.
   from the game's movie player close). Checked by script in a 2560x1080 window: the XPEC logo
   and the opening movie (Eon) 16:9 in the middle, Hugo's in-game cutscene after it fills the window
   again.
+
+## 2026-10-22: session log (night)
+
+- **Portal library** (cbc71c6, 0eb2564): the later games' cards say "Fahrzeug", "Sensei", "Falle" and "Serie 2" in the German menu; a plain hat symbol where a game has no hat picture.
+- **New issues** for options the other games have: #35 bloom and motion blur strength, #36 the game's controller picture.
