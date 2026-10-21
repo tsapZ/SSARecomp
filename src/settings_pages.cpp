@@ -123,14 +123,19 @@ SettingsPage FrameRatePage() {
   // the SDK runs at 30 Hz without a limit (and a frame that misses a 60 Hz vblank waits for the
   // next). With a higher limit it runs as fast as the PC allows: 50-91 FPS in Chapter 1 here
   // (1080p, scale 2), the opening cutscenes take the same time (72.6 s at 30 FPS, 71.5 s), and
-  // walking covers the same ground. docs/STATUS.md, 2026-10-20.
+  // walking covers the same ground. docs/STATUS.md, 2026-10-20. Some effects step once per frame
+  // though: the portal screen's light and sparks move about twice as much between two pictures
+  // uncapped (55 FPS) as at 30 (measured 2026-10-21, #26), so the text says so.
   page.settings.push_back(
       {"frame_rate_limit", "Frame rate", "Bildrate",
-       "The game was made for 30 FPS and keeps its normal speed with more. Best set to your "
-       "screen's refresh rate. If your PC can't reach it, the game simply runs as fast as it can.",
-       "Das Spiel ist f\xC3\xBCr 30 FPS gemacht und l\xC3\xA4uft mit mehr normal schnell. Am "
-       "besten die Bildwiederholrate deines Bildschirms. Schafft dein PC das nicht, l\xC3\xA4uft "
-       "das Spiel einfach so schnell, wie er kann.",
+       "The game was made for 30 FPS. Walking, fights and cutscenes keep their speed with more, "
+       "but some effects run faster (the portal's light and sparks, being looked into). Best "
+       "set to your screen's refresh rate; if your PC can't reach it, the game runs as fast as "
+       "it can.",
+       "Das Spiel ist f\xC3\xBCr 30 FPS gemacht. Laufen, K\xC3\xA4mpfe und Zwischensequenzen "
+       "bleiben mit mehr normal schnell, manche Effekte laufen aber schneller (Licht und Funken "
+       "des Portals, wird untersucht). Am besten die Bildwiederholrate deines Bildschirms; "
+       "schafft dein PC das nicht, l\xC3\xA4uft das Spiel so schnell, wie er kann.",
        {{"0", "30 (as on the console)", "30 (wie auf der Konsole)"},
         {"60", "60", "60"},
         {"120", "120", "120"},

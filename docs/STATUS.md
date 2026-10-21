@@ -2,7 +2,7 @@
 
 Updated at the end of every session. Only record what a build actually did.
 
-## Current state (2026-10-20)
+## Current state (2026-10-21)
 
 | Area | State |
 |---|---|
@@ -159,3 +159,37 @@ Updated at the end of every session. Only record what a build actually did.
   coordinates), and **a rebuilt GPU plugin is copied next to the exe** without a relink (fork
   `fix/stage-gpu-plugin`). Checked: boot with the logo movies, no errors. With the logos not skipped the XPEC logo shows as a small box in the middle of the screen; whether that is the movie's own framing is not checked yet. New RenderDoc script
   `tools/renderdoc/vsout.py` (vertex shader outputs per vertex).
+
+## 2026-10-21: session log (night)
+
+- **Player menu with two players** (portal library, #56 in SwapForceRecomp): Player 1, Player 2
+  and "Not playing" (guest users 2 and 3, e.g. a third controller) instead of four player columns;
+  left / right moves a controller through the three. Checked by script.
+- **Controls page for every device** (#55 / #29): the game's own Xbox 360 controller picture stays
+  for Xbox pads; any other pad (PlayStation, Nintendo, a generic one like the Logitech Dual Action),
+  and a game without a picture of its own, gets a drawn controller in its layout and with its
+  button names. Used with the keyboard (F4, or a key pressed in the menu) the page shows a keyboard
+  (QWERTZ in German): a button setting marks its key (F6, F5, F9, F4), the overview every menu key
+  and the keys of the keyboard's controller emulation (`keybind_*`) with the button each one
+  stands for ("Laufen" on WASD, "A" on Space). Checked by script on both views.
+- **Achievements like on the Xbox 360** (#59): an unlocked one pops up in the bottom middle (the
+  round icon opens into a dark bar, "Erfolg freigeschaltet", "25G - name", no sound), and the list
+  opens with F7 or from F4 > Spiel > Erfolge with a controller (unlocked first with the date,
+  totals; up / down, LB / RB, B). Both replace the SDK's own.
+- **English checked** (title, portal menu, details, settings) with `--language=english`.
+- **Player 2 leaves with RS** (#27): the menu's "Leave the game" presses this game's
+  own button for it (`portal_menu_leave_button = "rs"`; Giants and Swap Force keep B). Checked by
+  script: the game goes on with player 1 and shows "Drücke A zum Mitspielen" again.
+- **No sidekicks in the menu** (#28): they came with Giants (`portal_menu_hidden_categories`).
+- **Hat bonuses with their name** (#58): the stats screen's labels (StatsElemetal, StatsArmor,
+  StatsCT, StatsSpeed): "Generalsmütze: +7 Kritischer Treffer, +7 Elementar".
+- **Gold symbol:** none found in uigameimage.str (the HUD's coin is elsewhere), so the drawn coin
+  stays for now.
+- **Animations above 30 FPS** (#26): the portal screen's light and sparks step once per frame:
+  between two screenshots 0.1 s apart they move 4.0 (mean difference) at 30 FPS and 9.6 uncapped
+  (54.6 FPS), the pulse every 0.3 s instead of 0.8 s. `frame_rate_limit=60` gives 30 FPS on this PC
+  (a frame takes ~19 ms and waits for the second 60 Hz vblank). The one float 1/30 in the
+  executable belongs to another function (82702B28). F4 > Bildrate now says that some effects run
+  faster above 30; the default stays 30.
+- **A crash under RenderDoc:** with RenderDoc attached (19 FPS) the game crashed 18 s into Chapter 1
+  (read of guest 0x368 in sub_826326B8, called from sub_82631098); not seen without RenderDoc.

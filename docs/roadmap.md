@@ -76,3 +76,14 @@ frame rate limit.
 
 **Done when:** the menus show everything the game's own screens do, and the installer works on a
 clean PC.
+
+## From the play tests (2026-10-21)
+
+- [x] Player 2 leaves with RS (#27)
+- [x] No sidekicks in the menu (#28)
+- [x] Controller picture on the controls page (#29, drawn) and a keyboard view
+- [ ] Animations above 30 FPS (#26): confirmed for the portal screen's effect (frame-tied);
+      the effect's update still to be found
+- [ ] Picture quality: blurry, a shadow out of the ground (#30)
+- [ ] Pictures for the items without one (#31)
+- [ ] Upgrades in the details view (#20)
