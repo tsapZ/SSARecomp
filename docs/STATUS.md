@@ -193,3 +193,4 @@ Updated at the end of every session. Only record what a build actually did.
   faster above 30; the default stays 30.
 - **A crash under RenderDoc:** with RenderDoc attached (19 FPS) the game crashed 18 s into Chapter 1
   (read of guest 0x368 in sub_826326B8, called from sub_82631098); not seen without RenderDoc.
+- **Upgrades in the details view** (#20): every Skylander's starting attacks, basic upgrades, both named paths and the Soul Gem from the game's text table, bought ones marked, the attack icons as "Angriff 1/2/3", an upgrade arrow as the tile (no pictures in this game). The prices are Giants' until this game's own table is found; checked on Chop Chop.

@@ -69,7 +69,7 @@ frame rate limit.
 - [x] The game's names for magic items and adventure packs (#17)
 - [x] Hats in the details view (#18)
 - [x] Frame rate above 30 without changing the game's speed (#19)
-- [ ] Upgrades in the details view (#20)
+- [x] Upgrades in the details view (#20): built; prices to check against the game
 - [ ] Adventure packs with their own label and pictures (#21)
 - [ ] Ultrawide (#22)
 - [ ] Installer tested on a clean Windows VM (#23)
@@ -86,4 +86,4 @@ clean PC.
       the effect's update still to be found
 - [ ] Picture quality: blurry, a shadow out of the ground (#30)
 - [ ] Pictures for the items without one (#31)
-- [ ] Upgrades in the details view (#20)
+- [x] Upgrades in the details view (#20): built; prices to check against the game
