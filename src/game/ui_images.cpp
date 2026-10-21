@@ -133,18 +133,29 @@ const char* PortraitName(uint16_t id) {
 }
 
 // Magic items with a picture of their own in the archive (its Battle Mode power-up pictures),
-// by toy id; checked by eye. Hidden Treasure, Time Twister, Sparx Dragonfly and the adventure
-// packs have none found yet.
+// by toy id; checked by eye. The game shows the others as 3D models (its collection screen; the
+// UI archives have no picture of an hourglass or Sparx, 2026-10-21), so Hidden Treasure gets
+// the treasure chest of the archive's "treasure_hunter" (a chest with a gem, as the toy), Time
+// Twister and Sparx the game's own symbol for a magic item, and the adventure packs (location
+// pieces) the game's symbol for the location element.
 const char* ItemPictureName(uint16_t id) {
   switch (id) {
-    case 200: return "anvil_lg";        // Anvil Rain: the Anvil Hat's picture, the same anvil
-    case 202: return "potion";          // Healing Elixir
-    case 203: return "crossed_swords";  // Ghost Swords
-    case 205: return "shield";          // Sky-Iron Shield
-    case 206: return "speed_boots";     // Winged Boots
+    case 200: return "anvil_lg";              // Anvil Rain: the Anvil Hat's picture, the same anvil
+    case 201: return "treasure_hunter";       // Hidden Treasure
+    case 202: return "potion";                // Healing Elixir
+    case 203: return "crossed_swords";        // Ghost Swords
+    case 204: return "elementiconmagicitem";  // Time Twister
+    case 205: return "shield";                // Sky-Iron Shield
+    case 206: return "speed_boots";           // Winged Boots
+    case 207: return "elementiconmagicitem";  // Sparx Dragonfly
+    case 300: case 301: case 302: case 303: case 304:
+      return "elementiconlocation";           // the location pieces
     default: return nullptr;
   }
 }
+
+// The HUD's coin (the menu's gold symbol), in the HUD's own archive ui/eng/hudmenu.str (64x64).
+constexpr char kGoldPicture[] = "c:\\spyro\\assets\\ui\\textures\\hud\\gold.dds";
 
 // A character's path pictures: its archive and the two strips (first path, second path), by toy
 // id (Dark Spyro and the legendary figures use their character's, upgrades.cpp).
@@ -207,7 +218,7 @@ bool Wanted(std::string_view name) {
   for (const char* bonus : kBonusPictures) {
     if (name == bonus) return true;
   }
-  for (uint16_t id = 200; id < 208; ++id) {
+  for (uint16_t id = 200; id < 305; ++id) {
     if (const char* item = ItemPictureName(id); item && name == item) return true;
   }
   return false;
@@ -292,8 +303,12 @@ std::optional<size_t> LoadArchive(const std::filesystem::path& archive, const Wa
 
 void Load(std::filesystem::path archive) {
   const auto kept = LoadArchive(archive, Wanted);
+  // The coin from the HUD's archive (the language-neutral menus are in ui/eng).
+  const auto hud = archive.parent_path() / "ui" / "eng" / "hudmenu.str";
+  const auto coin = LoadArchive(hud, [](std::string_view name) { return name == kGoldPicture; });
   g_loaded.store(true);
   if (kept) REXLOG_INFO("UI images: {} pictures from {}", *kept, archive.filename().string());
+  if (coin && *coin == 0) REXLOG_WARN("UI images: no coin in {}", hud.string());
 }
 
 // Reads a character's archive for its two path pictures, once (on a thread of its own).
@@ -407,6 +422,8 @@ void InstallUiImages(const std::filesystem::path& archive) {
     if (key.starts_with(kUpgrade)) return Picture("upgrade" + key.substr(kUpgrade.size()));
     // "path:19:0:1" -> the second picture of goldencheat_upgradesa (upgrades.cpp).
     if (key.starts_with("path:")) return PathPicture(key);
+    // The menu's gold symbol: the HUD's coin.
+    if (key == "ui:gold") return Picture(kGoldPicture);
     return std::shared_ptr<const skylanders::FigureImage>();
   });
 }
