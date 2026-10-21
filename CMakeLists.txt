@@ -42,6 +42,7 @@ endif()
 set(SSARECOMP_SOURCES
     src/main.cpp
     src/game/kernel_stubs.cpp
+    src/game/game_fonts.cpp
     src/game/game_text.cpp
     src/game/hats.cpp
     src/game/upgrades.cpp

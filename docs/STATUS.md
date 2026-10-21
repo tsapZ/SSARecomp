@@ -209,3 +209,11 @@ Updated at the end of every session. Only record what a build actually did.
   (no log line; cause not found), 0 of 5 at 1264x704. Checked by script in Chapter 1: right
   picture and framing, the stretch's stair steps gone, 86.0 FPS instead of 86.7 (1080p window,
   scale 2, limit 200).
+- **The game's fonts in the portal menu** (src/game/game_fonts.cpp, #34): this engine's fonts
+  are rom/textures/<name>.fnt (glyph table) and <name>.apk (one 32-bit tiled page); five of them
+  (arial, bleeker, lt, ltnob, robotic). The titles in "ltnob", the game's title letters without
+  the outline "lt" has, the text in the rounded "bleeker". The table's cell width is the advance,
+  fitted on the portal prompt's "Bitte setze einen Skylander" (within 0.9 px per letter); ASCII
+  from entry 0, Latin-1 at entry code + 33 with German's ä ö ü ß. Read in 14 ms at start. Checked
+  by script: the portal menu's title in the same letters as the game's "Spieler 1:" behind it;
+  tabs, names, hints and the hat's "Generalsmütze" in the text font.
