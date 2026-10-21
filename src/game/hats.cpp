@@ -12,8 +12,10 @@
 // labels of the game's stats screen, "StatsElemetal" (sic), "StatsArmor", "StatsCT" and
 // "StatsSpeed" = "Elementar: ", "R\xC3\xBCstung: ", "Kritischer Treffer: ", "Tempo: " (found by
 // hashing the table's key strings against the label texts, 2026-10-21). Found by hashing the
-// enum's names (2026-10-20): 35 of the 45 hats have a text; the rest (Bonehead, Crazy Hair, Devil
-// Horns, Eyeball, 40-45) keep their picture and the menu's "hat number".
+// enum's names (2026-10-20): 35 of the 45 hats have their text as "<name>_hat" or "<name>"; the
+// other ten under keys of their own, found in the table's key strings (2026-10-21, after the owner
+// saw "Hut Nr. 43" for Chop Chop's flower hat): "hat_flower_pot" = "Blumenhut", +2 critical hit,
+// +2 armor, and kOtherKeys below.
 
 #include "hats.h"
 
@@ -21,6 +23,7 @@
 #include <iterator>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -44,6 +47,24 @@ constexpr const char* kHats[] = {
     "moose",       "plunger", "pot",         "rocket",  "santa",          "tiki",
     "trojan",      "unicorn", "wizard",      "pumpkin", "pirate_bandana", "cossack",
     "flower_pot",  "balloon", "birthday_cake",
+};
+
+// The hats whose text has a key of its own (the others: "<name>_hat", else "<name>").
+struct OtherKey {
+  std::string_view hat;
+  const char* key;
+};
+constexpr OtherKey kOtherKeys[] = {
+    {"bonehead", "_boneHead_hat"},
+    {"crazy_hair", "crazyHair_hat"},
+    {"devil_horns", "devilHorns_hat"},
+    {"eyeball", "eyeBall_hat"},
+    {"pumpkin", "hat_Pumpkin"},
+    {"pirate_bandana", "hat_minion_pirate_bandana"},
+    {"cossack", "hat_minion_cossack"},
+    {"flower_pot", "hat_flower_pot"},
+    {"balloon", "minion_balloon"},
+    {"birthday_cake", "minion_birthday_cake"},
 };
 
 // The bonus symbols in the hat texts, the pictures that show them and the stats screen's label.
@@ -96,7 +117,11 @@ std::shared_ptr<const HatInfo> Build(uint16_t hat) {
   if (!base) return nullptr;
   auto info = std::make_shared<HatInfo>();
   info->image = std::string("hat:") + base;
-  auto text = GameText(std::string(base) + "_hat");
+  std::optional<std::string> text;
+  for (const OtherKey& other : kOtherKeys) {
+    if (other.hat == base) text = GameText(other.key);
+  }
+  if (!text) text = GameText(std::string(base) + "_hat");
   if (!text) text = GameText(base);
   if (!text) return info;
   const std::string plain = WithoutColors(*text);
