@@ -28,6 +28,7 @@
 #include "game/portal_prompt_watch.h"
 #include "game/game_text.h"
 #include "game/hats.h"
+#include "game/upgrades.h"
 #include "game/ui_images.h"
 #include "dev/gpu_diagnostics.h"
 #include "localization.h"
@@ -161,6 +162,8 @@ class SsarecompApp : public rex::ReXApp {
     ssarecomp::InstallGameText(game_data_root_ / "text");
     // The details view's hat: the game's name, picture and bonuses.
     ssarecomp::InstallHats();
+    // The details view's upgrades: names, descriptions and prices from the game's text.
+    ssarecomp::InstallUpgrades();
     // Default to 16x anisotropic filtering (the SDK defaults to 4x): ground and floor textures seen
     // at a shallow angle stay sharp, for a negligible cost on PC GPUs. Only when the user hasn't set
     // it themselves.
