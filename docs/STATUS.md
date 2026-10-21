@@ -11,6 +11,7 @@ Updated at the end of every session. Only record what a build actually did.
 | Codegen | works: 323 files, no analysis errors, no `config/default.toml` entries needed so far |
 | Boot | ✅ title screen, main menu, save slots, new game, intro movies |
 | In-game | ✅ Chapter 1 (Shattered Island): the opening cutscenes play through with their voices, then the player has control: walking, camera, attacks, mission messages; 30 FPS like the console |
+| Picture | the 3D scene is 1120x704 on the 360, stretched to 720p; F4 > Grafik > "Natives 3D-Bild" draws it at 1264x704 (experimental, off by default; 86.0 instead of 86.7 FPS in Chapter 1) |
 | Frame rate | 30 FPS by default as on the console; `frame_rate_limit` (F4 > Bildrate) lets it run as fast as the PC allows (50-91 FPS in Chapter 1 at 1080p, scale 2); cutscenes and walking keep their speed |
 | Audio | works; the game mixes stereo only: center and LFE silent, the rear channels below 1 % in the title, intro and Chapter 1 (measured 2026-10-20 with a temporary per-channel peak log of the guest's 6-channel render frames), so a 5.1 device gets the front pair, as from the console |
 | Portal | ✅ emulated portal: figures are read, shown with their portal card and swapped during play (Spyro for Eruptor); the game writes their progress back to the figure file |
@@ -194,3 +195,17 @@ Updated at the end of every session. Only record what a build actually did.
 - **A crash under RenderDoc:** with RenderDoc attached (19 FPS) the game crashed 18 s into Chapter 1
   (read of guest 0x368 in sub_826326B8, called from sub_82631098); not seen without RenderDoc.
 - **Upgrades in the details view** (#20): every Skylander's starting attacks, basic upgrades, both named paths and the Soul Gem from the game's text table, bought ones marked, the attack icons as "Angriff 1/2/3", an upgrade arrow as the tile (no pictures in this game). The prices are Giants' until this game's own table is found; checked on Chop Chop.
+
+## 2026-10-21: session log (morning)
+
+- **Native 3D picture** (#30, experimental, off by default): the game draws its scene into
+  textures of 1120x704 (constants in the code: `sub_829611D8` creates every scene texture, nine
+  times 1120x704, seven times 560x352, twice 280x176; one header in `sub_82929EE8`; a 35 x 22
+  grid of 32-pixel cells in `sub_828924B8`) and stretches them 14 % wider to 1280x720. Four mid-asm
+  hooks put `scene_size` into all of them (src/hooks/scene_size_hook.cpp). The main pass then
+  needs more than 2048 EDRAM tiles, so `scene_size` turns on the SDK's 4096-tile EDRAM; the game
+  places its surfaces beyond tile 2048 by itself (no EDRAM hooks as in Swap Force). A configured
+  1280x720 draws 1264x704: 1 of 6 runs at exactly 1280x720 ended in an abort while the save loaded
+  (no log line; cause not found), 0 of 5 at 1264x704. Checked by script in Chapter 1: right
+  picture and framing, the stretch's stair steps gone, 86.0 FPS instead of 86.7 (1080p window,
+  scale 2, limit 200).

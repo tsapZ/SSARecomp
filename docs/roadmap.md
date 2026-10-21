@@ -84,6 +84,6 @@ clean PC.
 - [x] Controller picture on the controls page (#29, drawn) and a keyboard view
 - [ ] Animations above 30 FPS (#26): confirmed for the portal screen's effect (frame-tied);
       the effect's update still to be found
-- [ ] Picture quality: blurry, a shadow out of the ground (#30)
+- [ ] Picture quality: blurry, a shadow out of the ground (#30); the native 3D picture is an option since 2026-10-21, the shadow is still to look at
 - [ ] Pictures for the items without one (#31)
 - [x] Upgrades in the details view (#20): built; prices to check against the game

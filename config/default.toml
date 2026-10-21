@@ -15,3 +15,35 @@
 address = 0x829EC1CC
 name = "BinkHeaderLoaded"
 registers = ["r1"]
+
+# The scene size hooks (src/hooks/scene_size_hook.cpp, experimental, #30; they do nothing unless
+# scene_size is set). The scene's sizes are constants in the code: found by searching the generated
+# code for li r5,1120 / li r6,704 and their halves. Safe: each hook changes only registers that hold
+# exactly the game's sizes (1120x704, 560x352, 280x176, the 35 x 22 grid), and only with scene_size
+# set and the 4096-tile EDRAM in use.
+# 0x829611D8 is the start of sub_829611D8, which creates a texture (r3 usage, r4 format, r5 / r6
+# width / height, r7 / r8 levels); all scene textures (1120x704, 560x352, 280x176) come from here.
+[[midasm_hook]]
+address = 0x829611D8
+name = "SceneTextureSizeHook"
+registers = ["r5", "r6"]
+
+# 0x82929FC8 is bl 0x823b38e0 in sub_82929EE8: a 1120x704 texture header set up directly
+# (li r3,1120 / li r4,704 just before), not through sub_829611D8.
+[[midasm_hook]]
+address = 0x82929FC8
+name = "SceneHeaderSizeHook"
+registers = ["r3", "r4"]
+
+# 0x828924D8 and 0x828924E0 are stw r11,488(r31) and stw r10,492(r31) in sub_828924B8, which keeps
+# the scene size (1120 / 704 in r11 / r10) and a grid of 32-pixel cells (35 columns in r9, 22 rows in
+# r8) at +488 .. +500 of its object.
+[[midasm_hook]]
+address = 0x828924D8
+name = "SceneGridSizeHook"
+registers = ["r9", "r10", "r11"]
+
+[[midasm_hook]]
+address = 0x828924E0
+name = "SceneGridRowsHook"
+registers = ["r8", "r10"]
