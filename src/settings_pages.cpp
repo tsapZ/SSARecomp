@@ -254,6 +254,12 @@ SettingsPage PortalPage() {
       {"portal_menu_owned_only", "Only my figures", "Nur eigene Figuren",
        "The portal menu lists only figures that have a figure file.",
        "Das Portal-Men\xC3\xBC zeigt nur Figuren, f\xC3\xBCr die es eine Figurendatei gibt."});
+  page.settings.push_back(
+      {"portal_menu_later_versions", "Later games' figures", "Figuren sp\xC3\xA4terer Spiele",
+       "Also lists later games' versions of the Skylanders this game knows, with those games' "
+       "tabs. The game plays them as its own.",
+       "Zeigt auch sp\xC3\xA4tere Versionen der Skylander, die dieses Spiel kennt, mit den "
+       "Reitern dieser Spiele. Das Spiel spielt sie wie seine eigenen."});
   return page;
 }
 
