@@ -225,3 +225,10 @@ Updated at the end of every session. Only record what a build actually did.
   aspect; the app turns the letterbox off. Found from the 16:9 floats in the image's data;
   checked by script in a 2560x1080 window: Hugo's cutscene and Chapter 1 keep their proportions
   and show more at both sides; the HUD and the dialogue box are stretched.
+- **The HUD for ultrawide, experimental** (`ultrawide_hud`, off): the UI lays itself out on the
+  screen's width and half width kept next to the aspect (0x82BB45DC / 0x82BB45E4); set to the
+  window's width at the UI's height, the HUD, the dialogue box and the menus keep their
+  proportions (the portrait stays where the game anchors it, 480 left of the centre). Off by
+  default because two notices the game parks left of the 16:9 screen come into view at the left
+  edge and the pause menu's dimming is drawn only 1280 wide. Checked by script in a 2560x1080
+  window.
