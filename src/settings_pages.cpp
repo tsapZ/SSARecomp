@@ -128,6 +128,15 @@ SettingsPage GraphicsPage() {
         {"1920x1080", "1920x1080", "1920x1080"},
         {"2560x1440", "2560x1440", "2560x1440"},
         {"3840x2160", "3840x2160", "3840x2160"}}});
+  page.settings.push_back(
+      {"ultrawide_hud", "HUD on ultrawide (experimental)", "HUD bei Ultrawide (experimentell)",
+       "On a window wider than 16:9 (ultrawide): the HUD, the dialogue box and the menus in "
+       "their own proportions instead of stretched. Two notices the game keeps off-screen "
+       "then show at the left edge, and the pause menu's dimming leaves the sides light.",
+       "Bei einem Fenster breiter als 16:9 (Ultrawide): HUD, Dialogfenster und Men\xC3\xBCs "
+       "in ihren eigenen Proportionen statt gestreckt. Zwei Hinweise, die das Spiel "
+       "au\xC3\x9F" "erhalb des Bildes h\xC3\xA4lt, erscheinen dann am linken Rand, und die "
+       "Abdunklung im Pausenmen\xC3\xBC l\xC3\xA4sst die Seiten hell."});
   return page;
 }
 
