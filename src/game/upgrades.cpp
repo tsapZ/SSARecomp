@@ -19,7 +19,11 @@
 // The prices are Giants' (its Minion_UpgradeCosts: 500, 700, 900, 1200, 1700, 2200, 3000, 4000);
 // this game's own table hasn't been found in its files yet (not in gamedata.lxb or tuning.lxb as
 // plain numbers), so they are to be checked against the game's upgrade screen.
-// No pictures: the game's upgrade screen lists the upgrades as text.
+// Pictures: only the Soul Gem has one, "upgrade<toy id>" in uigameimage.str (ui_images.cpp): 32
+// pictures, one per Skylander by toy id (upgrade016 is Spyro's ground pound, "Spyros
+// Erdklopfer"; upgrade014 Gill Grunt's anchor, upgrade019 Trigger Happy's golden cannon); Dark
+// Spyro (28) has none and shows Spyro's, the legendary figures their character's. The other
+// upgrades have no picture in the game's files.
 
 #include "upgrades.h"
 
@@ -113,7 +117,7 @@ std::string Text(const std::string& key) {
   return t ? Clean(*t) : std::string();
 }
 
-std::shared_ptr<const FigureUpgrades> Build(const std::string& name) {
+std::shared_ptr<const FigureUpgrades> Build(const std::string& name, uint16_t id) {
   char key[64];
   auto up = [&](int i, int bit, uint32_t cost) {
     FigureUpgrade u;
@@ -153,6 +157,10 @@ std::shared_ptr<const FigureUpgrades> Build(const std::string& name) {
   FigureUpgradePath soul_gem;
   soul_gem.kind = FigureUpgradePath::Kind::kSoulGem;
   soul_gem.upgrades.push_back(up(kSoulGem, kSoulGemBit, kCosts[kBasicCount + kPathLength]));
+  // Legendary figures (400 + the toy id) and Dark Spyro show their character's picture.
+  if (id >= kLegendaryIds && id < kLegendaryIds + 100) id = uint16_t(id - kLegendaryIds);
+  std::snprintf(key, sizeof(key), "upgrade:%03u", unsigned(id == 28 ? 16 : id));
+  soul_gem.upgrades.back().image = key;
   result->paths.push_back(std::move(soul_gem));
   return result;
 }
@@ -172,7 +180,7 @@ void InstallUpgrades() {
             std::string(name) + (skylanders::menu_draw::GermanText() ? "|de" : "|en");
         std::lock_guard<std::mutex> lock(mutex);
         auto it = built.find(key);
-        if (it == built.end()) it = built.emplace(key, Build(name)).first;
+        if (it == built.end()) it = built.emplace(key, Build(name, id)).first;
         return it->second;
       });
 }

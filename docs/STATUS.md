@@ -111,7 +111,8 @@ Updated at the end of every session. Only record what a build actually did.
   game's internal names, e.g. `airdragon` for Whirlwind; all 37 checked by eye) on its card and in
   the details panel, and the game's element symbols (`ico_element_<element>_l`). The archive also
   has the round character icons, the hats (`<hat>_lg`), larger character pictures (`<name>_vs`),
-  upgrade symbols (`upgradeNNN`), level pictures and the collection frames, not used yet. Magic
+  the Soul Gems' pictures (`upgradeNNN`, used since 2026-10-21, see the upgrades), level pictures
+  and the collection frames, not used yet. Magic
   items: Ghost Swords, Healing Elixir, Sky-Iron Shield and Winged Boots have pictures of their own
   (its Battle Mode power-ups), Anvil Rain uses the Anvil Hat's anvil; Hidden Treasure, Time
   Twister, Sparx and the adventure packs keep the menu's symbol.
@@ -194,7 +195,7 @@ Updated at the end of every session. Only record what a build actually did.
   faster above 30; the default stays 30.
 - **A crash under RenderDoc:** with RenderDoc attached (19 FPS) the game crashed 18 s into Chapter 1
   (read of guest 0x368 in sub_826326B8, called from sub_82631098); not seen without RenderDoc.
-- **Upgrades in the details view** (#20): every Skylander's starting attacks, basic upgrades, both named paths and the Soul Gem from the game's text table, bought ones marked, the attack icons as "Angriff 1/2/3", an upgrade arrow as the tile (no pictures in this game). The prices are Giants' until this game's own table is found; checked on Chop Chop.
+- **Upgrades in the details view** (#20): every Skylander's starting attacks, basic upgrades, both named paths and the Soul Gem from the game's text table, bought ones marked, the attack icons as "Angriff 1/2/3". The Soul Gem's tile shows the game's own picture (`upgrade<toy id>` in uigameimage.str: 32 pictures, one per Skylander, e.g. Spyro's ground pound, Gill Grunt's anchor; Dark Spyro and the legendary figures show their character's; the owner asked why the tiles had no pictures, 2026-10-21); the other upgrades have none in the game's files and keep an upgrade arrow. The prices are Giants' until this game's own table is found; checked on Chop Chop.
 
 ## 2026-10-21: session log (morning)
 
@@ -216,7 +217,16 @@ Updated at the end of every session. Only record what a build actually did.
   fitted on the portal prompt's "Bitte setze einen Skylander" (within 0.9 px per letter); ASCII
   from entry 0, Latin-1 at entry code + 33 with German's ä ö ü ß. Read in 14 ms at start. Checked
   by script: the portal menu's title in the same letters as the game's "Spieler 1:" behind it;
-  tabs, names, hints and the hat's "Generalsmütze" in the text font.
+  tabs, names, hints and the hat's "Generalsmütze" in the text font. Fixed the same evening: a
+  letter's picture is only its ink's width (the cells overlap the next letter in the page), the
+  cell's width only its advance; before, a sliver of the next letter showed after "a", "l", "m"
+  and "n" ("auf dem Portal" read "a|uf dem Portal|").
+- **Adventure packs (location pieces) in the menu** (#21, 2026-10-21): the library labels the toys
+  300-399 as adventure packs; this game names them as its prompts do ("Ortselement" / "Location
+  piece", game_text.cpp), the details view says they open a level of their own, and the portal
+  check with a magic item and a location piece says "Zu viele Spielzeuge auf dem Portal" like the
+  game. Checked by script: Spyro, Ambossregen and Düstergruft listed, Düstergruft as "Ortselement".
+  Their pictures are still the menu's symbol (#31).
 - **Ultrawide** (src/hooks/ultrawide_hook.cpp, `ultrawide_fov`, on, #22): a window wider than 16:9
   (`resolution`) shows more to the sides instead of black bars, as in the other games. This
   engine has no perspective builder like theirs; its cameras take their aspect from one global,

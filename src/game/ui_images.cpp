@@ -135,6 +135,8 @@ constexpr const char* kBonusPictures[] = {"elementalstrength", "armor", "critica
 bool Wanted(std::string_view name) {
   if (name.starts_with("toy_") && name.ends_with("_hud")) return true;
   if (name.starts_with("ico_element_")) return true;
+  // The Soul Gems' pictures, "upgrade<toy id>" (upgrades.cpp).
+  if (name.size() == 10 && name.starts_with("upgrade")) return true;
   // The hats' pictures, "<hat>_lg" (hats.cpp).
   for (uint16_t hat = 1; const char* base = HatBaseName(hat); ++hat) {
     if (name == std::string(base) + "_lg") return true;
@@ -262,6 +264,9 @@ void InstallUiImages(const std::filesystem::path& archive) {
     constexpr std::string_view kHat = "hat:", kStat = "stat:";
     if (key.starts_with(kHat)) return Picture(key.substr(kHat.size()) + "_lg");
     if (key.starts_with(kStat)) return Picture(key.substr(kStat.size()));
+    // "upgrade:016" -> upgrade016, a Skylander's Soul Gem picture (upgrades.cpp).
+    constexpr std::string_view kUpgrade = "upgrade:";
+    if (key.starts_with(kUpgrade)) return Picture("upgrade" + key.substr(kUpgrade.size()));
     return std::shared_ptr<const skylanders::FigureImage>();
   });
 }

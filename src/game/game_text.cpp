@@ -150,6 +150,10 @@ void InstallGameText(const std::filesystem::path& text_root) {
     const char* key = NameKey(id);
     return key ? GameText(key) : std::nullopt;
   });
+  // The adventure packs as this game calls them: "Zu viele Ortselemente auf dem Portal of Power",
+  // "too many location pieces on the Portal of Power" (#21).
+  skylanders::SetAdventurePackName(REXCVAR_GET(user_language) == 3 ? "Ortselement"
+                                                                  : "Location piece");
 }
 
 }  // namespace ssarecomp

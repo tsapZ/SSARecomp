@@ -13,7 +13,10 @@
 // width, u8 the cell's width, u8, u8. Every cell is a line high and its width is the advance: fitted
 // on the portal prompt's "Bitte setze einen Skylander" (font lt at 1.54 times its size), the 20
 // letter distances inside the words come out within 0.9 px (0.5 px rms), with the ink's width plus
-// the next byte up to 4 px off. Entry n is ASCII's '!' + n up to '~'; the Latin-1 letters
+// the next byte up to 4 px off. The picture of a letter is only the ink's width from x: the ink
+// starts at x + 1 and ends 1 px before x + the ink's width, and the cells overlap, so the next
+// letter in the page starts inside a cell's width (measured in the decoded pages: "a" 20 of 27,
+// the next letter 22 px from x). Entry n is ASCII's '!' + n up to '~'; the Latin-1 letters
 // (U+00A1 to U+00FF) are entry code + 33, all of them with German's ä ö ü ß (an earlier run of
 // entries has some of them too but stops before ä).
 // Of the five fonts the menus take "ltnob", the game's titles' letters without the outline "lt"
@@ -144,6 +147,7 @@ std::shared_ptr<const GameFont> ReadFont(const std::filesystem::path& dir, const
   for (size_t n = 0; kTableStart + (n + 1) * kEntrySize <= fnt->size(); ++n) {
     const size_t at = kTableStart + n * kEntrySize;
     const uint32_t codepoint = EntryCodepoint(n);
+    const int ink = (*fnt)[at + 4];
     const int cell = (*fnt)[at + 5];
     if (!codepoint || cell == 0) continue;
     GameFontGlyph glyph;
@@ -152,7 +156,7 @@ std::shared_ptr<const GameFont> ReadFont(const std::filesystem::path& dir, const
     glyph.x = Be16(*fnt, at);
     glyph.y = Be16(*fnt, at + 2);
     if (glyph.x >= p.width || glyph.y >= p.height) continue;
-    glyph.width = std::min(cell, p.width - glyph.x);
+    glyph.width = std::min(ink > 0 ? std::min(ink, cell) : cell, p.width - glyph.x);
     glyph.height = std::min(line, p.height - glyph.y);
     font->glyphs.push_back(glyph);
   }
