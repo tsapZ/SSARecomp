@@ -60,6 +60,16 @@ address = 0x827F5794
 name = "UltrawideAspectHook"
 registers = ["f13"]
 
+# 0x829EDEB8 is the start of BinkClose (the Bink SDK's: it stops the movie's sound and frees its
+# buffers); its only caller is the game's movie player's close (sub_82852AA8), which clears the
+# player's handle at 0x82BB460C right after. With ultrawide active, src/hooks/ultrawide_hook.cpp
+# turns the presenter's side bars it put up for the movie (at BinkOpen, see BinkHeaderLoaded)
+# off again; it reads and changes no guest state.
+[[midasm_hook]]
+address = 0x829EDEB8
+name = "BinkCloseHook"
+registers = []
+
 [functions]
 # Function starts the analyzer put one instruction late (SSARecomp #33 / GiantsRecomp #23), found in
 # the whole code (a dump of guest memory with the input script's `save`): right after a `blr`, an

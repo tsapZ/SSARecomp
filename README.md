@@ -28,7 +28,7 @@ Session details and known bugs: [docs/STATUS.md](docs/STATUS.md).
 | Portal | ✅ emulated: figures come in with their portal card, swap during play and keep their progress; real USB portal still to test (#13) |
 | Portal menu | ✅ opens by itself at "Bitte setze einen Skylander" for player 1 and 2; the portal check on "zu viele Skylander" and "zu viele Spielzeuge"; the game's own portraits, item names and hats; upgrades still to come (#20) |
 | Settings menu | ✅ F4 or Back + RB: presets, resolution, frame rate, language, portal, controls |
-| Ultrawide | ⬜ planned (#22) |
+| Ultrawide | ✅ more to the sides in a wider window (#22); movies with black bars at the sides; the HUD stretched unless F4 > Grafik > HUD bei Ultrawide (experimental) |
 | Installer tested on a clean PC | ⬜ planned (#23) |
 
 ## Playing

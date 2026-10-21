@@ -30,6 +30,15 @@
 // the pause menu keep their proportions, but two notices the game parks left of the 16:9 screen
 // (a red "+!" and a small figure head, on the figure's arrival) come into view at the left edge,
 // and the pause menu's full-screen dimming is drawn 0 .. 1280 wide and leaves the sides light.
+//
+// Movies: the cutscenes (movies/sl_sc*.bik, sky_800_moment_*.bik), the figures' movies
+// (movies/bash.bik, ...) and the logos are 16:9 Bink movies drawn into the 16:9 frame, which the
+// presenter would stretch across the window like the 3D picture. While one plays the presenter
+// keeps black bars at the sides instead (present_use_actual_aspect off and present_letterbox on
+// just for that time, not saved). The game plays one movie at a time
+// through one player (its Bink handle at 0x82BB460C): BinkOpen's header hook (intro_skip_hook.cpp)
+// marks the start, the start of BinkClose (sub_829EDEB8, called only from the player's close
+// sub_82852AA8, which then clears the handle) the end.
 
 #include <atomic>
 #include <cstdint>
@@ -45,6 +54,7 @@
 #include <rex/memory/utils.h>
 #include <rex/ppc/context.h>
 #include <rex/system/kernel_state.h>
+#include <rex/ui/flags.h>
 
 REXCVAR_DECLARE(std::string, resolution);
 
@@ -65,6 +75,11 @@ constexpr uint32_t kScreenWidth = 0x82BB45DC;   // the UI's screen width, then i
 constexpr uint32_t kScreenHeight = 0x82BB45E0;
 constexpr uint32_t kScreenHalfWidth = 0x82BB45E4;
 
+// True while a movie plays with the presenter's bars turned on for it; the aspect setting it
+// changed for that, to put back.
+std::atomic<bool> g_movie_bars{false};
+std::atomic<bool> g_movie_actual_aspect{true};
+
 // The window's aspect ratio from `resolution`, or 0 if it isn't set.
 double WindowAspect() {
   int32_t width = 0, height = 0;
@@ -82,6 +97,24 @@ namespace ssarecomp {
 
 bool UltrawideActive() {
   return REXCVAR_GET(ultrawide_fov) && WindowAspect() > kGameAspect * 1.01;
+}
+
+void MovieOpened(uint32_t width, uint32_t height) {
+  // Only when the picture fills the wider window (the app turned the bars off for ultrawide).
+  if (!UltrawideActive() || REXCVAR_GET(present_letterbox) || g_movie_bars.exchange(true)) return;
+  // The presenter takes the frame's aspect from the window's size (present_use_actual_aspect),
+  // so the 16:9 frame counts as wide as the window: off for the movie, the console's 16:9 video
+  // mode then gives the aspect and present_letterbox the bars.
+  g_movie_actual_aspect = rex::cvar::Query<bool>("present_use_actual_aspect");
+  rex::cvar::SetFlagByName("present_use_actual_aspect", "false");
+  rex::cvar::SetFlagByName("present_letterbox", "true");
+  REXLOG_INFO("Ultrawide: movie {}x{} with bars at the sides", width, height);
+}
+
+void MovieClosed() {
+  if (!g_movie_bars.exchange(false)) return;
+  rex::cvar::SetFlagByName("present_letterbox", "false");
+  rex::cvar::SetFlagByName("present_use_actual_aspect", g_movie_actual_aspect ? "true" : "false");
 }
 
 }  // namespace ssarecomp
@@ -111,4 +144,9 @@ void UltrawideAspectHook(PPCRegister& f13) {
   std::memcpy(&bits, &half, 4);
   rex::memory::store_and_swap<uint32_t>(base + kScreenHalfWidth, bits);
   REXLOG_INFO("Ultrawide: UI screen {} x {}", width, height);
+}
+
+// At the start of BinkClose (sub_829EDEB8): the movie is over (or skipped).
+void BinkCloseHook() {
+  ssarecomp::MovieClosed();
 }

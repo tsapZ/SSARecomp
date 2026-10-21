@@ -71,7 +71,7 @@ frame rate limit.
 - [x] Frame rate above 30 without changing the game's speed (#19)
 - [x] Upgrades in the details view (#20): built; prices to check against the game
 - [ ] Adventure packs with their own label and pictures (#21)
-- [ ] Ultrawide (#22)
+- [x] Ultrawide (#22): wider field of view, movies with side bars; the HUD option experimental
 - [ ] Installer tested on a clean Windows VM (#23)
 
 **Done when:** the menus show everything the game's own screens do, and the installer works on a

@@ -232,3 +232,10 @@ Updated at the end of every session. Only record what a build actually did.
   default because two notices the game parks left of the 16:9 screen come into view at the left
   edge and the pause menu's dimming is drawn only 1280 wide. Checked by script in a 2560x1080
   window.
+- **Movies on ultrawide** (2026-10-21): the logos, the cutscene movies and the figures' movies are
+  16:9 Bink movies; while one plays the presenter shows it with black bars at the sides instead of
+  stretched (present_use_actual_aspect off and present_letterbox on for that time, not saved).
+  Start: BinkOpen's header hook; end: a hook at the start of BinkClose (sub_829EDEB8, called only
+  from the game's movie player close). Checked by script in a 2560x1080 window: the XPEC logo
+  and the opening movie (Eon) 16:9 in the middle, Hugo's in-game cutscene after it fills the window
+  again.
