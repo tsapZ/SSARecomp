@@ -48,6 +48,18 @@ address = 0x828924E0
 name = "SceneGridRowsHook"
 registers = ["r8", "r10"]
 
+# 0x827F5794 is stfs f13,17900(r11) in sub_827F56A0, which keeps the display's aspect ratio (the
+# video mode's width over its height, 16:9) at 0x82BB45EC; the cameras take their aspect from it
+# through the renderer's state, and the game widens its horizontal FOV with it (Hor+). Found from
+# the 16:9 floats in the image's data and the code storing them; poking a 2560x1080 window's
+# aspect there in Chapter 1 kept the picture's proportions and showed more at the sides.
+# src/hooks/ultrawide_hook.cpp sets f13 to the window's aspect for a window wider than 16:9 with
+# ultrawide_fov on; it only changes this one value.
+[[midasm_hook]]
+address = 0x827F5794
+name = "UltrawideAspectHook"
+registers = ["f13"]
+
 [functions]
 # Function starts the analyzer put one instruction late (SSARecomp #33 / GiantsRecomp #23), found in
 # the whole code (a dump of guest memory with the input script's `save`): right after a `blr`, an

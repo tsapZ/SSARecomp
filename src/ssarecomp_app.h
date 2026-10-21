@@ -27,6 +27,7 @@
 #include "dev/write_watch.h"
 #include "game/portal_prompt_watch.h"
 #include "game/game_fonts.h"
+#include "hooks/ultrawide_hook.h"
 #include "game/game_text.h"
 #include "game/hats.h"
 #include "game/upgrades.h"
@@ -101,6 +102,11 @@ class SsarecompApp : public rex::ReXApp {
   void OnPreSetup(rex::RuntimeConfig& config) override {
     // Before the GPU plugin creates its device (testing only, gpu_crash_diagnostics).
     ssarecomp::EnableGpuCrashDiagnostics();
+    // A wider window with ultrawide_fov: the picture fills it (the camera sees more to the sides)
+    // instead of the presenter's black bars, unless present_letterbox was set by hand.
+    if (ssarecomp::UltrawideActive() && !rex::cvar::HasNonDefaultValue("present_letterbox")) {
+      rex::cvar::SetFlagByName("present_letterbox", "false");
+    }
     // A 3D scene larger than the 360's needs more EDRAM than it has (#30, scene_size_hook.cpp),
     // unless edram_tile_count was set by hand.
     if (!REXCVAR_GET(scene_size).empty() && !rex::cvar::HasNonDefaultValue("edram_tile_count")) {

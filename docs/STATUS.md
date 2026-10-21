@@ -217,3 +217,11 @@ Updated at the end of every session. Only record what a build actually did.
   from entry 0, Latin-1 at entry code + 33 with German's ä ö ü ß. Read in 14 ms at start. Checked
   by script: the portal menu's title in the same letters as the game's "Spieler 1:" behind it;
   tabs, names, hints and the hat's "Generalsmütze" in the text font.
+- **Ultrawide** (src/hooks/ultrawide_hook.cpp, `ultrawide_fov`, on, #22): a window wider than 16:9
+  (`resolution`) shows more to the sides instead of black bars, as in the other games. This
+  engine has no perspective builder like theirs; its cameras take their aspect from one global,
+  the display's (0x82BB45EC, the video mode's width over its height, stored by sub_827F56A0), and
+  widen their horizontal FOV with it themselves (Hor+). The hook sets that value to the window's
+  aspect; the app turns the letterbox off. Found from the 16:9 floats in the image's data;
+  checked by script in a 2560x1080 window: Hugo's cutscene and Chapter 1 keep their proportions
+  and show more at both sides; the HUD and the dialogue box are stretched.
