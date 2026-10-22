@@ -254,3 +254,11 @@ Updated at the end of every session. Only record what a build actually did.
 
 - **Portal library** (cbc71c6, 0eb2564): the later games' cards say "Fahrzeug", "Sensei", "Falle" and "Serie 2" in the German menu; a plain hat symbol where a game has no hat picture.
 - **New issues** for options the other games have: #35 bloom and motion blur strength, #36 the game's controller picture.
+
+## 2026-10-22: later the same night
+
+- **The controls page shows the game's controller picture** (ui/eng/startmenu.str's 360_controller.dds, cut to the pad), #36 closed.
+- The settings example's frame rate line says 60 like the default.
+- **Settings file read even with a repeated key** (SDK fork 96273bb): a key set twice in a table makes the whole TOML file invalid, and the game then ignored every setting in it without a visible error (the error went to a log that didn't exist yet). The SDK now reads such a file with the repeats left out and logs which key was repeated.
+- **`--settings_schema=<file>`** (skylanders-portal 25dec20): the game writes its F4 menu's pages with their values and quits before a window opens; the Core of Light launcher shows them as the game's settings and writes into this game's settings file.
+- **Figure pictures for the launcher** (skylanders-portal e87feb3): while the game runs, every figure picture it reads from the disc goes into `Documents\Skylanders\Pictures\<game>` once, for the launcher's figure library.
