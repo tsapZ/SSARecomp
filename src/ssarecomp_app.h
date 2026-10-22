@@ -269,6 +269,8 @@ class SsarecompApp : public rex::ReXApp {
           rex::ui::ProcessKeyEvent(event);
         }),
         settings_path_);
+    // The controls page shows the menu buttons on the game's own controller picture.
+    skylanders::SetControllerPicture(ssarecomp::ControllerPictureLayout());
     skylanders::RegisterPortalOverlay(drawer);
   }
 

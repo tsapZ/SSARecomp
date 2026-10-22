@@ -22,6 +22,12 @@
 // differ from the archive's: firearcher, crustybuckler, troll, lifedragon, ent; Stealth Elf's are
 // "...upgradespook" / "...upgradesforrest" for "Pook Blade Saint" / "Forest Ninja"). An archive
 // is unpacked the first time its character's details are shown, on a thread of its own.
+//
+// The controller picture for the settings menu's controls page: ui/eng/startmenu.str has
+// "c:\spyro\assets\ui\textures\startmenu\360_controller.dds", 256x256 DXT5, a clean drawing of
+// the white pad, upright (found 2026-10-22 by listing every strm archive's picture names; the
+// pause menu's "controller_360line" is only the callout lines drawn over it). It is cut to the
+// pad's box (kControllerCrop); the buttons' places were measured on the picture.
 
 #include "ui_images.h"
 
@@ -156,6 +162,11 @@ const char* ItemPictureName(uint16_t id) {
 
 // The HUD's coin (the menu's gold symbol), in the HUD's own archive ui/eng/hudmenu.str (64x64).
 constexpr char kGoldPicture[] = "c:\\spyro\\assets\\ui\\textures\\hud\\gold.dds";
+
+// The controls page's pad (see the top), in ui/eng/startmenu.str, and the part of it with the pad.
+constexpr char kControllerPicture[] = "c:\\spyro\\assets\\ui\\textures\\startmenu\\360_controller.dds";
+constexpr char kControllerArtKey[] = "controller:xbox360";
+constexpr int kControllerCropX = 14, kControllerCropY = 46, kControllerCropW = 230, kControllerCropH = 164;
 
 // A character's path pictures: its archive and the two strips (first path, second path), by toy
 // id (Dark Spyro and the legendary figures use their character's, upgrades.cpp).
@@ -306,9 +317,12 @@ void Load(std::filesystem::path archive) {
   // The coin from the HUD's archive (the language-neutral menus are in ui/eng).
   const auto hud = archive.parent_path() / "ui" / "eng" / "hudmenu.str";
   const auto coin = LoadArchive(hud, [](std::string_view name) { return name == kGoldPicture; });
+  const auto start = archive.parent_path() / "ui" / "eng" / "startmenu.str";
+  const auto pad = LoadArchive(start, [](std::string_view name) { return name == kControllerPicture; });
   g_loaded.store(true);
   if (kept) REXLOG_INFO("UI images: {} pictures from {}", *kept, archive.filename().string());
   if (coin && *coin == 0) REXLOG_WARN("UI images: no coin in {}", hud.string());
+  if (pad && *pad == 0) REXLOG_WARN("UI images: no controller picture in {}", start.string());
 }
 
 // Reads a character's archive for its two path pictures, once (on a thread of its own).
@@ -348,6 +362,31 @@ std::shared_ptr<const skylanders::FigureImage> Picture(const std::string& name) 
   }
   g_decoded[name] = result;  // also remembers "none", so a missing one isn't searched again
   return result;
+}
+
+// The controls page's pad, cut to kControllerCrop once; nullptr while loading or if there is none.
+std::shared_ptr<const skylanders::FigureImage> ControllerPicture() {
+  static std::mutex mutex;
+  static std::shared_ptr<const skylanders::FigureImage> cropped;
+  const auto full = Picture(kControllerPicture);
+  if (!full || full->width < kControllerCropX + kControllerCropW ||
+      full->height < kControllerCropY + kControllerCropH) {
+    return nullptr;
+  }
+  std::lock_guard lock(mutex);
+  if (!cropped) {
+    auto image = std::make_shared<skylanders::FigureImage>();
+    image->width = kControllerCropW;
+    image->height = kControllerCropH;
+    image->rgba.resize(size_t(kControllerCropW) * kControllerCropH * 4);
+    for (int y = 0; y < kControllerCropH; ++y) {
+      std::memcpy(&image->rgba[size_t(y) * kControllerCropW * 4],
+                  &full->rgba[(size_t(kControllerCropY + y) * full->width + kControllerCropX) * 4],
+                  size_t(kControllerCropW) * 4);
+    }
+    cropped = std::move(image);
+  }
+  return cropped;
 }
 
 // "path:<toy id>:<path 0/1>:<upgrade 0-2>": that picture of the character's strip, padded to a
@@ -399,6 +438,26 @@ std::shared_ptr<const skylanders::FigureImage> PathPicture(const std::string& ke
 
 }  // namespace
 
+skylanders::ControllerPicture ControllerPictureLayout() {
+  // In the full picture's pixels (see the top).
+  static const skylanders::ControllerSpot kSpots[] = {
+      {"guide", 129, 94, 14}, {"back", 105, 94, 6},   {"start", 152, 94, 6},  {"y", 193, 75, 8},
+      {"x", 176, 92, 8},      {"b", 210, 92, 8},      {"a", 193, 109, 8},     {"ls", 63, 92, 17},
+      {"rs", 159, 131, 17},   {"up", 94, 119, 6},     {"down", 94, 143, 6},   {"left", 83, 131, 6},
+      {"right", 106, 131, 6}, {"lb", 63, 60, 9},      {"rb", 193, 57, 9},
+  };
+  skylanders::ControllerPicture picture;
+  picture.art_key = kControllerArtKey;
+  picture.width = kControllerCropW;
+  picture.height = kControllerCropH;
+  for (skylanders::ControllerSpot spot : kSpots) {
+    spot.x -= kControllerCropX;
+    spot.y -= kControllerCropY;
+    picture.spots.push_back(spot);
+  }
+  return picture;
+}
+
 void InstallUiImages(const std::filesystem::path& archive) {
   g_characters_dir = archive.parent_path() / "models" / "characters" / "minionsmonsters";
   std::thread(Load, archive).detach();
@@ -424,6 +483,7 @@ void InstallUiImages(const std::filesystem::path& archive) {
     if (key.starts_with("path:")) return PathPicture(key);
     // The menu's gold symbol: the HUD's coin.
     if (key == "ui:gold") return Picture(kGoldPicture);
+    if (key == kControllerArtKey) return ControllerPicture();
     return std::shared_ptr<const skylanders::FigureImage>();
   });
 }

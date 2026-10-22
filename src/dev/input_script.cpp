@@ -524,7 +524,8 @@ class ScriptInputDriver final : public rex::input::InputDriver {
   void EnumerateDevices(std::vector<rex::input::DeviceInfo>& out) override {
     rex::input::DeviceInfo info;
     info.id = kScriptDevice;
-    info.name = "Input script";
+    // It plays like an Xbox 360 pad (A/B/X/Y), so the menus draw that pad for it.
+    info.name = "Input script (Xbox 360 pad)";
     info.synthetic = true;
     out.push_back(info);
   }
