@@ -206,6 +206,18 @@ class SsarecompApp : public rex::ReXApp {
     ssarecomp::InstallUpgrades();
     // 16x texture filtering unless the owner set his own (skylanders-portal settings_schema.h).
     skylanders::ApplyGraphicsDefaults();
+    // The blocky shadows "out of the ground" (#30): the game lights the sun only in the 32x32
+    // tiles it marks in the stencil, and it picks those on the CPU from one render-to-texture
+    // result, the 1120x704 32-bit resolve at guest 0x19bc0000. Without readback the CPU never
+    // sees that result, so tiles at a shadow's edge stay unlit in square steps. Reading back just
+    // this resolve (the previous frame's, "fast") fixes it for 2.5 % of the frame rate; every
+    // resolve would cost 31 %. Found with a RenderDoc capture (the light buffer after each light
+    // draw) and readback_resolve_log; the address is the same in the hub and in Chapter 1, at
+    // scale 1 and 2 (the game allocates its targets at start). Both only when nothing set them
+    // (readback_resolve = "none" in the settings file turns it off). Here, not in OnPreSetup: the
+    // settings belong to the GPU plugin, loaded by now.
+    SetDefaultIfUnset("readback_resolve", "fast");
+    SetDefaultIfUnset("readback_resolve_addresses", "0x19bc0000");
     // Estimate the EDRAM extent of draws without clipping by running their vertex shader on the
     // CPU (Xenia's default; the SDK defaults to off). In Swap Force, without it, the faster RTV
     // render target path let a full-screen float pass wrap around the EDRAM onto the lit scene and
