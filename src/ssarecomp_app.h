@@ -157,6 +157,9 @@ class SsarecompApp : public rex::ReXApp {
     // One figure folder for every game (Documents\Skylanders\Figures), like the real figures next
     // to the portal; the first start copies this game's old per-game folder into it.
     skylanders::InstallPortal(skylanders::SharedFiguresDir(user_data_root()));
+    // The figure pictures this game reads from the disc, also as files for the Core of Light
+    // launcher's figure library (Documents\Skylanders\Pictures\Spyro's Adventure).
+    skylanders::StartFigurePictureCache(skylanders::SharedPicturesDir(user_data_root(), "Spyro's Adventure"));
     // A real crash logs where in the game it happened (guest call chain and registers).
     ssarecomp::InstallCrashReport(runtime()->memory());
     // The achievements list (F7, F4 > Spiel > Erfolge); the kernel's list exists from launch on.
