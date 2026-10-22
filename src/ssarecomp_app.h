@@ -206,6 +206,8 @@ class SsarecompApp : public rex::ReXApp {
     ssarecomp::InstallUpgrades();
     // 16x texture filtering unless the owner set his own (skylanders-portal settings_schema.h).
     skylanders::ApplyGraphicsDefaults();
+    // An HD texture pack in Documents\Skylanders\Textures\Spyro's Adventure, if there is one.
+    skylanders::UseTexturePack(user_data_root(), "Spyro's Adventure");
     // The blocky shadows "out of the ground" (#30): the game lights the sun only in the 32x32
     // tiles it marks in the stencil, and it picks those on the CPU from one render-to-texture
     // result, the 1120x704 32-bit resolve at guest 0x19bc0000. Without readback the CPU never
