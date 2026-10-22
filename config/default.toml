@@ -70,6 +70,18 @@ address = 0x829EDEB8
 name = "BinkCloseHook"
 registers = []
 
+# Glow option (bloom_strength, #35). 0x8289A428 is the first instruction of the "Bloom Render"
+# command's callback (sub_8289A428, queued by sub_8289A898 each frame), r3 its 36-byte parameter
+# block: +0 threshold, +4 strength, +8 level, +12..+20 colour, read for the bright pass's shader
+# constants (bloomlevel, brightness). In play the game leaves them 0, so the pass shows nothing.
+# Found 2026-10-22 from the shader's "BloomLevel" constant and the command's name. The hook fills
+# the block only with the option above 0 (off by default), before the callback reads it; the block
+# is made anew each frame (src/hooks/post_effects_hook.cpp).
+[[midasm_hook]]
+address = 0x8289A428
+name = "BloomRenderHook"
+registers = ["r3"]
+
 [functions]
 # Function starts the analyzer put one instruction late (SSARecomp #33 / GiantsRecomp #23), found in
 # the whole code (a dump of guest memory with the input script's `save`): right after a `blr`, an

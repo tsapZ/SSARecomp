@@ -55,6 +55,7 @@ set(SSARECOMP_SOURCES
     src/dev/input_script.cpp
     src/dev/write_watch.cpp
     src/hooks/intro_skip_hook.cpp
+    src/hooks/post_effects_hook.cpp
     src/hooks/scene_size_hook.cpp
     src/hooks/ultrawide_hook.cpp
 )

@@ -111,6 +111,18 @@ SettingsPage GraphicsPage() {
        "Empfohlen: aus.",
        {{"none", "Off", "Aus"}, {"fxaa", "FXAA", "FXAA"}, {"fxaa_extreme", "FXAA strong",
                                                          "FXAA stark"}}});
+  page.settings.push_back(
+      {"bloom_strength", "Glow (bloom)", "Leuchten (Bloom)",
+       "A soft glow around bright areas and lights. Spyro's Adventure has the effect but leaves it "
+       "off, so the original look is Off; Weak to Strong switch the game's own glow on, a look the "
+       "game was never tuned with. Costs nothing.",
+       "Ein weicher Schein um helle Stellen und Lichter. Spyro's Adventure hat den Effekt, l\xC3\xA4sst "
+       "ihn aber aus, darum ist der Original-Look Aus; Schwach bis Stark schalten den Schein des "
+       "Spiels ein, ein Look, auf den das Spiel nie abgestimmt wurde. Kostet nichts.",
+       {{"0", "Off (as in the game)", "Aus (wie im Spiel)"},
+        {"0.5", "Weak", "Schwach"},
+        {"1", "Medium", "Mittel"},
+        {"1.5", "Strong", "Stark"}}});
   Setting fullscreen{"fullscreen", "Fullscreen", "Vollbild",
                      "Starts the game in fullscreen or in a window.",
                      "Startet das Spiel im Vollbild oder im Fenster."};

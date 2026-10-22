@@ -19,7 +19,9 @@
 
 #include "ultrawide_hook.h"
 
-REXCVAR_DEFINE_BOOL(skip_intro, true, "Game",
+// Off by default (the owner's choice, 2026-10-22): the game starts as on the console, with its
+// logo movies; skipping them is the option.
+REXCVAR_DEFINE_BOOL(skip_intro, false, "Game",
                     "Skip the Activision, XPEC and Toys for Bob logo movies and the legal notice "
                     "at startup.");
 REXCVAR_DEFINE_BOOL(skip_opening_movie, false, "Game",

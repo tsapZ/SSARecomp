@@ -264,3 +264,13 @@ Updated at the end of every session. Only record what a build actually did.
 - **Figure pictures for the launcher** (skylanders-portal e87feb3): while the game runs, every figure picture it reads from the disc goes into `Documents\Skylanders\Pictures\<game>` once, for the launcher's figure library; later the same night (skylanders-portal 7f6a34a) also the hats it knows (hats.txt, their pictures) and the upgrade trees of the figures in the figure folder; and
 (skylanders-portal ca65339) the game's achievement list with the title's own pictures, for the
 launcher's achievements screen.
+- **Leuchten (Bloom) as an option (F4 > Grafik, #35, off by default):** the game has a bloom pass
+  ("Bloom Render", `sub_8289A898` / callback `sub_8289A428`) but leaves its parameter block at 0
+  in play, so nothing shows. The hook at the callback's start (0x8289A428) fills the block with a
+  threshold of 0.7, the colour of the one scene that sets it and a strength of a quarter per step
+  (Schwach 0.5, Mittel 1, Stark 1.5): a glow the game was never tuned with, so Aus is the
+  original look. Checked in Chapter 1, the figure standing: the picture's mean brightness 119.9
+  off, 125.5 / 129.3 / 132.3 at the three steps, a soft glow on the sunlit path and the sky; the
+  first try (threshold 0.4, the full strength) washed the whole ground out orange.
+- **Nothing skipped by default** (the owner's choice, 2026-10-22): `skip_intro` is off, the logo
+  movies play as on the console; the settings templates say so too.
