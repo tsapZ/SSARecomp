@@ -101,6 +101,8 @@ target_include_directories(ssarecomp_verify PRIVATE "${REXSDK_DIR}/thirdparty")
 target_sources(ssarecomp_verify PRIVATE "${REXSDK_DIR}/thirdparty/crypto/sha256.cpp")
 
 target_link_libraries(ssarecompiled PRIVATE ssarecomp_verify skylanders_portal_rex)
+# The exe's icon: the game's logo from the owner's disc (rom/nxeart), made at build time (#37).
+skylanders_game_icon(ssarecompiled "${CMAKE_CURRENT_SOURCE_DIR}/rom")
 target_compile_definitions(ssarecompiled PRIVATE SSARECOMP_XEX_SHA256="${SSARECOMP_XEX_SHA256}")
 
 enable_testing()
