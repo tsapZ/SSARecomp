@@ -16,9 +16,11 @@
 // chosen, bit 1 the second path, from bit 2 the basic four, the chosen path's three and the Soul
 // Gem, from bit 11 the other path's (GiantsRecomp's toy_upgrades.cpp, which shows this game's
 // figures' upgrades right).
-// The prices are Giants' (its Minion_UpgradeCosts: 500, 700, 900, 1200, 1700, 2200, 3000, 4000);
-// this game's own table hasn't been found in its files yet (not in gamedata.lxb or tuning.lxb as
-// plain numbers), so they are to be checked against the game's upgrade screen.
+// The prices are Giants' (its Minion_UpgradeCosts: 500, 700, 900, 1200, 1700, 2200, 3000, 4000).
+// They are this game's too: the Skylanders wiki's list of Dark Spyro's Spyro's Adventure upgrades
+// (checked 2026-10-22) has Long Range Raze 500, Spyro's Flight 700, Sprint Charge 900, Triple
+// Flameballs 1200, each path 1700 / 2200 / 3000 and the Soul Gem's Dive Bomb 4000. This game's own
+// table isn't found in its files (not in gamedata.lxb or tuning.lxb as plain numbers).
 // Pictures: the Soul Gem's is "upgrade<toy id>" in uigameimage.str (ui_images.cpp): 32 pictures,
 // one per Skylander by toy id (upgrade016 is Spyro's ground pound, "Spyros Erdklopfer";
 // upgrade014 Gill Grunt's anchor, upgrade019 Trigger Happy's golden cannon, "Infinite Ammo").
