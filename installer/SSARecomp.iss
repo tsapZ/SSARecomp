@@ -1,5 +1,5 @@
 #define MyAppName "Spyro's Adventure Recompiled"
-#define MyAppVersion "0.1.0-alpha.2"
+#define MyAppVersion "0.1.0-beta.1"
 #define MyAppExeName "ssarecompiled.exe"
 
 [Setup]
@@ -338,6 +338,49 @@ begin
     Result := HasValidExistingRom and FileExists(ExpandConstant('{app}') + '\ssarecomp.toml');
 end;
 
+// Values from the command line for the two pages, so an install can run unattended
+// (/VERYSILENT /SUPPRESSMSGBOXES, e.g. from the launcher or a test) or start with them filled in:
+// /ROM=<the .iso or the extracted disc folder>, /LANGUAGE=english|german|... (as the settings
+// file names them), /PORTAL=software|usb|none, /RESOLUTION=<width>x<height>, /SCALE=1-8. A value
+// that isn't given, or that the page doesn't offer, leaves the page's default.
+procedure ApplyCommandLine;
+var
+  Value: String;
+  Previous, I: Integer;
+begin
+  Value := ExpandConstant('{param:ROM|}');
+  if Value <> '' then begin
+    RomPathEdit.Text := Value;
+    RomIsFolderRadio.Checked := DirExists(Value);
+    RomIsIsoRadio.Checked := not DirExists(Value);
+  end;
+  Value := Lowercase(ExpandConstant('{param:LANGUAGE|}'));
+  if Value <> '' then begin
+    Previous := LanguageCombo.ItemIndex;
+    for I := LanguageCombo.Items.Count - 1 downto 0 do begin
+      LanguageCombo.ItemIndex := I;
+      if LanguageTomlValue = Value then Break;
+      LanguageCombo.ItemIndex := Previous;
+    end;
+  end;
+  Value := Lowercase(ExpandConstant('{param:PORTAL|}'));
+  if Value <> '' then begin
+    Previous := PortalModeCombo.ItemIndex;
+    for I := PortalModeCombo.Items.Count - 1 downto 0 do begin
+      PortalModeCombo.ItemIndex := I;
+      if PortalModeTomlValue = Value then Break;
+      PortalModeCombo.ItemIndex := Previous;
+    end;
+  end;
+  Value := ExpandConstant('{param:RESOLUTION|}');
+  if Value <> '' then begin
+    if ResolutionCombo.Items.IndexOf(Value) < 0 then ResolutionCombo.Items.Add(Value);
+    ResolutionCombo.ItemIndex := ResolutionCombo.Items.IndexOf(Value);
+  end;
+  Value := ExpandConstant('{param:SCALE|}');
+  if Value <> '' then ResolutionScaleEdit.Text := Value;
+end;
+
 procedure InitializeWizard;
 begin
   RomPage := CreateCustomPage(wpSelectDir, 'Game Files',
@@ -446,12 +489,12 @@ begin
 
   ResolutionScaleLabel := TNewStaticText.Create(SettingsPage);
   ResolutionScaleLabel.Parent := SettingsPage.Surface;
-  ResolutionScaleLabel.Caption := 'Supersample scale (1-8, 1 = off):';
+  ResolutionScaleLabel.Caption := 'Internal resolution, 1-8 (2 recommended, 1 = as on the console):';
   ResolutionScaleLabel.Top := ResolutionCombo.Top + ResolutionCombo.Height + 16;
 
   ResolutionScaleEdit := TNewEdit.Create(SettingsPage);
   ResolutionScaleEdit.Parent := SettingsPage.Surface;
-  ResolutionScaleEdit.Text := '1';
+  ResolutionScaleEdit.Text := '2';
   ResolutionScaleEdit.Top := ResolutionScaleLabel.Top + ResolutionScaleLabel.Height + 4;
   ResolutionScaleEdit.Width := 60;
 
@@ -465,6 +508,7 @@ begin
   ControllerLabel.Caption := 'Controllers are detected automatically (the first one is player 1). The game runs at 60 FPS. ' +
     'The portal menu opens by itself when the game asks for a Skylander, or with the Guide button, ' +
     'Back+Start or holding Back (F6 on the keyboard).';
+  ApplyCommandLine;
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
