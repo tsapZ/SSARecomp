@@ -39,6 +39,7 @@
 #include "portal_rex/portal_menu_input.h"
 #include "portal_rex/player_menu.h"
 #include "portal_rex/settings_menu.h"
+#include "portal_rex/settings_schema.h"
 #include "settings_pages.h"
 #include "portal_rex/portal_rex.h"
 #include "xex_verify.h"
@@ -146,6 +147,10 @@ class SsarecompApp : public rex::ReXApp {
     // Player 2 leaves this game's portal screen with the right stick ("RS Spiel verlassen" under
     // the request), not with B as in Giants and Swap Force (#27).
     SetDefault("portal_menu_leave_button", "rs");
+    // For the launcher (Core of Light): the settings menu's pages with their values as a file,
+    // then quit, before a window opens (--settings_schema, settings_schema.h).
+    skylanders::WriteSettingsSchemaIfRequested(
+        config, [] { return ssarecomp::BuildSettingsPages([] {}); }, settings_path_);
   }
 
   void OnPostSetup() override {
@@ -289,6 +294,8 @@ class SsarecompApp : public rex::ReXApp {
   }
 
   void OnPostInitLogging() override {
+    // The launcher only wants the settings pages (settings_schema.h), which need no disc.
+    if (skylanders::SettingsSchemaRequested()) return;
     // ReXApp reports a missing --game_data_root itself when it builds the runtime.
     if (game_data_root_.empty()) return;
     const auto xex = game_data_root_ / "default.xex";
