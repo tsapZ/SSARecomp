@@ -160,6 +160,9 @@ const char* ItemPictureName(uint16_t id) {
   }
 }
 
+// The items above whose picture is a stand-in: the chest, the magic item and location symbols.
+bool IsStandIn(uint16_t id) { return id == 201 || id == 204 || id == 207 || (id >= 300 && id <= 304); }
+
 // The HUD's coin (the menu's gold symbol), in the HUD's own archive ui/eng/hudmenu.str (64x64).
 constexpr char kGoldPicture[] = "c:\\spyro\\assets\\ui\\textures\\hud\\gold.dds";
 
@@ -461,7 +464,13 @@ skylanders::ControllerPicture ControllerPictureLayout() {
 void InstallUiImages(const std::filesystem::path& archive) {
   g_characters_dir = archive.parent_path() / "models" / "characters" / "minionsmonsters";
   std::thread(Load, archive).detach();
-  skylanders::SetFigureImageProvider([](uint16_t id, uint16_t /*variant*/) {
+  skylanders::SetFigureImageProvider([](uint16_t id, uint16_t variant) {
+    // The magic items and adventure packs this game has only a stand-in for (#31): a later
+    // game's picture of them, if one on this PC has left it (Swap Force's collection icons have
+    // them all); else the stand-in.
+    if (IsStandIn(id)) {
+      if (auto other = skylanders::OtherGamePicture(id, variant)) return other;
+    }
     if (const char* item = ItemPictureName(id)) return Picture(item);
     const char* name = PortraitName(id);
     return name ? Picture(std::string("toy_") + name + "_hud") : nullptr;
