@@ -36,7 +36,7 @@ Then:
 
 1. Download from the [Releases](https://github.com/tsapZ/SSARecomp/releases) page: just this game's
    installer, or [Core of Light](https://github.com/tsapZ/SkylandersCoreOfLight/releases), the
-   launcher with all six games.
+   launcher that downloads and sets up all six games.
 2. Start it and choose your ISO. It checks that it is the right disc and sets the game up.
 3. Play. When the game asks for a Skylander, the portal menu opens by itself: pick one.
 
@@ -129,8 +129,19 @@ the same as for SwapForceRecomp: [docs/development.md](docs/development.md). All
   and workflow.
 - **[ReXGlue](https://github.com/rexglue/rexglue-sdk)**, the static recompilation SDK, here in
   TheBiemGamer's fork with our fixes on top.
+- **[skylanders-portal](https://github.com/TheBiemGamer/skylanders-portal)** by TheBiemGamer:
+  the portal (software and USB), its overlay and the figure catalog, here in a fork with the
+  shared portal and settings menus on top.
+- Figure save-data decoding builds on public reverse-engineering of the Skylanders NFC format,
+  among others **[SkyReader](https://github.com/reedstrm/SkyReader)**.
 - **[extract-xiso](https://github.com/XboxDev/extract-xiso)** is included (prebuilt, unmodified)
   for the installer (`installer/extract-xiso.LICENSE.txt`).
 
 Skylanders is a trademark of Activision. This project is not affiliated with or endorsed by
 Activision.
+
+## License
+
+The code and documentation in this repository are released under the [MIT license](LICENSE). That
+doesn't cover the game or its data, which you need to own and supply yourself, or the third-party
+components in `thirdparty/`, which keep their own licenses.

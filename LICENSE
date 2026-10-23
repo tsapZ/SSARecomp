@@ -1,8 +1,8 @@
 MIT License
 
 Copyright (c) 2026 SSARecomp contributors
-Portions copyright (c) 2026 SwapForceRecomp contributors
-Portions copyright (c) 2026 TheBiemGamer (GiantsRecomp)
+Copyright (c) 2026 SwapForceRecomp contributors
+Copyright (c) 2026 TheBiemGamer (GiantsRecomp)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -21,8 +21,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-This license covers the code and documentation in this repository only. It does
-not cover Skylanders: Spyro's Adventure or any of its data, which you must own and supply
-yourself, and it does not cover the third-party components under thirdparty/,
-which keep their own licenses.
