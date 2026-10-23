@@ -306,6 +306,8 @@ begin
   Contents := ReplaceAll(Contents, '__RESOLUTION__', ResolutionCombo.Items[ResolutionCombo.ItemIndex]);
   Contents := ReplaceAll(Contents, '__RESOLUTION_SCALE__', ResolutionScale);
 
+  // {app} exists only once something was put there: with /NOROM=1 nothing is before this page.
+  ForceDirectories(ExtractFileDir(DestPath));
   SaveStringToFile(DestPath, Contents, False);
 end;
 
@@ -331,11 +333,18 @@ end;
 // project's own docs/build.md notes settings are user-editable), skipping this page too would
 // leave the install with rom/ but no settings file at all. Skipping settings independently of the
 // rom check lets WriteSettingsFile (Task 6) regenerate a fresh default file for that case.
+// /NOROM=1: the game without its disc; the Core of Light launcher sets the disc up itself
+// afterwards (its own ISO reader, with progress). The settings page still runs.
+function NoRomWanted: Boolean;
+begin
+  Result := ExpandConstant('{param:NOROM|0}') = '1';
+end;
+
 function ShouldSkipPage(PageID: Integer): Boolean;
 begin
   Result := False;
   if PageID = RomPage.ID then
-    Result := HasValidExistingRom;
+    Result := HasValidExistingRom or NoRomWanted;
   if PageID = SettingsPage.ID then
     Result := HasValidExistingRom and FileExists(ExpandConstant('{app}') + '\ssarecomp.toml');
 end;
@@ -526,8 +535,10 @@ begin
   end;
 
   if CurPageID <> RomPage.ID then Exit;
+  if NoRomWanted then Exit;
 
   if Trim(RomPathEdit.Text) = '' then begin
+    Log('ROM: no ISO file or extracted game folder chosen');
     MsgBox('Choose your ISO file or extracted game folder first.', mbError, MB_OK);
     Result := False;
     Exit;
@@ -540,6 +551,7 @@ begin
   // input the extraction happens inside PreflightCheckRom below, not in a separate later step.
   FreeMB := GetFreeSpaceMB(ExpandConstant('{app}'));
   if FreeMB < 9000 then begin
+    Log('ROM: not enough free disk space, ' + IntToStr(FreeMB) + ' MB of 9000 MB');
     MsgBox('Not enough free disk space. At least 9000 MB free is needed; ' + IntToStr(FreeMB) +
       ' MB is available.', mbError, MB_OK);
     Result := False;
@@ -560,8 +572,10 @@ begin
   RomProgressBar.Style := npbstNormal;
   RomProgressBar.Visible := False;
 
-  if not Result then
-    MsgBox(ErrorMsg, mbError, MB_OK)
+  if not Result then begin
+    Log('ROM: ' + ErrorMsg);
+    MsgBox(ErrorMsg, mbError, MB_OK);
+  end
   else
     RomStatusLabel.Caption := 'Done.';
 end;
