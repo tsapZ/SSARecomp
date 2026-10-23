@@ -6,6 +6,40 @@ static recompilation (ReXGlue). Work in progress: Chapter 1 plays with a figure 
 > **Unofficial fan project.** Not affiliated with or endorsed by Activision or Toys for Bob. This
 > repository contains **no game data**: you need your own copy of the game.
 
+## About this project
+
+A personal project: I wanted to play the Xbox 360 Skylanders games on my PC with nothing but a
+controller, in a sharp picture and at 60 FPS. These ports are the result. They are public in case
+other people enjoy them too.
+
+**Made with AI.** Nearly all of the work, about 99 %, was done by Claude, an AI model by Anthropic,
+working in Claude Code: the reverse engineering of the game code, the hooks and fixes, the portal
+emulation and its menus, the launcher, the installers and these documents. My part was the idea,
+the decisions, and playing and testing the games.
+
+This port runs on its own. [Skylanders: Core of
+Light](https://github.com/tsapZ/SkylandersCoreOfLight) is the launcher that brings all six together:
+it installs the games, sets up their discs from your ISOs, keeps profiles and shows your figures and
+achievements.
+
+## Play it
+
+You need:
+
+- Windows 10 or 11 (64-bit) and a graphics card with DirectX 12
+- **your own copy of the game**: the Xbox 360 disc listed under [Which disc](#which-disc), as an ISO
+  or an extracted folder (nothing of the game comes with this project)
+- a controller (Xbox or compatible; keyboard and mouse work too). A real Portal of Power is
+  optional: the emulated portal's menu has every figure
+
+Then:
+
+1. Download from the [Releases](https://github.com/tsapZ/SSARecomp/releases) page: just this game's
+   installer, or [Core of Light](https://github.com/tsapZ/SkylandersCoreOfLight/releases), the
+   launcher with all six games.
+2. Start it and choose your ISO. It checks that it is the right disc and sets the game up.
+3. Play. When the game asks for a Skylander, the portal menu opens by itself: pick one.
+
 ## Status
 
 | Area | State |
@@ -55,7 +89,7 @@ check it and say so if another version is given. Other pressings have not been c
 ## Installing
 
 - **Installer (beta):** `just package-installer` builds `installer/Output/SSARecompSetup-<version>.exe`
-  (Inno Setup; there are no prebuilt downloads yet). It installs into your user folder
+  (Inno Setup; the same file is on the [Releases](https://github.com/tsapZ/SSARecomp/releases) page). It installs into your user folder
   (`%LOCALAPPDATA%\Programs\Spyro's Adventure Recompiled`, no admin rights) and asks for your disc, as an ISO or an
   already extracted folder (it checks the version, then copies the files next to the game), the
   game language, the portal (emulated, real USB or none), the window size and the internal
@@ -69,6 +103,15 @@ check it and say so if another version is given. Other pressings have not been c
 Your figures are `.dump` files in `Documents\Skylanders\Figures`, shared by every game, like real
 figures next to the portal. The saves are in `Documents\ssarecomp`, the settings file next to the
 game's exe.
+
+## Reporting a problem
+
+Open an [issue](https://github.com/tsapZ/SSARecomp/issues/new/choose) with the **Problem** form and say
+what you did and what happened. The most useful thing to add is the report from Core of Light:
+**LB** (the launcher's settings) > **Problem melden**, or the question that comes up by itself
+after a crash. It writes one text file to the desktop with the latest logs and settings of every
+game, with your Windows user name taken out; drag that file into the issue. Without the launcher,
+each game keeps its logs in the `logs` folder next to its exe.
 
 ## Building
 
