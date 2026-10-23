@@ -20,7 +20,7 @@ Updated at the end of every session. Only record what a build actually did.
 
 ## 2026-10-20: session log
 
-- **Scaffold:** copied from SwapForceRecomp (its tracked files at 5c61e5e), renamed, its Swap
+- **Scaffold:** copied from SwapForceRecomp (its tracked files at 96fad5d), renamed, its Swap
   Force-specific parts left out (hooks, the Alchemy archive readers, the magic moment watch, the
   game art), docs started new. Submodules: the same rexglue-sdk commit and the portal fork's
   `feature/portal-menu` branch.
