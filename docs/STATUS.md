@@ -20,7 +20,7 @@ Updated at the end of every session. Only record what a build actually did.
 
 ## 2026-10-20: session log
 
-- **Scaffold:** copied from SwapForceRecomp (its tracked files at c4c9c45), renamed, its Swap
+- **Scaffold:** copied from SwapForceRecomp (its tracked files at 5c61e5e), renamed, its Swap
   Force-specific parts left out (hooks, the Alchemy archive readers, the magic moment watch, the
   game art), docs started new. Submodules: the same rexglue-sdk commit and the portal fork's
   `feature/portal-menu` branch.
@@ -70,7 +70,7 @@ Updated at the end of every session. Only record what a build actually did.
   das Portal of Power" screen, shows the "Spyro's Adventure" figures by element, and placing
   Spyro through it gets the game's portal card and Hugo's line for Spyro by name. The menus took
   German only from `language = "german"`; they now follow the language the game runs in
-  (`user_language`), so "auto" works (portal fork 5a7188c, also in SwapForceRecomp).
+  (`user_language`), so "auto" works (portal fork 9e7b5c7, also in SwapForceRecomp).
 - **Playing:** after skipping the opening, Spyro walks, the camera follows, fire breath and the
   mission message ("Rette die Dorfbewohner") work, 30 guest FPS. Swapping Spyro for Eruptor on
   the emulated portal mid-level brings Eruptor in with his card and HUD.
@@ -153,7 +153,7 @@ Updated at the end of every session. Only record what a build actually did.
   `save-backup/previous/`; a start after a crash in between puts it back. Checked on a test copy:
   both saves log "saving ... anew" and "saved".
 - **No crash when B closes the portal menu's "real portal is active" message** (portal fork
-  1566231, found in SwapForceRecomp with the USB portal).
+  8f56b05, found in SwapForceRecomp with the USB portal).
 - **Crash report in the log** (`src/dev/write_watch.cpp`, `InstallCrashReport`, from
   SwapForceRecomp): a real crash logs the guest call chain and registers ("Crash: ...").
 - **SDK: vertex data the CPU rewrites in place is uploaded again** (fork `fix/vertex-buffer-cpu-writes`,
@@ -252,17 +252,17 @@ Updated at the end of every session. Only record what a build actually did.
 
 ## 2026-10-22: session log (night)
 
-- **Portal library** (cbc71c6, 0eb2564): the later games' cards say "Fahrzeug", "Sensei", "Falle" and "Serie 2" in the German menu; a plain hat symbol where a game has no hat picture.
+- **Portal library** (83cc22e, 141d32e): the later games' cards say "Fahrzeug", "Sensei", "Falle" and "Serie 2" in the German menu; a plain hat symbol where a game has no hat picture.
 - **New issues** for options the other games have: #35 bloom and motion blur strength, #36 the game's controller picture.
 
 ## 2026-10-22: later the same night
 
 - **The controls page shows the game's controller picture** (ui/eng/startmenu.str's 360_controller.dds, cut to the pad), #36 closed.
 - The settings example's frame rate line says 60 like the default.
-- **Settings file read even with a repeated key** (SDK fork 96273bb): a key set twice in a table makes the whole TOML file invalid, and the game then ignored every setting in it without a visible error (the error went to a log that didn't exist yet). The SDK now reads such a file with the repeats left out and logs which key was repeated.
-- **`--settings_schema=<file>`** (skylanders-portal 25dec20): the game writes its F4 menu's pages with their values and quits before a window opens; the Core of Light launcher shows them as the game's settings and writes into this game's settings file.
-- **Figure pictures for the launcher** (skylanders-portal e87feb3): while the game runs, every figure picture it reads from the disc goes into `Documents\Skylanders\Pictures\<game>` once, for the launcher's figure library; later the same night (skylanders-portal 7f6a34a) also the hats it knows (hats.txt, their pictures) and the upgrade trees of the figures in the figure folder; and
-(skylanders-portal ca65339) the game's achievement list with the title's own pictures, for the
+- **Settings file read even with a repeated key** (SDK fork 8761248): a key set twice in a table makes the whole TOML file invalid, and the game then ignored every setting in it without a visible error (the error went to a log that didn't exist yet). The SDK now reads such a file with the repeats left out and logs which key was repeated.
+- **`--settings_schema=<file>`** (skylanders-portal 4521ced): the game writes its F4 menu's pages with their values and quits before a window opens; the Core of Light launcher shows them as the game's settings and writes into this game's settings file.
+- **Figure pictures for the launcher** (skylanders-portal e17786b): while the game runs, every figure picture it reads from the disc goes into `Documents\Skylanders\Pictures\<game>` once, for the launcher's figure library; later the same night (skylanders-portal 6c3c6a3) also the hats it knows (hats.txt, their pictures) and the upgrade trees of the figures in the figure folder; and
+(skylanders-portal f571d26) the game's achievement list with the title's own pictures, for the
 launcher's achievements screen.
 - **Leuchten (Bloom) as an option (F4 > Grafik, #35, off by default):** the game has a bloom pass
   ("Bloom Render", `sub_8289A898` / callback `sub_8289A428`) but leaves its parameter block at 0
@@ -277,8 +277,8 @@ launcher's achievements screen.
 
 ## 2026-10-23: session log (night)
 
-- **Title music from the disc** for the Core of Light launcher (skylanders-portal 7bd504a,
-  rexglue-sdk 1e74678): `--export_title_music=<file.wav>` decodes the track the title screen
+- **Title music from the disc** for the Core of Light launcher (skylanders-portal 6e5c284,
+  rexglue-sdk 63e87be): `--export_title_music=<file.wav>` decodes the track the title screen
   streams (found with a run logging the game's file reads) from XMA2 with the SDK's FFmpeg and
   quits before a window opens, in under a second; each normal start leaves `title_music.wav` in
   the game's picture folder once. Checked: the Wwise stream 205913188 of audio/streaming.pck (62.8 s); identical to FFmpeg 8.1's own decode of the
@@ -287,10 +287,10 @@ launcher's achievements screen.
   starten" (both ask, "Nein" first; restart not offered when the launcher started the game; the
   new instance waits for the old one), the player menu is a row on the Portal page, the settings
   menu's buttons have no "Aus" any more (it locked a pad out), "Alle Einstellungen" says it is for
-  keyboard and mouse (skylanders-portal 60e8eeb).
-- **HD texture packs:** rexglue-sdk f02a4b5 dumps the game's BC1-BC3 textures
+  keyboard and mouse (skylanders-portal 5fff7aa).
+- **HD texture packs:** rexglue-sdk 37d3e77 dumps the game's BC1-BC3 textures
   (`texture_dump_dir`) and loads `<hash>.dds` replacements of any size (`texture_replace_dir`);
-  a pack in `Documents\Skylanders\Textures\Spyro's Adventure` is used by itself (skylanders-portal ebb5e85).
+  a pack in `Documents\Skylanders\Textures\Spyro's Adventure` is used by itself (skylanders-portal 94175f0).
   Checked in Swap Force's hub (see SwapForceRecomp docs/texture-packs.md, #62).
 - **F4 > Grafik:** "Schärfe-Stärke" (CAS's additional sharpness) and "Farbverläufe glätten
   (Dithering)", dithering on by default.
@@ -300,7 +300,7 @@ launcher's achievements screen.
 - **Blocky shadows out of the ground fixed (#30):** the game lights the sun only in the 32x32
   tiles it marks in a half-resolution 4x MSAA stencil, chosen on the CPU from one resolve (the
   1120x704 32-bit one at guest 0x19bc0000). Without resolve readback the CPU never saw it.
-  `readback_resolve = fast` plus `readback_resolve_addresses = 0x19bc0000` (rexglue-sdk f6b4518)
+  `readback_resolve = fast` plus `readback_resolve_addresses = 0x19bc0000` (rexglue-sdk 0bdd909)
   as defaults: smooth shadows for 2.5 % of the frame rate (91.6 -> 89.3 FPS at 2x, uncapped; all
   resolves read back cost 31 %). Found on a copy of the owner's save in the hub with a RenderDoc
   capture and `readback_resolve_log`; the address is the same in Chapter 1 and at scale 1 and 2.
