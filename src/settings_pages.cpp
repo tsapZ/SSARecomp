@@ -7,6 +7,7 @@
 
 #include "portal_rex/achievements_ui.h"
 #include "portal_rex/player_menu.h"
+#include "portal_rex/settings_schema.h"
 
 namespace ssarecomp {
 namespace {
@@ -121,6 +122,7 @@ SettingsPage GraphicsPage() {
        "H\xC3\xA4lt B\xC3\xB6" "den und W\xC3\xA4nde scharf, wenn man flach darauf schaut; ohne "
        "Filter verschwimmen sie in der Ferne. Empfohlen ist 16x: Das kostet etwa 1 % Bildrate.",
        {{"0", "Off", "Aus"}, {"3", "4x", "4x"}, {"4", "8x", "8x"}, {"5", "16x", "16x"}}});
+  page.settings.push_back(skylanders::HdTexturesSetting());  // the pack's on / off (all six games)
   page.settings.push_back(
       {"swap_post_effect", "Extra edge smoothing", "Zus\xC3\xA4tzliche Kantengl\xC3\xA4ttung",
        "A second edge smoothing over the whole picture, on top of the game's own. For now it also "
