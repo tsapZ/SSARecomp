@@ -108,7 +108,7 @@ game's exe.
 
 Open an [issue](https://github.com/tsapZ/SSARecomp/issues/new/choose) with the **Problem** form and say
 what you did and what happened. The most useful thing to add is the report from Core of Light:
-**LB** (the launcher's settings) > **Problem melden**, or the question that comes up by itself
+**LB** (the launcher's settings) > **Report a problem**, or the question that comes up by itself
 after a crash. It writes one text file to the desktop with the latest logs and settings of every
 game, with your Windows user name taken out; drag that file into the issue. Without the launcher,
 each game keeps its logs in the `logs` folder next to its exe.
