@@ -3,8 +3,6 @@
 An unofficial native Windows port of **Skylanders: Spyro's Adventure** (2011, Xbox 360), made with
 static recompilation (ReXGlue). Work in progress: Chapter 1 plays with a figure on the emulated portal.
 
-![Skylanders: Spyro's Adventure in play](docs/images/play.jpg)
-
 > **Unofficial fan project.** Not affiliated with or endorsed by Activision or Toys for Bob. This
 > repository contains **no game data**: you need your own copy of the game.
 
@@ -44,9 +42,8 @@ started together from [Skylanders: Core of Light](https://github.com/tsapZ/Skyla
 - **Achievements**, shown in the portal menu and in the Core of Light launcher.
 - English and German menus; the disc also has French, Spanish, Italian, Dutch, Danish, Finnish, Norwegian and Swedish.
 
-| The portal menu | A figure's upgrades | The settings menu (F4) |
-|---|---|---|
-| ![The portal menu](docs/images/portal-menu.jpg) | ![A figure's upgrades](docs/images/details.jpg) | ![The settings menu (F4)](docs/images/settings.jpg) |
+Screenshots are left out of this repository on purpose: they would show the games' artwork,
+which belongs to Activision.
 
 ## Which disc
 
