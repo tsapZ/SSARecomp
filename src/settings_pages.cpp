@@ -96,6 +96,24 @@ SettingsPage GraphicsPage() {
        {{"bilinear", "Soft", "Weich"},
         {"cas", "Sharpened (CAS)", "Gesch\xC3\xA4rft (CAS)"},
         {"fsr", "FSR 1 upscaling", "FSR 1 (hochskaliert)"}}});
+  // Two of the SDK's presenter settings the menu didn't offer (presenter.cpp): CAS's strength and
+  // dithering the 10-bit picture down to the window's 8 bits.
+  Setting cas_strength{"present_cas_additional_sharpness", "Sharpening strength", "Sch\xC3\xA4rfe-St\xC3\xA4rke",
+                       "How strongly Sharpened (CAS) sharpens. Normal is the gentle default; more "
+                       "brings out texture detail and edges, Maximum can look grainy.",
+                       "Wie stark \xE2\x80\x9EGesch\xC3\xA4rft (CAS)\xE2\x80\x9C sch\xC3\xA4rft. Normal ist "
+                       "sanft; Mehr holt Details und Kanten heraus, Maximal kann k\xC3\xB6rnig wirken.",
+                       {{"0", "Normal", "Normal"}, {"0.5", "More", "Mehr"}, {"1", "Maximum", "Maximal"}}};
+  cas_strength.restart = true;
+  page.settings.push_back(cas_strength);
+  Setting dither{"present_dither", "Smooth gradients (dithering)", "Farbverl\xC3\xA4ufe gl\xC3\xA4tten (Dithering)",
+                 "The game draws in 10 bits per colour, the window shows 8: without dithering, skies "
+                 "and fog fall into visible bands. Dithering hides them with noise too fine to see.",
+                 "Das Spiel rechnet mit 10 Bit pro Farbe, das Fenster zeigt 8: ohne Dithering "
+                 "zerfallen Himmel und Nebel in sichtbare Streifen. Dithering verdeckt sie mit "
+                 "unsichtbar feinem Rauschen."};
+  dither.restart = true;
+  page.settings.push_back(dither);
   page.settings.push_back(
       {"anisotropic_override", "Texture filtering", "Texturfilter",
        "Keeps floors and walls sharp when you look at them at a shallow angle; without it they "

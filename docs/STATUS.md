@@ -274,3 +274,33 @@ launcher's achievements screen.
   first try (threshold 0.4, the full strength) washed the whole ground out orange.
 - **Nothing skipped by default** (the owner's choice, 2026-10-22): `skip_intro` is off, the logo
   movies play as on the console; the settings templates say so too.
+
+## 2026-10-23: session log (night)
+
+- **Title music from the disc** for the Core of Light launcher (skylanders-portal 7bd504a,
+  rexglue-sdk 1e74678): `--export_title_music=<file.wav>` decodes the track the title screen
+  streams (found with a run logging the game's file reads) from XMA2 with the SDK's FFmpeg and
+  quits before a window opens, in under a second; each normal start leaves `title_music.wav` in
+  the game's picture folder once. Checked: the Wwise stream 205913188 of audio/streaming.pck (62.8 s); identical to FFmpeg 8.1's own decode of the
+  track (-63 dB).
+- **Leaving the game with the pad:** F4 > Spiel ends with "Spiel beenden" and "Spiel neu
+  starten" (both ask, "Nein" first; restart not offered when the launcher started the game; the
+  new instance waits for the old one), the player menu is a row on the Portal page, the settings
+  menu's buttons have no "Aus" any more (it locked a pad out), "Alle Einstellungen" says it is for
+  keyboard and mouse (skylanders-portal 60e8eeb).
+- **HD texture packs:** rexglue-sdk f02a4b5 dumps the game's BC1-BC3 textures
+  (`texture_dump_dir`) and loads `<hash>.dds` replacements of any size (`texture_replace_dir`);
+  a pack in `Documents\Skylanders\Textures\Spyro's Adventure` is used by itself (skylanders-portal ebb5e85).
+  Checked in Swap Force's hub (see SwapForceRecomp docs/texture-packs.md, #62).
+- **F4 > Grafik:** "Schärfe-Stärke" (CAS's additional sharpness) and "Farbverläufe glätten
+  (Dithering)", dithering on by default.
+- **Installer:** its own AppId (all six shared one); `/NOROM=1` installs without the disc for the
+  launcher (the settings file is still written); reasons a silent install stops go into its log.
+  Silent install from the owner's ISO, start (German title screen), silent uninstall: checked.
+- **Blocky shadows out of the ground fixed (#30):** the game lights the sun only in the 32x32
+  tiles it marks in a half-resolution 4x MSAA stencil, chosen on the CPU from one resolve (the
+  1120x704 32-bit one at guest 0x19bc0000). Without resolve readback the CPU never saw it.
+  `readback_resolve = fast` plus `readback_resolve_addresses = 0x19bc0000` (rexglue-sdk f6b4518)
+  as defaults: smooth shadows for 2.5 % of the frame rate (91.6 -> 89.3 FPS at 2x, uncapped; all
+  resolves read back cost 31 %). Found on a copy of the owner's save in the hub with a RenderDoc
+  capture and `readback_resolve_log`; the address is the same in Chapter 1 and at scale 1 and 2.

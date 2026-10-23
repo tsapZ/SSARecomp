@@ -143,6 +143,9 @@ class SsarecompApp : public rex::ReXApp {
     // 2026-10-21). resolution_scale, the preset's other half, belongs to the GPU plugin, which
     // isn't loaded yet here; the installer's settings file sets it for the screen.
     SetDefaultIfUnset("present_effect", "cas");
+    // Dithering the 10-bit picture to the window's 8 bits, against bands in skies and fog (F4 >
+    // Grafik, the dithering row): noise too fine to see, nothing to lose.
+    SetDefaultIfUnset("present_dither", "true");
     // Spyro's Adventure knows only its own figures (later games' figures of the same characters
     // carry their own toy ids too).
     SetDefault("portal_menu_games", "Spyro's Adventure");
