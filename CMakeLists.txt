@@ -19,6 +19,12 @@ endif()
 # stays the default (as in SwapForceRecomp, where both ran about equally fast).
 set(REXGLUE_USE_VULKAN ON CACHE BOOL "Enable Vulkan graphics backend")
 
+# Builds keep no path of the machine they were made on: the source folder is mapped away in
+# __FILE__ (the logs' source locations) and the debug info, for every target here and in the SDK and
+# the library. The setups on GitHub Releases are passed on (checked: no user folder left in the exe
+# and its DLLs).
+add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:-ffile-prefix-map=${CMAKE_SOURCE_DIR}/=>")
+
 include(generated/rexglue.cmake)
 
 # Portal of Power support (thirdparty/skylanders-portal, shared with other Skylanders recomps).
