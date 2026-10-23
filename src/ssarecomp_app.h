@@ -106,6 +106,9 @@ class SsarecompApp : public rex::ReXApp {
   static skylanders::TitleMusicSource TitleMusic() { return {{"audio/streaming.pck", "205913188"}}; }
 
   void OnPreSetup(rex::RuntimeConfig& config) override {
+    // "Fenstergröße: Automatisch" in fullscreen: the screen's size for this start, so an ultrawide
+    // screen gets the wider picture by itself (UltrawideActive below reads `resolution`).
+    skylanders::ResolutionFromScreenIfAutomatic();
     // Before the GPU plugin creates its device (testing only, gpu_crash_diagnostics).
     ssarecomp::EnableGpuCrashDiagnostics();
     // A wider window with ultrawide_fov: the picture fills it (the camera sees more to the sides)

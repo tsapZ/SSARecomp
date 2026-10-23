@@ -304,3 +304,13 @@ launcher's achievements screen.
   as defaults: smooth shadows for 2.5 % of the frame rate (91.6 -> 89.3 FPS at 2x, uncapped; all
   resolves read back cost 31 %). Found on a copy of the owner's save in the hub with a RenderDoc
   capture and `readback_resolve_log`; the address is the same in Chapter 1 and at scale 1 and 2.
+
+## 2026-10-24: 0.1.0-beta.7 (a colleague's evening on SteamOS)
+
+- **Ultrawide by itself in fullscreen** (skylanders-portal bd1b318): the ultrawide camera and the
+  presenter take the aspect from `resolution`, so "Fenstergröße: Automatisch" stayed 16:9 on a
+  21:9 screen. `ResolutionFromScreenIfAutomatic`, first thing in OnPreSetup, sets it for the start
+  to the primary screen's mode (nothing written; not for the launcher's schema).
+- **Window sizes** add 2560x1080 and 3440x1440 (21:9), 3840x1600 (24:10) and 5120x1440 (32:9).
+- **"Tastatur spielt als"** is greyed and can't be changed while "Tastatur und Maus" is off
+  (skylanders-portal 10a00cd, `enabled_by`, also in the schema for Core of Light).

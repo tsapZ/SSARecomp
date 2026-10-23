@@ -67,7 +67,7 @@ started together from [Skylanders: Core of Light](https://github.com/tsapZ/Skyla
   own 3D picture at its native size instead of the console's smaller one is an experimental
   option.
 - **60 FPS** (what the installer sets); 30 as on the console, or 144, 200 and more.
-- **Ultrawide**: a wider window shows more to the sides (the HUD at the edges is an experimental option here).
+- **Ultrawide**: a wider window shows more to the sides (the HUD at the edges is an experimental option here). In fullscreen with the window size on "Automatic" it takes your screen's shape by itself (21:9, 32:9); the window sizes list the usual ultrawide ones too.
 - **The Portal of Power** emulated (figures as `.dump` files), a real USB portal, or both at once.
   The **portal menu** (Guide, Back + Start or F6) is drawn in the game's own fonts with its own
   pictures of every figure, their hats and upgrade trees, per player, for controller and keyboard.

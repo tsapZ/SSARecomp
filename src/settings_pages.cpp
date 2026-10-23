@@ -159,8 +159,12 @@ SettingsPage GraphicsPage() {
        {{"", "Automatic", "Automatisch"},
         {"1280x720", "1280x720", "1280x720"},
         {"1920x1080", "1920x1080", "1920x1080"},
+        {"2560x1080", "2560x1080 (21:9)", "2560x1080 (21:9)"},
         {"2560x1440", "2560x1440", "2560x1440"},
-        {"3840x2160", "3840x2160", "3840x2160"}}});
+        {"3440x1440", "3440x1440 (21:9)", "3440x1440 (21:9)"},
+        {"3840x1600", "3840x1600 (24:10)", "3840x1600 (24:10)"},
+        {"3840x2160", "3840x2160", "3840x2160"},
+        {"5120x1440", "5120x1440 (32:9)", "5120x1440 (32:9)"}}});
   page.settings.push_back(
       {"ultrawide_hud", "HUD on ultrawide (experimental)", "HUD bei Ultrawide (experimentell)",
        "On a window wider than 16:9 (ultrawide): the HUD, the dialogue box and the menus in "
@@ -359,12 +363,14 @@ SettingsPage ControlsPage() {
   page.settings.push_back(
       {"mnk_mode", "Keyboard and mouse", "Tastatur und Maus",
        "Play with the keyboard as a controller.", "Mit der Tastatur als Controller spielen."});
-  page.settings.push_back(
-      {"keyboard_player", "Keyboard plays as", "Tastatur spielt als",
-       "Which player the keyboard is. Controllers are assigned in the player menu (L3 + R3).",
-       "Welcher Spieler die Tastatur ist. Controller teilst du im Spieler-Men\xC3\xBC zu (L3 + R3).",
-       {{"1", "Player 1", "Spieler 1"},
-        {"2", "Player 2", "Spieler 2"}}});
+  Setting keyboard_player{
+      "keyboard_player", "Keyboard plays as", "Tastatur spielt als",
+      "Which player the keyboard is. Controllers are assigned in the player menu (L3 + R3).",
+      "Welcher Spieler die Tastatur ist. Controller teilst du im Spieler-Men\xC3\xBC zu (L3 + R3).",
+      {{"1", "Player 1", "Spieler 1"},
+       {"2", "Player 2", "Spieler 2"}}};
+  keyboard_player.enabled_by = "mnk_mode";  // greyed while the keyboard is off
+  page.settings.push_back(keyboard_player);
   return page;
 }
 
