@@ -314,3 +314,13 @@ launcher's achievements screen.
 - **Window sizes** add 2560x1080 and 3440x1440 (21:9), 3840x1600 (24:10) and 5120x1440 (32:9).
 - **"Tastatur spielt als"** is greyed and can't be changed while "Tastatur und Maus" is off
   (skylanders-portal 10a00cd, `enabled_by`, also in the schema for Core of Light).
+
+## 2026-10-24: 0.1.0-beta.8
+
+- **Later games' versions in the portal menu's version choice** (skylanders-portal 202b4df): Y on a
+  Skylander lists its versions from the later games too (Spyro in Spyro's Adventure: Series 2 and
+  3, LightCore, Eon's Elite; the game plays them by their id as its own; the owner's wish). The
+  tabs stay this game's own; "Figuren späterer Spiele" now only adds the later games' tabs.
+- Ultrawide checked in a 2560x1080 window from the title to the first menus in Spyro's Adventure,
+  Giants, Swap Force, SuperChargers and Imaginators (menus centred, nothing stretched, movies with
+  bars); Trap Team's window couldn't be captured here (black at 16:9 too), so not by picture.
