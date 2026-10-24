@@ -324,3 +324,24 @@ launcher's achievements screen.
 - Ultrawide checked in a 2560x1080 window from the title to the first menus in Spyro's Adventure,
   Giants, Swap Force, SuperChargers and Imaginators (menus centred, nothing stretched, movies with
   bars); Trap Team's window couldn't be captured here (black at 16:9 too), so not by picture.
+
+## 2026-10-24: 0.1.0-beta.9
+
+- **60 FPS that really are 60** (a colleague saw 30 although 60 was set): the game waits for the
+  next vblank after each frame, and at frame_rate_limit 60 the SDK's guest vblank ran at 60 Hz, so
+  a frame of about 19 ms waited for the second one: 30.0 FPS in Chapter 1 here. The SDK's new
+  guest_vblank_rate (rexglue-sdk fix/guest-vblank-rate) runs it at 240 Hz in this game
+  (ssarecomp_app.h), frame_rate_limit still caps the rate: 57.0 FPS in the same scene.
+- **One data folder for every game** (the owner's call; skylanders-portal data_folder.h): the saves,
+  achievements and shader cache are in `Documents\Skylanders\Spyro's Adventure` now, next to Figures and
+  Pictures, or in the folder picked in Core of Light (`%APPDATA%\Skylanders\data-folder.txt`). The
+  first start copies the old `Documents\ssarecomp` there (complete or not at all) and leaves a
+  note in it; Core of Light asks before the old folder goes. `--user_data_root` works as before.
+- **Keyboard keys changeable in F4** (SwapForceRecomp #63): a "Tastatur" page after "Steuerung", a
+  row per controller button; A and then the key. Y also saves with a German keyboard now (the
+  menu reads keys by their US place, where that key is Z).
+- The portal menu's Portal of Power: a band of light round its side, ridges on the rim, rings of
+  light running out over the floor (SwapForceRecomp #57).
+- Checked: every game boots to its first menus on fresh scratch data with the new data folder
+  code (with --user_data_root, so the copy itself was checked in the launcher on a scratch
+  Documents).

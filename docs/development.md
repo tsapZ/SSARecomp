@@ -93,7 +93,7 @@ Automated or experimental runs write saves and figure progress. Point them at a 
 
     just play-release --user_data_root=C:\path\to\test-userdata
 
-Copy `Documents\ssarecomp` (saves under `B13EBABEBABEBABE\`) into that folder first, and the
+Copy `Documents\Skylanders\Spyro's Adventure` (saves under `B13EBABEBABEBABE\`) into that folder first, and the
 shared figure folder `Documents\Skylanders\Figures` into `Skylanders\Figures` next to it: the
 game looks for figures in "Skylanders\Figures" beside its data folder, so a copied
 `--user_data_root` gets its own figures (and a first start copies `<copy>\figures` there). Never

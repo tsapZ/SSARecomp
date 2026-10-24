@@ -101,7 +101,7 @@ check it and say so if another version is given. Other pressings have not been c
   and run `just play-release`.
 
 Your figures are `.dump` files in `Documents\Skylanders\Figures`, shared by every game, like real
-figures next to the portal. The saves are in `Documents\ssarecomp`, the settings file next to the
+figures next to the portal. The saves are in `Documents\Skylanders\Spyro's Adventure` (the first start copies them there from the old `Documents\ssarecomp`), the settings file next to the
 game's exe.
 
 ## Reporting a problem

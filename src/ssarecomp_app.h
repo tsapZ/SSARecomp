@@ -141,6 +141,13 @@ class SsarecompApp : public rex::ReXApp {
     // follows frame_rate_limit, and it keeps its speed at more frames (measured, docs/STATUS.md).
     // "30 as on the console" in the menu is the limit 30, so it stays when chosen.
     SetDefault("frame_rate_limit", "60");
+    // The game waits for the next vblank after each frame, so with a 60 Hz vblank a frame that takes
+    // 19 ms waits for the second one and the game ran at 30 although 60 was set (a colleague's report,
+    // measured here: 30.0 FPS at 60 Hz, 50.7 at 240 Hz in Chapter 1, 2026-10-24). A 240 Hz guest
+    // vblank lets it go at the next one; frame_rate_limit still caps the rate. Safe here: the game
+    // keeps its speed with a faster vblank (it ran at frame_rate_limit 144 and 240 with that vblank
+    // at normal speed, docs/STATUS.md).
+    SetDefault("guest_vblank_rate", "240");
     // The final picture sharpened with CAS (the menu's "Quality" preset) unless the settings file
     // or the command line sets present_effect (the owner asked for the best picture by default,
     // 2026-10-21). resolution_scale, the preset's other half, belongs to the GPU plugin, which
@@ -308,6 +315,10 @@ class SsarecompApp : public rex::ReXApp {
   }
 
   void OnConfigurePaths(rex::PathConfig& paths) override {
+    // One data folder for every game (the owner's call, 2026-10-24): "Spyro's Adventure" in
+    // Documents\Skylanders or in the folder picked in Core of Light. The game's old folder
+    // (Documents\ssarecomp) is copied there once.
+    skylanders::UseSharedDataFolder(paths.user_data_root, paths.cache_root, "Spyro's Adventure");
     // game_data_root is read from the cvar registry before the config file loads (see
     // ReXApp::SetupEnvironment), so --game_data_root can't be set via ssarecomp.toml the way
     // portal_mode etc. can. Defaulting to "rom" (relative to the working directory, matching every

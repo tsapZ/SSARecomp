@@ -32,4 +32,4 @@ skip_intro = false                         # true: skip the Activision, XPEC and
 # skip_opening_movie = true                # skip the opening movie of a new game
 
 ["Runtime"]
-# user_data_root = "C:\\path\\to\\folder" # empty = Documents\ssarecomp
+# user_data_root: on the command line only (--user_data_root=...); default Documents\Skylanders\Spyro's Adventure
