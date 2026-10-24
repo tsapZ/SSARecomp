@@ -231,8 +231,13 @@ class SsarecompApp : public rex::ReXApp {
     // scale 1 and 2 (the game allocates its targets at start). Both only when nothing set them
     // (readback_resolve = "none" in the settings file turns it off). Here, not in OnPreSetup: the
     // settings belong to the GPU plugin, loaded by now.
+    // With "Natives 3D-Bild" (scene_size) the game's targets are larger and the same resolve lands
+    // at 0x19a80000 (1280x704, 3604480 bytes): without it in the list the blocky shadows came back
+    // there (#38, the colleague and the owner). Found with readback_resolve_log off and on: the
+    // resolves come in the same order, this one the 10th 32-bit one both times. Neither address is
+    // a resolve destination in the other mode, so the list costs nothing extra.
     SetDefaultIfUnset("readback_resolve", "fast");
-    SetDefaultIfUnset("readback_resolve_addresses", "0x19bc0000");
+    SetDefaultIfUnset("readback_resolve_addresses", "0x19bc0000,0x19a80000");
     // Estimate the EDRAM extent of draws without clipping by running their vertex shader on the
     // CPU (Xenia's default; the SDK defaults to off). In Swap Force, without it, the faster RTV
     // render target path let a full-screen float pass wrap around the EDRAM onto the lit scene and

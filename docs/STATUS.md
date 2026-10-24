@@ -345,3 +345,10 @@ launcher's achievements screen.
 - Checked: every game boots to its first menus on fresh scratch data with the new data folder
   code (with --user_data_root, so the copy itself was checked in the launcher on a scratch
   Documents).
+
+## 2026-10-24: after 0.1.0-beta.9
+
+- **Blocky shadows with "Natives 3D-Bild" (#38):** the #30 fix reads back one resolve (0x19bc0000);
+  with scene_size the same resolve lands at 0x19a80000 (found with readback_resolve_log, same order
+  of resolves in both modes), so both are in readback_resolve_addresses now. For the owner to look at
+  in Chapter 1 (grass by the pillars, the vase). A chosen 4x texture filter stays 4x (lib 23be5f2).
