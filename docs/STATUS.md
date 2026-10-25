@@ -352,3 +352,16 @@ launcher's achievements screen.
   with scene_size the same resolve lands at 0x19a80000 (found with readback_resolve_log, same order
   of resolves in both modes), so both are in readback_resolve_addresses now. For the owner to look at
   in Chapter 1 (grass by the pillars, the vase). A chosen 4x texture filter stays 4x (lib 23be5f2).
+
+## 2026-10-25: 0.2.0-beta.1
+
+- **No blocky shadows with the native 3D picture either** (#38): its shadow resolve sits at
+  0x19a80000, next to the one without it; `readback_resolve_addresses` takes both.
+- **Portal menu, companions by game** (skylanders-portal 2278b99): what goes on next to a player's
+  Skylander now depends on the game (sidekicks up to Swap Force, traps in Trap Team, vehicles from
+  SuperChargers on). Here the sidekicks behave as before.
+- **Mouse wheel in the menus** (SwapForceRecomp #65; skylanders-portal ccc7009): F4's rows, the
+  portal menu's cards and its variant list scroll a row per notch; the chosen row stays, and the view
+  follows it again once the keys or the pad move it.
+- **A chosen 4x texture filter stays 4x** (Core of Light #21, a colleague's report and fix;
+  skylanders-portal 23be5f2): 4x is the SDK's own default, so it counted as unset and became 16x.
