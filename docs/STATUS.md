@@ -365,3 +365,11 @@ launcher's achievements screen.
   follows it again once the keys or the pad move it.
 - **A chosen 4x texture filter stays 4x** (Core of Light #21, a colleague's report and fix;
   skylanders-portal 23be5f2): 4x is the SDK's own default, so it counted as unset and became 16x.
+
+## 2026-10-25: 0.2.0-beta.2
+
+- The setup's version for what came since 0.2.0-beta.1: in every game: the portal overview (Back + Y / F5: what is on the portal, taken off one by one without lifting the
+  Skylander) and F4 > Controller (button jobs, vibration strength per player; not yet tried with a
+  real controller), skylanders-portal f2c4940 / 6e96c16; an A press right after the menu opened by
+  itself no longer picks a figure (SwapForceRecomp #72); one bad command-line option no longer drops
+  the others (rexglue-sdk 605000d).
