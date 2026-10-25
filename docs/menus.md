@@ -9,7 +9,7 @@ the game runs in.
 | What | Controller | Keyboard | Setting |
 |---|---|---|---|
 | Portal menu: put Skylanders and items on the portal | Guide (Xbox), Back + Start, hold Back | F6 | `portal_menu_open_buttons`, `bind_portal_menu` |
-| Take the item off the portal | Back + Y | F5 | `portal_item_off_buttons`, `bind_portal_item_off` |
+| Portal overview: what is on the portal, taken off one by one (the item too) without lifting the Skylander | Back + Y | F5 | `portal_item_off_buttons`, `bind_portal_item_off` |
 | Player menu: which controller is which player | L3 + R3, or F4 > Portal > "Spieler-Menü öffnen" | F9 | `player_menu_buttons`, `bind_player_menu` |
 | Settings menu | Back + RB | F4 | `settings_menu_buttons`, `bind_settings_menu` |
 | Achievements | F4 > Spiel > Erfolge | F7 | `bind_achievements` |
@@ -50,6 +50,10 @@ takes them off. See [portal.md](portal.md#portal-check).
   my figures.
 - **Controls:** the menu buttons, each with a few choices, keyboard and mouse, which player the
   keyboard is.
+- **Keyboard, Controller:** the keyboard's key for each controller button; what each controller
+  button does in the game (`pad_map_a` ... `pad_map_rs`, e.g. a shoulder button doing B's job) and
+  how strongly each player's controller vibrates (`pad_rumble_p1` / `_p2`, 10 % steps, the
+  controller buzzes at each change; SwapForceRecomp #71, #73).
 - **Advanced:** opens the SDK's list of every setting (F10).
 
 LB / RB switch the page, up / down pick a setting, left / right change it, **Y saves** into
