@@ -13,6 +13,13 @@
 // With r3 = 0 the hook returns at once (nothing to walk) and puts the sentinel into 0x82BB4F50,
 // so the caller's loop ends right away too: after a full pass it holds the sentinel anyway, and the
 // guard keeps it so on the first frames, before the game ever wrote it.
+//
+// The crash of #32 itself (a read of guest 0x368, seen under RenderDoc and again 2026-10-25 with
+// an HD texture pack, both times when the game ran slowly): sub_82631098 runs a node of the same
+// tree, the one in the global 0x82BB4F4C (lwz r31,20300(r27) at 0x826310C0), and calls
+// sub_826326B8 first, which reads that node's +872 (0x368). With the global 0 there is no node to
+// run, and the second hook returns at its start, before anything is changed (its counter at
+// 0x82BB4FA8 is raised only after that).
 
 #include <atomic>
 #include <cstdint>
@@ -27,6 +34,7 @@ namespace {
 
 constexpr uint32_t kListSentinel = 0x82B5FAAC;
 constexpr uint32_t kCurrentNode = 0x82BB4F50;
+constexpr uint32_t kCurrentTreeNode = 0x82BB4F4C;
 
 }  // namespace
 
@@ -38,6 +46,18 @@ bool NullObjectListHook(PPCRegister& r3) {
   static std::atomic<int> logged{0};
   if (logged.fetch_add(1) < 3) {
     REXLOG_WARN("Object list: sub_822895E0 was given no list (r3 = 0); skipped this frame (SSARecomp #32)");
+  }
+  return true;
+}
+
+// At the start of sub_82631098 (return_on_true): true when the node to run (0x82BB4F4C) is 0.
+bool NullTreeNodeHook(PPCRegister& r3) {
+  (void)r3;  // the node comes from the global, not an argument
+  uint8_t* base = rex::system::kernel_state()->memory()->virtual_membase();
+  if (rex::memory::load_and_swap<uint32_t>(base + kCurrentTreeNode) != 0) return false;
+  static std::atomic<int> logged{0};
+  if (logged.fetch_add(1) < 3) {
+    REXLOG_WARN("Object tree: sub_82631098 found no node at 0x82BB4F4C; skipped this frame (SSARecomp #32)");
   }
   return true;
 }

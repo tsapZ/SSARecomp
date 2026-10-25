@@ -417,3 +417,10 @@ launcher's achievements screen.
 - **The "second layer" round objects** (the owner, 2026-10-25): seen in test captures only at
   resolution scale 2 and 3 (dark and light outlines at the edges of mushrooms and rocks against the
   sky), not at 1, so it comes from the resolution scaling; the cause isn't found yet.
+- **#32's crash itself guarded, and figure changes with an HD pack without the stutter** (the owner,
+  2026-10-25: "selecting a figure lags a lot and hangs oddly, again and again"): his log shows about
+  100 HD textures loaded in the seconds after a figure goes on, and the SDK read each replacement
+  byte by byte on the GPU thread (rexglue-sdk ce9dbb6 reads it in one go: about 2 ms each now).
+  With the HD pack a test run also hit #32's crash (a read of guest 0x368, sub_826326B8 from
+  sub_82631098): the tree node in 0x82BB4F4C was 0 while the game ran slowly. A second mid-asm hook
+  at sub_82631098's start returns when it is 0. The next run with the pack didn't crash.

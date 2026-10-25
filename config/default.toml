@@ -95,6 +95,18 @@ name = "NullObjectListHook"
 registers = ["r3"]
 return_on_true = true
 
+# 0x82631098 is the start of sub_82631098, which runs the tree node in the global 0x82BB4F4C (lwz
+# r31,20300(r27) at 0x826310C0) and first calls sub_826326B8, which reads that node's +872: with the
+# global 0 a read of guest 0x368, SSARecomp #32's crash (seen under RenderDoc and again 2026-10-25
+# with an HD texture pack, both times with the game running slowly). Found from the crash's call
+# chain and r31 = r11 = 0. src/hooks/object_list_guard_hook.cpp returns at once when the global is
+# 0, before the function changes anything; with a node it does nothing.
+[[midasm_hook]]
+address = 0x82631098
+name = "NullTreeNodeHook"
+registers = ["r3"]
+return_on_true = true
+
 [functions]
 # Function starts the analyzer put one instruction late (SSARecomp #33 / GiantsRecomp #23), found in
 # the whole code (a dump of guest memory with the input script's `save`): right after a `blr`, an
