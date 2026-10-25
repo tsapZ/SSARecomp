@@ -60,6 +60,11 @@ constexpr uint32_t kTextElementHash = 432;
 constexpr uint32_t kTextAskPlayer1 = 0x049B83C4;
 constexpr uint32_t kTextAskPlayer2 = 0x9D92D27E;
 constexpr uint32_t kTextTooManySkylanders = 0xCE3BDD24;
+// "304_PortalError_NeedsRemoval": "Dieser Skylander braucht eine Pause. Bitte entferne den
+// Skylander vom Portal of Power." (global.lxb), the game's text when a Skylander is out of health.
+// The portal menu opens then, to swap it for another (the owner, 2026-10-25: in every game, as in
+// SuperChargers). The text doesn't name the player; the menu is player 1's.
+constexpr uint32_t kTextNeedsBreak = 0x8F980361;
 constexpr uint32_t kTextsTooManyToys[] = {0xC23393BE, 0xA66A468E, 0xF568FF72, 0x4F826D46};
 
 // The portal check's reasons (Swap Force's EMagicMomentReason values, which the portal menu
@@ -119,6 +124,10 @@ Screen CurrentScreen(rex::memory::Memory* memory) {
   const uint32_t text = ShownText(memory);
   if (text == kTextAskPlayer1) screen.asks = 0u;
   if (text == kTextAskPlayer2) screen.asks = 1u;
+  if (text == kTextNeedsBreak) screen.asks = 0u;
+  static uint32_t last_text = 0;
+  if (text != last_text && text == kTextNeedsBreak) skylanders::PlayerSkylanderTired(0);
+  last_text = text;
   if (text == kTextTooManySkylanders) screen.check_reason = kCheckReasonTooManySkylanders;
   for (uint32_t toys : kTextsTooManyToys) {
     if (text == toys) screen.check_reason = kCheckReasonTooManyItems;

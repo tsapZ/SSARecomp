@@ -26,7 +26,8 @@
 // upgrade014 Gill Grunt's anchor, upgrade019 Trigger Happy's golden cannon, "Infinite Ammo").
 // The two paths' six are in the character's own archive, three per path ("path:<id>:<path>:<n>",
 // ui_images.cpp). Dark Spyro (28) shows Spyro's, the legendary figures their character's. The
-// starting attacks and the four basic upgrades have no picture in the game's files.
+// starting attacks and the four basic upgrades have theirs on their own in the same archive
+// ("pose:<id>:primary", "secondary", "up1" ... "up4"; SSARecomp #39).
 
 #include "upgrades.h"
 
@@ -141,12 +142,18 @@ std::shared_ptr<const FigureUpgrades> Build(const std::string& name, uint16_t id
     FigureUpgrade u;
     u.name = Text(name + which);
     u.description = Text(name + which + "_Des");
+    std::snprintf(key, sizeof(key), "pose:%u:%s", unsigned(id), which[0] == 'P' ? "primary" : "secondary");
+    u.image = key;
     if (!u.name.empty()) start.upgrades.push_back(std::move(u));
   }
   if (!start.upgrades.empty()) result->paths.push_back(std::move(start));
   FigureUpgradePath basic;
   basic.kind = FigureUpgradePath::Kind::kBasic;
-  for (int i = 0; i < kBasicCount; ++i) basic.upgrades.push_back(up(i, kFirstUpgradeBit + i, kCosts[i]));
+  for (int i = 0; i < kBasicCount; ++i) {
+    basic.upgrades.push_back(up(i, kFirstUpgradeBit + i, kCosts[i]));
+    std::snprintf(key, sizeof(key), "pose:%u:up%d", unsigned(id), i + 1);
+    basic.upgrades.back().image = key;
+  }
   result->paths.push_back(std::move(basic));
   for (int p = 0; p < 2; ++p) {
     FigureUpgradePath path;

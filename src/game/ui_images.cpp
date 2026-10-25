@@ -22,6 +22,11 @@
 // differ from the archive's: firearcher, crustybuckler, troll, lifedragon, ent; Stealth Elf's are
 // "...upgradespook" / "...upgradesforrest" for "Pook Blade Saint" / "Forest Ninja"). An archive
 // is unpacked the first time its character's details are shown, on a thread of its own.
+// The same archive has every other upgrade's picture on its own, named with the strips' prefix
+// ("eruptor_upgradesa" -> "eruptor_"): "_primary" and "_secondary" the starting attacks, "_up1" ...
+// "_up4" the basic upgrades, "_up5a" ... "_up7b" the paths', "_up8" the Soul Gem's (listed
+// 2026-10-25 in eruptor.str after the owner's SSARecomp #39: the basic four showed only arrows).
+// "pose:<toy id>:<suffix>" is one of them; the archive is read with the strips.
 //
 // The controller picture for the settings menu's controls page: ui/eng/startmenu.str has
 // "c:\spyro\assets\ui\textures\startmenu\360_controller.dds", 256x256 DXT5, a clean drawing of
@@ -328,6 +333,14 @@ void Load(std::filesystem::path archive) {
   if (pad && *pad == 0) REXLOG_WARN("UI images: no controller picture in {}", start.string());
 }
 
+// The single pictures' prefix, the strips' name up to "upgrades" ("eruptor_upgradesa" -> "eruptor_",
+// "stealthelf_upgradespook" -> "stealthelf_").
+std::string PosePrefix(const Paths& paths) {
+  const std::string_view first = paths.first;
+  const size_t at = first.find("upgrades");
+  return at == std::string_view::npos ? std::string() : std::string(first.substr(0, at));
+}
+
 // Reads a character's archive for its two path pictures, once (on a thread of its own).
 void RequestPaths(uint16_t id) {
   const Paths* paths = PathsOf(id);
@@ -339,9 +352,11 @@ void RequestPaths(uint16_t id) {
   }
   std::thread([paths] {
     const std::string first = paths->first, second = paths->second;
+    const std::string prefix = PosePrefix(*paths);
     const auto archive = g_characters_dir / (std::string(paths->archive) + ".str");
-    const auto kept =
-        LoadArchive(archive, [&](std::string_view name) { return name == first || name == second; });
+    const auto kept = LoadArchive(archive, [&](std::string_view name) {
+      return name == first || name == second || (!prefix.empty() && name.starts_with(prefix));
+    });
     if (kept) REXLOG_INFO("UI images: {} path pictures from {}", *kept, archive.filename().string());
   }).detach();
 }
@@ -439,6 +454,29 @@ std::shared_ptr<const skylanders::FigureImage> PathPicture(const std::string& ke
   return image;
 }
 
+// "pose:<toy id>:<suffix>": one of the character's single upgrade pictures (see the top); nullptr
+// while its archive is still being read or if it has none.
+std::shared_ptr<const skylanders::FigureImage> PosePicture(const std::string& key) {
+  unsigned id = 0;
+  char suffix[16] = {};
+  if (std::sscanf(key.c_str(), "pose:%u:%15s", &id, suffix) != 2) return nullptr;
+  const Paths* paths = PathsOf(uint16_t(id));
+  if (!paths) return nullptr;
+  const std::string name = PosePrefix(*paths) + suffix;
+  {
+    std::lock_guard lock(g_mutex);
+    if (g_entries.find(name) == g_entries.end() && g_paths_requested[uint16_t(id)]) return nullptr;
+  }
+  RequestPaths(uint16_t(id));
+  auto picture = Picture(name);
+  if (!picture) {
+    // Not read yet: forget the "none" Picture() remembered, so a later frame asks again.
+    std::lock_guard lock(g_mutex);
+    if (g_entries.find(name) == g_entries.end()) g_decoded.erase(name);
+  }
+  return picture;
+}
+
 }  // namespace
 
 skylanders::ControllerPicture ControllerPictureLayout() {
@@ -490,6 +528,8 @@ void InstallUiImages(const std::filesystem::path& archive) {
     if (key.starts_with(kUpgrade)) return Picture("upgrade" + key.substr(kUpgrade.size()));
     // "path:19:0:1" -> the second picture of goldencheat_upgradesa (upgrades.cpp).
     if (key.starts_with("path:")) return PathPicture(key);
+    // "pose:19:up1" -> goldencheat_up1, a single upgrade picture (upgrades.cpp).
+    if (key.starts_with("pose:")) return PosePicture(key);
     // The menu's gold symbol: the HUD's coin.
     if (key == "ui:gold") return Picture(kGoldPicture);
     if (key == kControllerArtKey) return ControllerPicture();
