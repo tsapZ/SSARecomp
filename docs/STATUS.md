@@ -396,3 +396,10 @@ launcher's achievements screen.
   key as this PC's keyboard prints it ("Ö / Leertaste", "Umschalt+Pfeil hoch") and has "Alle
   Tasten zurücksetzen" (SwapForceRecomp #66). skylanders-portal 218defd.
 - The "who's talking" circle sits higher, above the game's health bar.
+- **Settings descriptions broken into lines** (SwapForceRecomp #69): one line on what a setting does,
+  the choices on lines of their own, notes ("Kostet ...", "Braucht D3D12") after a blank line;
+  the same wording in every game where the setting is the same. The Back + Y row is called
+  "Portal-Übersicht" now (it opens the portal overview since skylanders-portal f2c4940).
+  skylanders-portal 2a97055.
+- F4 > Bildrate says that a few effects (the shine over "Drücke Start", the portal screen's light)
+  run faster above 30 (#26; the owner saw the title's shine flicker, 2026-10-25).
