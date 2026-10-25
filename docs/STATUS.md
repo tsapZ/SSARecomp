@@ -424,3 +424,7 @@ launcher's achievements screen.
   With the HD pack a test run also hit #32's crash (a read of guest 0x368, sub_826326B8 from
   sub_82631098): the tree node in 0x82BB4F4C was 0 while the game ran slowly. A second mid-asm hook
   at sub_82631098's start returns when it is 0. The next run with the pack didn't crash.
+
+## 2026-10-25: 0.2.0-beta.3
+
+- The setup's version for what came since the last one: the single upgrade pictures (#39) and two guards for #32's crash. Also in every game: the portal overview holds the game while open, a Skylander out of health gets the menu and a red cross, hats only where the game knows them, F4 opens on "Spiel" with volume and frame rate rows, key names as the keyboard prints them and a reset row, descriptions in short lines, hints in a PlayStation or Nintendo pad's own buttons, and figure changes with an HD pack without the stutter (skylanders-portal 39ab210, rexglue-sdk ce9dbb6).
