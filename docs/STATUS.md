@@ -403,3 +403,6 @@ launcher's achievements screen.
   skylanders-portal 2a97055.
 - F4 > Bildrate says that a few effects (the shine over "Drücke Start", the portal screen's light)
   run faster above 30 (#26; the owner saw the title's shine flicker, 2026-10-25).
+- **Hints in the pad's own buttons** (Core of Light #29, skylanders-portal 39ab210): after a press on a
+  PlayStation pad the menus' hints show its symbols and L1 / R1 / Options, on a Nintendo pad its
+  letters in their places and L / R / ZL / ZR / +; Xbox-like pads stay as they were.
