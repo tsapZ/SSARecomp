@@ -82,6 +82,19 @@ address = 0x8289A428
 name = "BloomRenderHook"
 registers = ["r3"]
 
+# 0x822895E0 is the start of sub_822895E0, which walks a list of game objects from the node in r3
+# (sentinel 0x82B5FAAC, its current node at 0x82BB4F50). sub_82631098 passes a manager's member
+# (lwz r3,840(r31) at 0x82631280) that can still be 0: a crash about 40 s into a new game, a read
+# of guest 0x4, one run in three (2026-10-25; SSARecomp #32 has the same caller under RenderDoc).
+# Found from the crash report's call chain and r3 = 0. src/hooks/object_list_guard_hook.cpp returns
+# at once when r3 is 0 and leaves the sentinel in 0x82BB4F50, so the caller's loop over the list ends
+# too; with a list it does nothing.
+[[midasm_hook]]
+address = 0x822895E0
+name = "NullObjectListHook"
+registers = ["r3"]
+return_on_true = true
+
 [functions]
 # Function starts the analyzer put one instruction late (SSARecomp #33 / GiantsRecomp #23), found in
 # the whole code (a dump of guest memory with the input script's `save`): right after a `blr`, an

@@ -406,3 +406,14 @@ launcher's achievements screen.
 - **Hints in the pad's own buttons** (Core of Light #29, skylanders-portal 39ab210): after a press on a
   PlayStation pad the menus' hints show its symbols and L1 / R1 / Options, on a Nintendo pad its
   letters in their places and L / R / ZL / ZR / +; Xbox-like pads stay as they were.
+- **A guard against a crash at the start of a new game** (#32): one test run of three crashed about
+  40 s in (resolution scale 1, no RenderDoc), a read of guest 0x4 in sub_822895E0 with r3 = 0.
+  That function walks a list of game objects from the node in r3; its caller sub_82631098 passes a
+  manager's member (+840) that can still be 0, the same caller as the RenderDoc crash in #32. A
+  mid-asm hook at its start returns at once when r3 is 0 and leaves the list's sentinel as the
+  current node, so the caller's loop ends too (src/hooks/object_list_guard_hook.cpp). Three more
+  runs didn't crash, but the guard didn't fire in them either, so the crash it is for wasn't seen
+  again yet; it logs "Object list: ... skipped" when it does.
+- **The "second layer" round objects** (the owner, 2026-10-25): seen in test captures only at
+  resolution scale 2 and 3 (dark and light outlines at the edges of mushrooms and rocks against the
+  sky), not at 1, so it comes from the resolution scaling; the cause isn't found yet.
