@@ -238,6 +238,13 @@ class SsarecompApp : public rex::ReXApp {
     // a resolve destination in the other mode, so the list costs nothing extra.
     SetDefaultIfUnset("readback_resolve", "fast");
     SetDefaultIfUnset("readback_resolve_addresses", "0x19bc0000,0x19a80000");
+    // At resolution scale 2 and up, the depth-of-field composite turns the pixel position into a
+    // texture coordinate the D3D9 way, (position + 0.5) / size. With the SDK's corner position it
+    // read the scene, its depth and the blur one host pixel off (1.5 at scale 3), and close objects
+    // got a ghost outline against the blurred background (#40). Measured in a RenderDoc capture of
+    // the Chapter 1 cutscene: the composite's picture one pixel up-left of its input before, on it
+    // with the centred position. The title screen lines up with scale 1 either way.
+    SetDefaultIfUnset("draw_resolution_scaled_pixel_position_centered", "true");
     // Estimate the EDRAM extent of draws without clipping by running their vertex shader on the
     // CPU (Xenia's default; the SDK defaults to off). In Swap Force, without it, the faster RTV
     // render target path let a full-screen float pass wrap around the EDRAM onto the lit scene and
