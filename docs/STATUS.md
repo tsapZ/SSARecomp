@@ -428,3 +428,7 @@ launcher's achievements screen.
 ## 2026-10-25: 0.2.0-beta.3
 
 - The setup's version for what came since the last one: the single upgrade pictures (#39) and two guards for #32's crash. Also in every game: the portal overview holds the game while open, a Skylander out of health gets the menu and a red cross, hats only where the game knows them, F4 opens on "Spiel" with volume and frame rate rows, key names as the keyboard prints them and a reset row, descriptions in short lines, hints in a PlayStation or Nintendo pad's own buttons, and figure changes with an HD pack without the stutter (skylanders-portal 39ab210, rexglue-sdk ce9dbb6).
+
+## 2026-10-26: 0.2.0-beta.4
+
+- The setup's version for what came since the last one: the menu pictures load in one read (85 to 18 ms). Also in every game: no crash at start when the window moves to another monitor (rexglue-sdk 07f1106), and the portal menu no longer lifts a Skylander the game is still loading from the portal (skylanders-portal d4ce7b6).
