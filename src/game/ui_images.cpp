@@ -297,8 +297,16 @@ size_t Index(const uint8_t* d, size_t n, std::map<std::string, Entry>& entries,
 // or nothing if the archive can't be read.
 template <typename WantedFn>
 std::optional<size_t> LoadArchive(const std::filesystem::path& archive, const WantedFn& wanted) {
-  std::ifstream in(archive, std::ios::binary);
-  std::vector<uint8_t> file((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+  // In one read: istreambuf_iterator went byte by byte, 85 ms for global.str (16 MB) and 36 ms for
+  // the biggest character archive against 18 and 10 ms (measured 2026-10-26), as the HD textures'
+  // reads were (rexglue-sdk ce9dbb6).
+  std::vector<uint8_t> file;
+  if (std::ifstream in(archive, std::ios::binary | std::ios::ate); in) {
+    const std::streamoff size = in.tellg();
+    file.resize(size > 0 ? size_t(size) : 0);
+    in.seekg(0);
+    if (!file.empty() && !in.read(reinterpret_cast<char*>(file.data()), std::streamsize(file.size()))) file.clear();
+  }
   if (file.size() < 22 || std::memcmp(file.data(), "strm", 4) != 0) {
     REXLOG_WARN("UI images: {} is missing or not a strm archive", archive.string());
     return std::nullopt;
