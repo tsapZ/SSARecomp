@@ -445,3 +445,7 @@ launcher's achievements screen.
 ## 2026-10-27: night
 
 - **No more ghost outline round close objects at resolution scale 2 and up** (#40). The depth-of-field composite turns the pixel position into a texture coordinate the D3D9 way, (position + 0.5) / size; with the SDK's corner position it read the scene, its depth and the blur one host pixel off (1.5 at scale 3), so foreground edges picked up the blurred background's colour. rexglue-sdk 5201aa3 adds draw_resolution_scaled_pixel_position_centered (each host pixel's centre), and the game turns it on in OnPostSetup unless it was set. Measured in a RenderDoc capture of the Chapter 1 cutscene at scale 2: the composite's output one host pixel up-left of its input before, on it after (mean difference 0.4 of 255); the downsample before it was exact both times (checked against a CPU version). The title screen lines up with scale 1 either way.
+
+## 2026-10-27: 0.2.0-beta.6
+
+- The setup's version for what came since the last one: no more ghost outline round close objects at resolution scale 2 and up (#40, rexglue-sdk 5201aa3).
