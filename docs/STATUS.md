@@ -437,3 +437,7 @@ launcher's achievements screen.
 
 - rexglue-sdk 90f3bad: an XMA input counts as used up only once its output is out (the cut-off ends of Trap Team's portal lines, TrapTeamRecomp #15). Checked here: Chapter 1's spoken cutscene (Flynn, then Hugo) still plays through to Spyro's arrival.
 - skylanders-portal 8cbf30d: the picture cache also leaves the game's element symbols for the launcher's figure library (SkylandersCoreOfLight #38). Checked: all eight.
+
+## 2026-10-26: 0.2.0-beta.5
+
+- The setup's version for what came since the last one: In every game: a sound the game stops right at its end keeps its last 1024 samples (rexglue-sdk 90f3bad), and the game leaves its element symbols for the launcher (skylanders-portal 8cbf30d).
