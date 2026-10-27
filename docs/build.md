@@ -49,7 +49,7 @@ in Ghidra first.
 
 1. `just regen-debug`, then `just play-debug`.
 2. Read the crash or the last log lines (`just logs-debug -n 200`).
-3. Find the function involved: `pwsh tools/ghidra_re.ps1 dump <address>`.
+3. Find the function involved: `just ghidra dump <address>`.
 4. Decide: codegen fix in `config/default.toml`, a kernel stub, or a hook.
 5. Add the fix with its comment, rebuild, run again.
 6. One fix per commit (`fix: ...`), and a line in [STATUS.md](STATUS.md) at the end of the session.

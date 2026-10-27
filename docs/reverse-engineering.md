@@ -13,8 +13,8 @@ or port the ultrawide hook, we need to know what functions do. This workflow put
 ## One-time setup (Phase 1)
 
 ```
-pwsh tools/ghidra_re.ps1 setup    # downloads a JDK, Ghidra, XEXLoaderWV and PyGhidra into logs/toolchain/
-pwsh tools/ghidra_re.ps1 import   # imports and auto-analyzes rom/default.xex into logs/ghidra_project/
+just ghidra setup    # downloads a JDK, Ghidra, XEXLoaderWV and PyGhidra into logs/toolchain/
+just ghidra import   # imports and auto-analyzes rom/default.xex into logs/ghidra_project/
 ```
 
 Both are safe to re-run. Everything lands under `logs/`, which is git-ignored. `setup` needs Python 3
@@ -23,8 +23,8 @@ PowerShell 5.1 works is untested.
 
 ## Workflow
 
-1. `pwsh tools/ghidra_re.ps1 dump <address>`: decompiled C, callers and callees, referenced strings.
-2. `pwsh tools/ghidra_re.ps1 rename <address> <name> [<address> <name> ...]`: renames in Ghidra and
+1. `just ghidra dump <address>`: decompiled C, callers and callees, referenced strings.
+2. `just ghidra rename <address> <name> [<address> <name> ...]`: renames in Ghidra and
    updates `[functions]` in `config/default.toml` in the same call.
 3. `git diff config/default.toml`: only the entries you just renamed should change.
 4. `just regen-debug`: the new names appear in `generated/` and the project still builds.
@@ -53,7 +53,7 @@ mandatory prefix. On a collision between two different functions, disambiguate b
 ## Troubleshooting
 
 - **`setup` can't find a release asset:** the asset naming for Ghidra or XEXLoaderWV changed. Adjust
-  the `-match` pattern in `Invoke-Setup` in `tools/ghidra_re.ps1`.
+  the `-match` pattern in `Invoke-Setup` in `thirdparty/skylanders-portal/tools/ghidra_re.ps1`.
 - **`import` doesn't pick the XEX loader:** add `-loader <LoaderClassName>` (see XEXLoaderWV's README)
   to the `analyzeHeadless` call in `Invoke-Import`.
 - **An extension doesn't load:** the active path is `<ghidra>\Ghidra\Extensions\<name>\`, and the

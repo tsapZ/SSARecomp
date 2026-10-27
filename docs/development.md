@@ -122,7 +122,7 @@ system dialog in the foreground breaks keyboard-driven test runs). One command p
 Buttons: `guide a b x y start back up down left right lb rb ls rs lt rt`, several at once joined
 with `+` (`tap back+y`, `tap ls+rs`); `key F4` presses a key for the key binds (opens an overlay
 or menu); `watch <addr> [<value>]` / `unwatch` log which guest functions (with their call chain)
-write a guest address, through a hardware write breakpoint (`src/dev/write_watch.cpp`), with the
+write a guest address, through a hardware write breakpoint (`thirdparty/skylanders-portal/src/dev/write_watch.cpp`), with the
 guest registers and 1 KB of guest stack at the first hit; `watch <addr> <value> <snap> <words>` also
 copies guest memory at the first hit (e.g. the text a parser is reading), `watchread <addr>` traps
 reads too, `dump <addr> <words>` logs guest memory, and `stacks [<samples>]` logs where every
@@ -133,14 +133,14 @@ state. For data whose heap address changes from run to run, `watch`, `watchread`
 `hit<n>[+<off>]` (the n-th hit of the last `scan`) or `*<addr>[+<off>]` (the pointer stored there)
 as the address. `remove <slot>` takes a figure off the emulated portal again. (Taken over from
 GiantsRecomp, where they found its portal prompt.) Full syntax in
-`src/dev/input_script.h`. For RenderDoc, start the game through `renderdoccmd capture`; the capture
+`thirdparty/skylanders-portal/src/dev/input_script.h`. For RenderDoc, start the game through `renderdoccmd capture`; the capture
 spans whole guest frames (RenderDoc's own triggers capture host frames, and one guest frame's GPU
 work is spread over several of them).
 
-`tools/run_scripted.ps1` starts the game for such a run and saves screenshots of its window on a
+`just scripted` (thirdparty/skylanders-portal/tools/run_scripted.ps1) starts the game for such a run and saves screenshots of its window on a
 timeline (`PrintWindow`, so other windows in front don't matter):
 
-    tools/run_scripted.ps1 -OutDir logs\shots -Shots "wait 50; shot card; full card_big" `
+    just scripted -OutDir logs\shots -Shots "wait 50; shot card; full card_big" `
         -GameArgs "--user_data_root=C:\path\to\test-userdata --input_script=card.txt --portal_mode=software"
 
 ### Graphics debugging with RenderDoc
@@ -152,13 +152,13 @@ toolchain folder:
     curl -L -o rd.zip https://renderdoc.org/stable/1.46/RenderDoc_1.46_64.zip
     # unzip into logs\toolchain\ -> logs\toolchain\RenderDoc_1.46_64\
 
-Capture with `tools/run_scripted.ps1 -RenderDocCapture <prefix>` and a `renderdoc 2` line in the input
+Capture with `just scripted -RenderDocCapture <prefix>` and a `renderdoc 2` line in the input
 script. Windows asks once whether `ssarecompiled.exe` may use the network: that is RenderDoc's
 target control port, local access is enough. With `rov`, the first start under RenderDoc builds all
 pipelines very slowly (minutes); wait longer before the first input. `--d3d12_bindless=false` makes
 the textures each draw reads visible to RenderDoc.
 
-`tools/renderdoc/rd.ps1` runs the analysis scripts headless: `list` (actions and their render
+`just rd` (thirdparty/skylanders-portal/tools/renderdoc/rd.ps1) runs the analysis scripts headless: `list` (actions and their render
 targets; `group.py` folds them into passes), `srvs` (textures read per draw, to find the same draw in
 two captures), `dump` (render targets after given events as PNG) and `inspect` (pipeline state and
 input textures of given draws), `timings` (GPU time per action, grouped by kind and target) and

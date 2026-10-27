@@ -54,12 +54,8 @@ set(SSARECOMP_SOURCES
     src/game/upgrades.cpp
     src/game/portal_prompt_watch.cpp
     src/game/ui_images.cpp
-    src/game/xenos_dxt.cpp
     src/localization.cpp
     src/settings_pages.cpp
-    src/dev/gpu_diagnostics.cpp
-    src/dev/input_script.cpp
-    src/dev/write_watch.cpp
     src/hooks/intro_skip_hook.cpp
     src/hooks/object_list_guard_hook.cpp
     src/hooks/post_effects_hook.cpp
@@ -88,46 +84,13 @@ if(NOT EXISTS "${CMAKE_BINARY_DIR}/ssarecomp.toml")
     file(COPY_FILE "${CMAKE_CURRENT_SOURCE_DIR}/ssarecomp.toml.example" "${CMAKE_BINARY_DIR}/ssarecomp.toml")
 endif()
 
-# --- Pinned game executable -------------------------------------------------
-set(SSARECOMP_XEX_HASH_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/game/default.xex.sha256")
-set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${SSARECOMP_XEX_HASH_FILE}")
-file(READ "${SSARECOMP_XEX_HASH_FILE}" SSARECOMP_XEX_HASH_TEXT)
-string(REGEX MATCH "^[0-9a-fA-F]+" SSARECOMP_XEX_SHA256 "${SSARECOMP_XEX_HASH_TEXT}")
-string(LENGTH "${SSARECOMP_XEX_SHA256}" SSARECOMP_XEX_SHA256_LEN)
-if(NOT SSARECOMP_XEX_SHA256_LEN EQUAL 64)
-    message(FATAL_ERROR "docs/game/default.xex.sha256 must start with a 64-character hex SHA-256 (found ${SSARECOMP_XEX_SHA256_LEN} hex characters)")
-endif()
-
-add_library(ssarecomp_verify STATIC src/xex_verify.cpp)
-target_include_directories(ssarecomp_verify PUBLIC src)
-# Uses the SDK's vendored, portable SHA-256 (thirdparty/crypto) instead of a platform crypto API
-# (BCrypt on Windows has no Linux/macOS equivalent), so this one implementation covers every preset.
-if(NOT REXSDK_DIR)
-    message(FATAL_ERROR "REXSDK_DIR must be set (ssarecomp_verify needs its vendored SHA-256 implementation)")
-endif()
-target_include_directories(ssarecomp_verify PRIVATE "${REXSDK_DIR}/thirdparty")
-target_sources(ssarecomp_verify PRIVATE "${REXSDK_DIR}/thirdparty/crypto/sha256.cpp")
-
-target_link_libraries(ssarecompiled PRIVATE ssarecomp_verify skylanders_portal_rex)
+target_link_libraries(ssarecompiled PRIVATE skylanders_portal_rex skylanders_alchemy)
 # The exe's icon: the game's logo from the owner's disc (rom/nxeart), made at build time (#37).
 skylanders_game_icon(ssarecompiled "${CMAKE_CURRENT_SOURCE_DIR}/rom")
-target_compile_definitions(ssarecompiled PRIVATE SSARECOMP_XEX_SHA256="${SSARECOMP_XEX_SHA256}")
 
-enable_testing()
-add_executable(ssarecomp_tests tests/xex_verify_test.cpp)
-target_link_libraries(ssarecomp_tests PRIVATE ssarecomp_verify)
-add_test(NAME xex_verify COMMAND ssarecomp_tests)
-
-add_executable(ssarecomp_xexcheck src/tools/xex_check_cli.cpp)
-target_link_libraries(ssarecomp_xexcheck PRIVATE ssarecomp_verify)
-target_compile_definitions(ssarecomp_xexcheck PRIVATE SSARECOMP_XEX_SHA256="${SSARECOMP_XEX_SHA256}")
-
-# Process-boundary test: runs the actual built ssarecomp_xexcheck.exe against a non-ASCII path to
-# catch argv narrowing (a plain main(argc, char**) loses characters outside the system code page on
-# Windows). Depends on ssarecomp_xexcheck existing in the same output directory at test time.
-add_executable(xex_check_cli_argv_test tests/xex_check_cli_argv_test.cpp)
-add_test(NAME xex_check_cli_argv COMMAND xex_check_cli_argv_test)
-
-add_executable(xex_check_exit_code_test tests/xex_check_exit_code_test.cpp)
-target_include_directories(xex_check_exit_code_test PRIVATE src)
-add_test(NAME xex_check_exit_code COMMAND xex_check_exit_code_test)
+# --- Pinned game executable -------------------------------------------------
+# The disc check (skylanders-portal src/xex, cmake/game_xex.cmake): the supported discs' SHA-256
+# from docs/game/default.xex.sha256 in the game and in ssarecomp_xexcheck, the installer's check,
+# with their tests.
+skylanders_game_xex(TARGET ssarecompiled PREFIX ssarecomp TITLE "Skylanders: Spyro's Adventure"
+                    HASH_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/game/default.xex.sha256")

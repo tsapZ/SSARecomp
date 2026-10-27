@@ -57,7 +57,7 @@
 
 #include "hats.h"
 #include "portal_rex/portal_menu.h"
-#include "xenos_dxt.h"
+#include "alchemy/xenos_dxt.h"
 
 // stb_image's zlib decoder (vendored with the SDK), compiled here with every function static, as
 // SwapForceRecomp does for its archives.
@@ -75,12 +75,15 @@
 #endif
 
 namespace ssarecomp {
+
+// The games' shared Alchemy readers (skylanders-portal src/alchemy).
+namespace alchemy = skylanders::alchemy;
 namespace {
 
 struct Entry {
   int width = 0;
   int height = 0;
-  Dxt kind = Dxt::kDxt5;
+  alchemy::Dxt kind = alchemy::Dxt::kDxt5;
   bool tiled = true;
   std::vector<uint8_t> texels;
 };
@@ -276,9 +279,9 @@ size_t Index(const uint8_t* d, size_t n, std::map<std::string, Entry>& entries,
     Entry e;
     e.tiled = (dword0 >> 31) != 0;
     switch (dword1 & 0x3F) {
-      case 0x12: e.kind = Dxt::kDxt1; break;
-      case 0x13: e.kind = Dxt::kDxt3; break;
-      case 0x14: e.kind = Dxt::kDxt5; break;
+      case 0x12: e.kind = alchemy::Dxt::kDxt1; break;
+      case 0x13: e.kind = alchemy::Dxt::kDxt3; break;
+      case 0x14: e.kind = alchemy::Dxt::kDxt5; break;
       default: continue;
     }
     e.width = int(dword2 & 0x1FFF) + 1;
@@ -377,8 +380,8 @@ std::shared_ptr<const skylanders::FigureImage> Picture(const std::string& name) 
   std::shared_ptr<const skylanders::FigureImage> result;
   if (auto it = g_entries.find(name); it != g_entries.end()) {
     const Entry& e = it->second;
-    if (auto rgba = DecodeXenosDxt(e.texels.data(), e.texels.size(), e.width, e.height, e.kind,
-                                   e.tiled)) {
+    if (auto rgba = alchemy::DecodeXenosDxt(e.texels.data(), e.texels.size(), e.width, e.height,
+                                            e.kind, e.tiled)) {
       auto image = std::make_shared<skylanders::FigureImage>();
       image->width = rgba->width;
       image->height = rgba->height;

@@ -1,41 +1,37 @@
 # CLAUDE.md: SSARecomp
 
+The rules every Skylanders repository follows (tests only on copies of the owner's data, git and
+GitHub, shared code, releases) are in Core of Light's maintainer/RULES.md
+(https://github.com/tsapZ/SkylandersCoreOfLight/blob/main/maintainer/RULES.md):
+
+@../../SkylandersCoreOfLight/SkylandersCoreOfLight/maintainer/RULES.md
+
 ## Goal
 
-Native Windows port of Skylanders: Spyro's Adventure (Xbox 360, `rom/default.xex`) via ReXGlue
-static recompilation, built like SwapForceRecomp (`../../SwapForceRecomp/SwapForceRecomp`): the
-same SDK, app, portal and menus. Later part of a Skylanders hub where every game stays its own exe.
+Native Windows port of Skylanders: Spyro's Adventure (Xbox 360, `rom/default.xex`) via ReXGlue static
+recompilation, one of six built the same way: the SDK (`thirdparty/rexglue-sdk`) and the app,
+portal, menus, disc check and test tools (`thirdparty/skylanders-portal`) are shared. The game
+stays complete on its own; Core of Light, the launcher, only starts it.
 
-## Rules
+## This game
 
-- Analyse first, then build. When unclear, ask instead of guessing.
-- Small commits, Conventional Commits (`feat:`, `fix:`, `build:`, `docs:`).
-- Never commit game data, secrets or tokens. Before EVERY commit check `git status`: no `rom/`
-  content, `*.xex`, `*.iso` or figure dumps.
-- No personal information about the owner in files, commit messages or docs.
-- Every `config/default.toml` entry and every kernel stub gets a comment: what is at the address,
-  how it was found, why the fix or stub is safe. Addresses from SwapForceRecomp or GiantsRecomp do
-  not apply to this XEX.
-- Do not modify submodules (`thirdparty/`) except on clearly named own branches. The portal code
-  is shared with SwapForceRecomp (fork `tsapZ/skylanders-portal`, branch `feature/portal-menu`):
-  changes there must keep working in both.
-- If Spyro's Adventure differs technically from Swap Force in a significant way, report it and
-  adapt the plan (known: other file formats, docs/game/spyros-adventure.md).
-- Git identity is repo-local (`git config user.name/user.email`), never global.
-- Scripted or experimental game runs use a copied `--user_data_root`, never the user's real save
-  folder.
+- Its file formats differ from the later games' (docs/game/spyros-adventure.md).
+- If it differs technically from the other games in a significant way, report it and adapt the
+  plan.
 
 ## Build
 
-Always from the **x64 Native Tools Command Prompt for VS 2022**.
+From the **x64 Native Tools Command Prompt for VS 2022** (`release.py build` sets that up itself):
 
     just submodules        # git submodule update --init --recursive
     just build-release     # configures on first run, then builds
     just regen-release     # rerun codegen from rom/default.xex, reconfigure, rebuild
     just test-release
     just play-release
+    just --list            # everything else: packaging, scripted runs, Ghidra, RenderDoc, logs
 
 ## Status convention
 
-`docs/STATUS.md` is updated at the end of every session; `docs/roadmap.md` when the plan changes,
-and the README's "How far it is" with it.
+`docs/STATUS.md` is updated at the end of every session (only what a build actually did);
+`docs/roadmap.md` when an issue is closed or the plan changes, and the README's "How far it is"
+with it.
