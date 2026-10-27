@@ -462,3 +462,7 @@ launcher's achievements screen.
 ## 2026-10-27: shared libraries
 
 - SDK 7be1eb2: two upstream fixes (kernel objects freed again, saved-game results checked properly) and resolved memory read back on request.
+
+## 2026-10-27: shared libraries
+
+- SDK 642311f: menus over a held game (the portal overview) present at the frame cap instead of every 100 ms: no more 10 FPS stutter in the overview.
