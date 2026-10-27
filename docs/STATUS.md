@@ -466,3 +466,7 @@ launcher's achievements screen.
 ## 2026-10-27: shared libraries
 
 - SDK 642311f: menus over a held game (the portal overview) present at the frame cap instead of every 100 ms: no more 10 FPS stutter in the overview.
+
+## 2026-10-27: 0.3.0-beta.1
+
+- The setup's version for what came since the last one: one version for all six games from now on; the portal overview (Back + Y, F5) runs smoothly while it holds the game (rexglue-sdk 642311f), and two upstream SDK fixes: kernel objects freed again, saved-game results checked properly (rexglue-sdk 4a34314, 3cb725a).
