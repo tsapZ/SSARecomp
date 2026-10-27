@@ -43,6 +43,7 @@ The setup isn't signed, so Windows may say "Windows protected your PC": click **
 - **Your figures keep their progress** (level, gold, hats, upgrades) in files you can back up.
 - **A settings menu** in the game: graphics, frame rate, language, portal, controls.
 - **Achievements.**
+- **HD texture packs** work too ([how](https://github.com/tsapZ/SwapForceRecomp/blob/main/docs/texture-packs.md)).
 - **Languages:** English and German menus; the disc also has French, Spanish, Italian, Dutch, Danish,
   Finnish, Norwegian and Swedish.
 
@@ -56,7 +57,7 @@ The game plays as it always did. On top of that:
 | Take figures off | Back + Y | F5 |
 | Settings | Back + RB | F4 |
 | Achievements | in the settings, under Game | F7 |
-| Which controller plays which player | | F9 |
+| Which controller plays which player | L3 + R3 | F9 |
 
 The settings menu shows the keyboard keys for the game itself under Controls.
 

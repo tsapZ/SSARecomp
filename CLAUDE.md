@@ -38,4 +38,4 @@ Always from the **x64 Native Tools Command Prompt for VS 2022**.
 ## Status convention
 
 `docs/STATUS.md` is updated at the end of every session; `docs/roadmap.md` when the plan changes,
-and the README status table with it.
+and the README's "How far it is" with it.
