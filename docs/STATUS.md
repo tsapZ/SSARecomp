@@ -454,3 +454,7 @@ launcher's achievements screen.
 
 - **Softer shadows and blur at resolution scale 2 and up** (ImaginatorsRecomp #12): skylanders-portal afba1dd sets draw_resolution_scaled_texture_offsets = false unless it was set. The SDK divided texture fetch offsets by the resolution scale, so the games' fixed blur kernels (the shadow mask's 9-tap blur, bloom) shrank with the scale. Compared here at scale 2, on and off: the shadow under a character in the Chapter 1 cutscene a little softer. Scale 1 is the same either way.
 - **A start-up crash less** (rexglue-sdk 807af87): SDL's audio subsystem starts on the UI thread before the game's audio driver asks for it. Started from the audio thread it could race SDL_UpdateAudio in the UI thread's event pump and end in exception C0000264 (once in Trap Team, 2026-10-27).
+
+## 2026-10-27: 0.2.0-beta.7
+
+- The setup's version for what came since the last one: softer shadows and blur at resolution scale 2 and up (texture fetch offsets in the console's texels, skylanders-portal afba1dd) and SDL's audio started on the UI thread against a rare start-up crash (rexglue-sdk 807af87).
