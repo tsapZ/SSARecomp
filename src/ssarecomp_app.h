@@ -28,6 +28,7 @@
 #include "game/portal_prompt_watch.h"
 #include "game/game_fonts.h"
 #include "hooks/ultrawide_hook.h"
+#include "hooks/where_hook.h"
 #include "game/game_text.h"
 #include "game/hats.h"
 #include "game/upgrades.h"
@@ -185,6 +186,8 @@ class SsarecompApp : public rex::ReXApp {
                                       skylanders::SharedPicturesDir(user_data_root(), "Spyro's Adventure"));
     // A real crash logs where in the game it happened (guest call chain and registers).
     skylanders::dev::InstallCrashReport(runtime()->memory());
+    // And where the player was: the log's "Where:" lines name the level and player 1's position.
+    ssarecomp::InstallWhere(game_data_root_);
     // The achievements list (F7, F4 > Spiel > Erfolge); the kernel's list exists from launch on.
     skylanders::RegisterAchievementsMenu(
         imgui_drawer(), immediate_drawer(), &app_context(), runtime(),
