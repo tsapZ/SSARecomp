@@ -486,3 +486,7 @@ launcher's achievements screen.
 ## 2026-10-28: 0.3.0-beta.3
 
 - The setup's version for what came since the last one: setjmp/longjmp are wired up for codegen, so an error the game catches no longer runs into exit() and a crash (SSARecomp #42, Oilspill Island)
+
+## 2026-10-28: 0.3.0-beta.4
+
+- The setup's version for what came since the last one: an XMA sound stream stuck past the end of its buffer goes on (ImaginatorsRecomp #16), who a trap holds in the portal menu (TrapTeamRecomp #17), the log's Where lines (Spyro's Adventure)
