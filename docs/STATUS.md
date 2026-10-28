@@ -481,4 +481,4 @@ launcher's achievements screen.
 
 ## 2026-10-28: 0.3.0-beta.2
 
-- The setup's version for what came since the last one: The setup's version for what came since the last one: the GPU thread writes registers more cheaply (rexglue-sdk 88d6730: Spyro's Adventure's Chapter 1 51-55 -> 60 FPS at 1080p), the crash report also says where the SDK's fatal errors happen (skylanders-portal 433cb9f, SSARecomp #42), and the XMA "no bits to copy" line is debug only (rexglue-sdk 7d147fe).
+- The setup's version for what came since the last one: the GPU thread writes registers more cheaply (rexglue-sdk 88d6730: Spyro's Adventure's Chapter 1 51-55 -> 60 FPS at 1080p), the crash report also says where the SDK's fatal errors happen (skylanders-portal 433cb9f, SSARecomp #42), and the XMA "no bits to copy" line is debug only (rexglue-sdk 7d147fe).
