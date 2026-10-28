@@ -1,12 +1,22 @@
-# Spyro's Adventure Recompiled
+<div align="center">
+
+<img src=".github/images/banner.png" alt="Skylanders: Spyro's Adventure, recompiled" width="100%">
+
+<p>
+<a href="https://github.com/tsapZ/SSARecomp/releases"><img src=".github/images/download.png" alt="Download for Windows" width="300" height="56"></a>
+</p>
+
+<p>
+<sub><a href="https://github.com/tsapZ/SkylandersCoreOfLight">Core of Light</a> (the launcher for all six) · <a href="#getting-started">Getting started</a> · <a href="#which-disc">Which disc</a> · <a href="#help">Help</a> · <a href="https://github.com/tsapZ/SSARecomp/issues/new/choose">Report a problem</a></sub>
+</p>
+
+</div>
+
+<br>
 
 **Skylanders: Spyro's Adventure** (Xbox 360, 2011) as a native Windows game: a controller, up to
 3x the console's resolution, 60 FPS, no emulator. You bring your own copy of the game; nothing of it
 comes with this project.
-
-**[Download](https://github.com/tsapZ/SSARecomp/releases)** ·
-**[Core of Light](https://github.com/tsapZ/SkylandersCoreOfLight)** (the launcher for all six games) ·
-**[Report a problem](https://github.com/tsapZ/SSARecomp/issues/new/choose)**
 
 > Unofficial fan project. Not affiliated with or endorsed by Activision or Toys for Bob.
 
@@ -32,6 +42,8 @@ What you need:
 The setup isn't signed, so Windows may say "Windows protected your PC": click **More info**, then
 **Run anyway**. No admin rights needed.
 
+<br>
+
 ## What you get
 
 - **A sharper picture:** 1x, 2x or 3x the console's 720p, AMD CAS sharpening and 16x texture
@@ -47,6 +59,12 @@ The setup isn't signed, so Windows may say "Windows protected your PC": click **
 - **Languages:** English and German menus; the disc also has French, Spanish, Italian, Dutch, Danish,
   Finnish, Norwegian and Swedish.
 
+<img src=".github/images/settings.png" alt="The game's settings in Core of Light">
+
+<sub>Its settings in Core of Light, the same pages as in the game's own menu (F4). The game's own pictures aren't shown here: they're Activision's.</sub>
+
+<br>
+
 ## Controls
 
 The game plays as it always did. On top of that:
@@ -61,6 +79,8 @@ The game plays as it always did. On top of that:
 
 The settings menu shows the keyboard keys for the game itself under Controls.
 
+<br>
+
 ## How far it is
 
 Chapter 1 plays all the way through, cutscenes and voices included, and has been played a lot. The
@@ -69,6 +89,8 @@ breaks further in, please [tell me](https://github.com/tsapZ/SSARecomp/issues/ne
 
 What's being worked on: [docs/roadmap.md](docs/roadmap.md). Known bugs and the details:
 [docs/STATUS.md](docs/STATUS.md).
+
+<br>
 
 ## Help
 
@@ -81,7 +103,7 @@ What's being worked on: [docs/roadmap.md](docs/roadmap.md). Known bugs and the d
 `Documents\Skylanders\Figures` (shared by all six games). Core of Light can export all of it for a
 new PC.
 
-**Why are there no screenshots?** They'd show the game's artwork, which belongs to Activision.
+**Why are there no screenshots of the game?** They'd show its artwork, which belongs to Activision. The picture above is its settings page in Core of Light, the banner our own drawing.
 
 ## Which disc
 
@@ -97,6 +119,8 @@ launcher's settings, > **Report a problem**, or the question it asks after a cra
 file on your desktop with the latest logs and settings, your Windows user name taken out. Without
 the launcher, the logs are in the `logs` folder next to the game's exe.
 
+<br>
+
 ## Why this exists
 
 I wanted to play the Xbox 360 Skylanders games on my PC with just a controller, no emulator, and
@@ -110,6 +134,8 @@ Claude Code, the recompile setup, the fixes, the portal menu, the launcher and t
 most of the docs too. I decided what to build, said what was broken and played the games a lot. If
 AI-made projects aren't your thing, that's fair.
 
+<br>
+
 ## For developers
 
 The game's Xbox 360 code is recompiled to x86-64 with [ReXGlue](https://github.com/rexglue/rexglue-sdk)
@@ -120,6 +146,8 @@ Building needs Windows, Visual Studio 2022 (C++ workload and C++ Clang tools), C
 Git and Python 3, and the extracted disc in `rom/` ([rom/README.md](rom/README.md)). Steps:
 [docs/development.md](docs/development.md), then `just play-release`. `just package-installer` builds
 the setup. All docs: [docs/README.md](docs/README.md).
+
+The banner and the button at the top are drawn by Core of Light's [`tools/make_banner.ps1`](https://github.com/tsapZ/SkylandersCoreOfLight/blob/main/tools/make_banner.ps1).
 
 ## Credits
 
