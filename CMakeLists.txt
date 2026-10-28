@@ -57,6 +57,7 @@ set(SSARECOMP_SOURCES
     src/localization.cpp
     src/settings_pages.cpp
     src/hooks/intro_skip_hook.cpp
+    src/hooks/lua_error_hook.cpp
     src/hooks/object_list_guard_hook.cpp
     src/hooks/post_effects_hook.cpp
     src/hooks/scene_size_hook.cpp

@@ -6,6 +6,17 @@
 #
 # Entries are added as codegen and the runtime report them.
 
+# The CRT's setjmp (0x825FECA0: stores f14-f31, r13-r31, v64-v127, LR and CR into the buffer in r3)
+# and longjmp (0x825F8430: loads them back from it). Recompiled as is, longjmp only sets the guest
+# registers and returns to its caller. The game's Lua (luaD_throw, sub_8211A568) longjmps out of
+# every script error to the pcall around it; without these two the throw went on to exit(1), whose
+# exit handlers then crashed on a static object already torn down (SSARecomp #42: loading Oilspill
+# Island, a script error in lua\utilities.lua:96). With the addresses set, codegen turns the calls
+# into the host setjmp/longjmp of the generated header (ppc_setjmp/ppc_longjmp), which also restore
+# the guest registers. Safe: setjmp and longjmp have no other job, and every register lives in ctx.
+setjmp_address = 0x825FECA0
+longjmp_address = 0x825F8430
+
 # 0x829EC1CC is in BinkOpen (sub_829EBEF8, the Bink 1 SDK's: it names "Not a Bink file." at
 # 0x8207B08C), right after its read callback filled the 44-byte header at r1+112 and just before
 # the signature compares (BIKf..BIKi). Found from that error string's only reference.
