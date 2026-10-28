@@ -470,3 +470,7 @@ launcher's achievements screen.
 ## 2026-10-27: 0.3.0-beta.1
 
 - The setup's version for what came since the last one: one version for all six games from now on; the portal overview (Back + Y, F5) runs smoothly while it holds the game (rexglue-sdk 642311f), and two upstream SDK fixes: kernel objects freed again, saved-game results checked properly (rexglue-sdk 4a34314, 3cb725a).
+
+## 2026-10-28: shared libraries
+
+- SDK cf59726: the XMA "no bits to copy" line is debug only now; library 433cb9f: the crash report also logs where the SDK's fatal errors happen (SSARecomp #42), and developer tools (pollwatch, the write watch works in Trap Team).
