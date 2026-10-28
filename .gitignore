@@ -26,3 +26,6 @@
 # Python caches (they keep the source file's full path)
 __pycache__/
 *.py[cod]
+
+# Local CMake presets (the developer kit build): never commit
+CMakeUserPresets.json
