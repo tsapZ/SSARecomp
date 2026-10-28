@@ -474,3 +474,7 @@ launcher's achievements screen.
 ## 2026-10-28: shared libraries
 
 - SDK cf59726: the XMA "no bits to copy" line is debug only now; library 433cb9f: the crash report also logs where the SDK's fatal errors happen (SSARecomp #42), and developer tools (pollwatch, the write watch works in Trap Team).
+
+## 2026-10-28: shared libraries
+
+- SDK 88d6730: cheaper register writes on the GPU thread (Spyro's Adventure Chapter 1: 51-55 -> 60 FPS at 1080p, frame cap off).
