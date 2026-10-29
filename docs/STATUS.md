@@ -490,3 +490,7 @@ launcher's achievements screen.
 ## 2026-10-28: 0.3.0-beta.4
 
 - The setup's version for what came since the last one: an XMA sound stream stuck past the end of its buffer goes on (ImaginatorsRecomp #16), who a trap holds in the portal menu (TrapTeamRecomp #17), the log's Where lines (Spyro's Adventure)
+
+## 2026-10-29: shared libraries
+
+- SDK 86a0e8e: the audio queue follows the device's buffer, a warning when sound runs dry
