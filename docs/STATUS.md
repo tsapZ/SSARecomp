@@ -498,3 +498,7 @@ launcher's achievements screen.
 ## 2026-10-29: 0.3.0-beta.5
 
 - The setup's version for what came since the last one: 0.3.0-beta.5: the audio queue follows the device's buffer
+
+## 2026-10-29: shared libraries
+
+- SDK 6430f40: the sound-ran-dry warning from 10 a minute on
