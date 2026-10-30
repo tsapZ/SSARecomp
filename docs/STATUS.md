@@ -514,3 +514,7 @@ launcher's achievements screen.
 ## 2026-10-30: shared libraries
 
 - The log keeps your user name, user folder and PC name out, and its first line names the game's version and build and the machine; less work per draw on the graphics thread.
+
+## 2026-10-30: 0.3.0-beta.7
+
+- The setup's version for what came since the last one: smoother where the graphics thread is the limit, no user name, user folder or PC name in the log, and its first line names the version, the build and the machine
