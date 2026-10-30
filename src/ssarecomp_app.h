@@ -355,6 +355,8 @@ class SsarecompApp : public rex::ReXApp {
     const auto xex = game_data_root_ / "default.xex";
     // Utf8() and wide messages, not path::string(): that throws for characters outside the ANSI
     // code page, and this runs on every startup.
+    // The build and the machine first: which version a report comes from (no names, no paths).
+    REXLOG_INFO("{}", skylanders::xex::BuildAndSystemLine(SKYLANDERS_GAME_TITLE));
     REXLOG_INFO("Checking {} against the pinned SHA-256", skylanders::xex::Utf8(xex));
     const auto result = skylanders::xex::VerifyXex(xex, SKYLANDERS_XEX_SHA256);
     const auto problem = skylanders::xex::DescribeXexProblem(
