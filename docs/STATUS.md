@@ -506,3 +506,7 @@ launcher's achievements screen.
 ## 2026-10-29: 0.3.0-beta.6
 
 - The setup's version for what came since the last one: 0.3.0-beta.6: the log's "Where:" line (level and player 1's place) in Swap Force, SuperChargers and Imaginators; the SDK tells the game's code which files it opens
+
+## 2026-10-30: shared libraries
+
+- portable data next to Core of Light (#47); the portal menu says which Skylander the game wants back
