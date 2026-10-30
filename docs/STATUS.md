@@ -510,3 +510,7 @@ launcher's achievements screen.
 ## 2026-10-30: shared libraries
 
 - portable data next to Core of Light (#47); the portal menu says which Skylander the game wants back
+
+## 2026-10-30: shared libraries
+
+- The log keeps your user name, user folder and PC name out, and its first line names the game's version and build and the machine; less work per draw on the graphics thread.
