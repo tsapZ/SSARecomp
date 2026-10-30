@@ -29,3 +29,7 @@ __pycache__/
 
 # Local CMake presets (the developer kit build): never commit
 CMakeUserPresets.json
+
+# Compiler profile counts (profile-guided build tries)
+*.profraw
+*.profdata
