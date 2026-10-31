@@ -530,3 +530,7 @@ launcher's achievements screen.
 ## 2026-10-31: shared libraries
 
 - Water ripples where a Skylander wades are smooth at resolution scale 2 and above (they were grainy)
+
+## 2026-10-31: shared libraries
+
+- Files the game overwrites are cut short in place instead of deleted and made anew: safer on exFAT/FAT drives such as USB sticks (portable data).
