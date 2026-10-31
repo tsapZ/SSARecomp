@@ -525,7 +525,7 @@ launcher's achievements screen.
 
 ## 2026-10-31: 0.3.0-beta.8
 
-- The setup's version for what came since the last one: The setup's version for what came since the last one: a Discord status (off unless you switch it on, F4 > Game), smooth shadow edges at resolution scale 2 and above, a little less work per draw
+- The setup's version for what came since the last one: a Discord status (off unless you switch it on, F4 > Game), smooth shadow edges at resolution scale 2 and above, a little less work per draw
 
 ## 2026-10-31: shared libraries
 
