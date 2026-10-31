@@ -538,3 +538,7 @@ launcher's achievements screen.
 ## 2026-10-31: 0.3.0-beta.9
 
 - The setup's version for what came since the last one: files overwritten in place (safer on USB sticks), a profile-guided build (faster where the CPU is the limit)
+
+## 2026-10-31: shared libraries
+
+- The FidelityFX library is built into each build folder (a test build's could end up in another one).
