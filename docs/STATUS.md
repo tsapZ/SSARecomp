@@ -542,3 +542,7 @@ launcher's achievements screen.
 ## 2026-10-31: shared libraries
 
 - The FidelityFX library is built into each build folder (a test build's could end up in another one).
+
+## 2026-10-31: Other pressings
+
+- The disc check also compares the code: another pressing with the same code (another language set) runs too, and a refused disc's message names its title, region and hash.
