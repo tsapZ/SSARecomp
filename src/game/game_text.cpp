@@ -1,4 +1,4 @@
-// The game's own text, from rom/text/<language>/global.lxb.
+// The game's own text, from rom/text/<language>/global.lxb: figure and level names.
 //
 // The file is a table of 2335 entries: a big-endian count at 0x7C, then that many pairs of
 // (CRC-32 of the key, offset), where the offset counts from the offset field itself to a
@@ -19,6 +19,7 @@
 #include <rex/cvar.h>
 #include <rex/logging.h>
 
+#include "portal_rex/discord_presence.h"
 #include "portal_rex/portal_menu.h"
 
 // Defined in the SDK (xam_user.cpp); the language the game runs in.
@@ -154,6 +155,11 @@ void InstallGameText(const std::filesystem::path& text_root) {
   // "too many location pieces on the Portal of Power" (#21).
   skylanders::SetAdventurePackName(REXCVAR_GET(user_language) == 3 ? "Ortselement"
                                                                   : "Location piece");
+  // The levels' names for the Discord status: the text of the level's own name, as where_hook.cpp
+  // reports it ("Level_014" = "Oilspill Island" / "\xC3\x96llachen-Insel").
+  skylanders::SetDiscordLevelNames([](const std::string& level) {
+    return level.starts_with("Level_") ? GameText(level).value_or(std::string()) : std::string();
+  });
 }
 
 }  // namespace ssarecomp
