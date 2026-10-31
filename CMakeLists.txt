@@ -25,6 +25,11 @@ set(REXGLUE_USE_VULKAN ON CACHE BOOL "Enable Vulkan graphics backend")
 # and its DLLs).
 add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:-ffile-prefix-map=${CMAKE_SOURCE_DIR}/=>")
 
+# Profile-guided optimization, off unless asked for (thirdparty/skylanders-portal/cmake/pgo.cmake:
+# SKYLANDERS_PGO=generate for training runs, SKYLANDERS_PGO_PROFILE=<profile> for the optimized
+# build); before the SDK, so its targets get it too.
+include(thirdparty/skylanders-portal/cmake/pgo.cmake)
+
 include(generated/rexglue.cmake)
 
 # Portal of Power support (thirdparty/skylanders-portal, shared with other Skylanders recomps).
