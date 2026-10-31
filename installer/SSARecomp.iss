@@ -188,7 +188,8 @@ end;
 // input -- it already happened here.
 function PreflightCheckRom(const SourcePath: String; IsIso: Boolean; var ErrorMsg: String): Boolean;
 var
-  CandidateXex, XexCheckExe: String;
+  CandidateXex, XexCheckExe, CheckOutput: String;
+  CheckText: AnsiString;
   ResultCode: Integer;
 begin
   Result := False;
@@ -208,7 +209,11 @@ begin
 
   XexCheckExe := ExpandConstant('{tmp}') + '\ssarecomp_xexcheck.exe';
   ExtractXexCheckWithRuntime;
-  if not Exec(XexCheckExe, '"' + CandidateXex + '"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then begin
+  // Through cmd, its output into a file: the tool's message says what the disc is (title, region,
+  // hash), and a refused disc's message shows it, for an issue.
+  CheckOutput := ExpandConstant('{tmp}') + '\xexcheck-output.txt';
+  if not Exec(ExpandConstant('{cmd}'), '/C ""' + XexCheckExe + '" "' + CandidateXex + '" > "' +
+              CheckOutput + '" 2>&1"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then begin
     ErrorMsg := 'Could not run the version-check tool.';
     if IsIso then DelTree(ExpandConstant('{app}') + '\rom', True, True, True);
     Exit;
@@ -227,9 +232,13 @@ begin
       'This usually means the Visual C++ runtime is missing on this PC.'
   else if ResultCode = 3 then
     ErrorMsg := 'Could not read ' + CandidateXex + ' to check its version.'
-  else if ResultCode = 2 then
+  else if ResultCode = 2 then begin
     ErrorMsg := 'This is not the supported Skylanders: Spyro''s Adventure version (Xbox 360). ' +
-      'The installer will not continue with an unsupported copy of the game.'
+      'The installer will not continue with an unsupported copy of the game.';
+    if LoadStringFromFile(CheckOutput, CheckText) then
+      ErrorMsg := ErrorMsg + #13#10#13#10 + String(CheckText) + #13#10 +
+        'Press Ctrl+C to copy this message.';
+  end
   else
     ErrorMsg := 'The version-check tool reported an unexpected error (code ' + IntToStr(ResultCode) + ').';
   if IsIso then DelTree(ExpandConstant('{app}') + '\rom', True, True, True);

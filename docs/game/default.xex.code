@@ -1,0 +1,6 @@
+# The code pin of the supported disc's default.xex (skylanders-portal, src/xex/xex_header.h): where
+# its code loads and the SHA-256 of the XEX header's page table from there on. That table holds a
+# SHA-1 of every run of loaded pages, so another pressing with the same pin (another language set,
+# another media ID) runs the same code, and the setup, the game and the launcher take it like a disc
+# listed in default.xex.sha256.
+82110000:0a6b070c95f730a77a8662afdbbb297a15ce8a465c344951ab5ff1bb94bd802d
