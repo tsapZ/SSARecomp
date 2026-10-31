@@ -546,3 +546,7 @@ launcher's achievements screen.
 ## 2026-10-31: Other pressings
 
 - The disc check also compares the code: another pressing with the same code (another language set) runs too, and a refused disc's message names its title, region and hash.
+
+## 2026-10-31: 0.4.0-beta.1
+
+- The setup's version for what came since the last one: Another pressing of the disc with the same code (another European language set) runs too, and the setup's message for a refused disc names its title, region and hash.
