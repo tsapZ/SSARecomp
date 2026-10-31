@@ -518,3 +518,7 @@ launcher's achievements screen.
 ## 2026-10-30: 0.3.0-beta.7
 
 - The setup's version for what came since the last one: smoother where the graphics thread is the limit, no user name, user folder or PC name in the log, and its first line names the version, the build and the machine
+
+## 2026-10-31: shared libraries
+
+- Smooth shadow edges at resolution scale 2; the Discord status's text in the log
