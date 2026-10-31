@@ -534,3 +534,7 @@ launcher's achievements screen.
 ## 2026-10-31: shared libraries
 
 - Files the game overwrites are cut short in place instead of deleted and made anew: safer on exFAT/FAT drives such as USB sticks (portable data).
+
+## 2026-10-31: 0.3.0-beta.9
+
+- The setup's version for what came since the last one: files overwritten in place (safer on USB sticks), a profile-guided build (faster where the CPU is the limit)
