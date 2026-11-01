@@ -170,6 +170,10 @@ begin
   ForceDirectories(DestDir);
   ExtractXisoExe := ExpandConstant('{tmp}') + '\extract-xiso.exe';
   ExtractTemporaryFile('extract-xiso.exe');
+  // extract-xiso.exe imports VCRUNTIME140.dll, which a PC without the Visual C++ runtime lacks:
+  // the vendored copy next to it in {tmp}, as for the disc check tool (a fresh Windows in Windows
+  // Sandbox stopped here with "VCRUNTIME140.dll not found").
+  ExtractTemporaryFile('vcruntime140.dll');
   Result := Exec(ExtractXisoExe, '-x -s -d "' + DestDir + '" "' + IsoPath + '"', '',
                  SW_HIDE, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0);
   if not Result then begin
