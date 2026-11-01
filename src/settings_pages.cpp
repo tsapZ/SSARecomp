@@ -461,9 +461,19 @@ SettingsPage ControlsPage() {
 
 }  // namespace
 
+// Cheats (hooks/extras.cpp): while one is on, achievements don't unlock (CheatSetting).
+SettingsPage ExtrasPage() {
+  SettingsPage page{"Extras", "Extras", {}};
+  page.settings.push_back(skylanders::CheatSetting(
+      {"cheat_no_health_loss", "No health loss", "Keine Lebenspunkte verlieren",
+       "Your Skylanders get their health back to full all the time.",
+       "Deine Skylander bekommen ihre Lebenspunkte die ganze Zeit wieder aufgef\xC3\xBCllt."}));
+  return page;
+}
+
 std::vector<SettingsPage> BuildSettingsPages(std::function<void()> open_all_settings) {
   std::vector<SettingsPage> pages = {GraphicsPage(), FrameRatePage(), GamePage(), PortalPage(),
-                                     ControlsPage()};
+                                     ControlsPage(), ExtrasPage()};
   SettingsPage advanced{"Advanced", "Erweitert", {}};
   Setting all;
   all.en = "All settings (developers, keyboard and mouse)";

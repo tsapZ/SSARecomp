@@ -26,6 +26,7 @@
 #include <rex/ppc/context.h>
 
 #include "dev/where.h"
+#include "hooks/extras.h"
 #include "hooks/where_hook.h"
 
 namespace {
@@ -98,6 +99,8 @@ REX_HOOK_RAW(sub_8280A008) {
     }
     // A Skylander that is not in the level yet stands at 0 0 0 for a few frames.
     skylanders::dev::ReportPlace(level, x != 0 || y != 0 || z != 0, x, y, z);
+    // The Extras page's cheats, at the same safe point of the frame (extras.cpp).
+    ssarecomp::ApplyExtras(base);
   }
 #if defined(SKYLANDERS_DEVKIT)
   // The developer kit (a private test build only) does its per-frame work here as well.
