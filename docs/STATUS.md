@@ -550,3 +550,7 @@ launcher's achievements screen.
 ## 2026-10-31: 0.4.0-beta.1
 
 - The setup's version for what came since the last one: Another pressing of the disc with the same code (another European language set) runs too, and the setup's message for a refused disc names its title, region and hash.
+
+## 2026-11-01: 0.4.0-beta.2
+
+- The setup's version for what came since the last one: 0.4.0-beta.2: level music layers switch again (SC/SF/IM), setups extract ISOs without the VC++ runtime, Extras page, menus smooth over loading, pipeline and AMD fixes
