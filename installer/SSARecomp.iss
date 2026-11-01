@@ -87,6 +87,9 @@ begin
   ExtractTemporaryFile('ssarecomp_xexcheck.exe');
   ExtractTemporaryFile('msvcp140.dll');
   ExtractTemporaryFile('vcruntime140.dll');
+  // msvcp140.dll itself imports VCRUNTIME140_1.dll: without it the tool didn't start on a PC
+  // without the Visual C++ runtime (a fresh Windows in Windows Sandbox).
+  ExtractTemporaryFile('vcruntime140_1.dll');
 end;
 
 // GetSpaceOnDisk64 requires an existing path (a drive root, or an existing directory); {app}
