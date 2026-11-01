@@ -558,3 +558,7 @@ launcher's achievements screen.
 ## 2026-11-01: shared libraries
 
 - SDK: outdated texture bindings reload only when used, unchanged register writes skipped
+
+## 2026-11-01: 0.4.0-beta.3
+
+- The setup's version for what came since the last one: A bit faster renderer (unchanged shader constants skipped, only changed textures reloaded); Trap Team also gets the villain time cheat (#18)
