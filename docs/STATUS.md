@@ -554,3 +554,7 @@ launcher's achievements screen.
 ## 2026-11-01: 0.4.0-beta.2
 
 - The setup's version for what came since the last one: 0.4.0-beta.2: level music layers switch again (SC/SF/IM), setups extract ISOs without the VC++ runtime, Extras page, menus smooth over loading, pipeline and AMD fixes
+
+## 2026-11-01: shared libraries
+
+- SDK: outdated texture bindings reload only when used, unchanged register writes skipped
