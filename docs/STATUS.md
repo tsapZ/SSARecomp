@@ -626,3 +626,7 @@ launcher's achievements screen.
 ## 2026-11-03: 0.4.1-beta.6
 
 - The setup's version for what came since the last one: Less CPU work per draw: render target updates of unchanged draws are skipped (about +4 % FPS where the CPU is the limit)
+
+## 2026-11-04: shared libraries
+
+- Draws wait up to 4 ms per frame for a shader pipeline still being created instead of being skipped (SDK 9e359ad): far fewer objects missing for a frame the first time they show
