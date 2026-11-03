@@ -566,3 +566,7 @@ launcher's achievements screen.
 ## 2026-11-03: shared libraries
 
 - Xbox 360 portal over WinUSB: each read can hold two 32-byte frames (the portal sends full packets), each now goes to the game; the first 12 commands are logged (TrapTeamRecomp #19)
+
+## 2026-11-03: 0.4.0-beta.6
+
+- The setup's version for what came since the last one: Xbox 360 portal: every frame of a WinUSB read reaches the game (TrapTeamRecomp #19)
