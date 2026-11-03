@@ -574,3 +574,7 @@ launcher's achievements screen.
 ## 2026-11-03: shared libraries
 
 - Quick swap: portal_quick_swap_buttons (Back+X) / bind_portal_quick_swap (F2) put the newest Recent entry not on the portal back on without the menu; Xbox 360 portal commands padded to 32 bytes, pipes reset on open (TrapTeamRecomp #19)
+
+## 2026-11-03: 0.4.0-beta.7
+
+- The setup's version for what came since the last one: Quick swap (Back+X / F2) and the Xbox 360 portal's third try (TrapTeamRecomp #19)
