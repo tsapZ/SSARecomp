@@ -618,3 +618,7 @@ launcher's achievements screen.
 ## 2026-11-03: shared libraries
 
 - Direct resolve (SDK 45280bf): most copies from the emulated render memory skip the dump, +3-4 % FPS at scale 2; Extras > Show cheats (lib f4e72e1)
+
+## 2026-11-03: shared libraries
+
+- Render target updates of unchanged draws skip the lookups and EDRAM ownership walks (SDK ef9c6f9): Spyro's Adventure Level 36 about +4 % FPS where the CPU is the limit
