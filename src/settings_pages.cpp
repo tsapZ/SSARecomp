@@ -430,6 +430,14 @@ SettingsPage ControlsPage() {
       "einzeln herunterzunehmen, das magische Objekt auch (Tastatur: F5).",
       {{"back+y", "Back+Y", "Back+Y"}, {"back+b", "Back+B", "Back+B"}, {"", "Off", "Aus"}}));
   page.settings.push_back(ButtonSetting(
+      "portal_quick_swap_buttons", "Quick swap", "Schnelltausch",
+      "Puts the Skylander you played before back on the portal without opening the portal menu; "
+      "press it again to swap back (keyboard: F2).",
+      "Stellt den Skylander, den du vorher gespielt hast, wieder aufs Portal, ohne das Portal-Men"
+      "\xC3\xBC zu \xC3\xB6" "ffnen; noch einmal gedr\xC3\xBC" "ckt, tauscht er zur\xC3\xBC" "ck "
+      "(Tastatur: F2).",
+      {{"back+x", "Back+X", "Back+X"}, {"", "Off", "Aus"}}));
+  page.settings.push_back(ButtonSetting(
       "player_menu_buttons", "Player menu", "Spieler-Men\xC3\xBC",
       "Opens the player menu: which controller plays as which player (keyboard: F9).",
       "\xC3\x96" "ffnet das Spieler-Men\xC3\xBC: welcher Controller welcher Spieler ist "
