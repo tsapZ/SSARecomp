@@ -594,3 +594,7 @@ launcher's achievements screen.
 ## 2026-11-03: 0.4.1-beta.1
 
 - The setup's version for what came since the last one: Xbox 360 portal diagnostics (TrapTeamRecomp #19); Trap Team's Traptanium boost cheat reaches the others' bundle
+
+## 2026-11-03: shared libraries
+
+- The Xbox 360 portal gets the game's frames as they are again, no longer padded to 32 bytes (TrapTeamRecomp #19); Extras > Full gold, shared (SkylandersCoreOfLight #48).
