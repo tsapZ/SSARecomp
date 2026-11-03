@@ -598,3 +598,7 @@ launcher's achievements screen.
 ## 2026-11-03: shared libraries
 
 - The Xbox 360 portal gets the game's frames as they are again, no longer padded to 32 bytes (TrapTeamRecomp #19); Extras > Full gold, shared (SkylandersCoreOfLight #48).
+
+## 2026-11-03: 0.4.1-beta.2
+
+- The setup's version for what came since the last one: the Xbox 360 portal gets the game's frames as they are (TrapTeamRecomp #19), Extras > Full gold (SkylandersCoreOfLight #48).
