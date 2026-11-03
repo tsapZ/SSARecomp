@@ -606,3 +606,7 @@ launcher's achievements screen.
 ## 2026-11-03: shared libraries
 
 - The command processor checks the shared memory's valid pages before taking a lock every draw asked for: Spyro's Adventure Level 6 52.8-56.8 -> 59.6-62.8 FPS uncapped, Level 36 +4 %.
+
+## 2026-11-03: 0.4.1-beta.3
+
+- The setup's version for what came since the last one: the graphics command thread no longer waits for a lock on almost every draw (up to 12 % more FPS where the CPU is the limit).
