@@ -570,3 +570,7 @@ launcher's achievements screen.
 ## 2026-11-03: 0.4.0-beta.6
 
 - The setup's version for what came since the last one: Xbox 360 portal: every frame of a WinUSB read reaches the game (TrapTeamRecomp #19)
+
+## 2026-11-03: shared libraries
+
+- Quick swap: portal_quick_swap_buttons (Back+X) / bind_portal_quick_swap (F2) put the newest Recent entry not on the portal back on without the menu; Xbox 360 portal commands padded to 32 bytes, pipes reset on open (TrapTeamRecomp #19)
