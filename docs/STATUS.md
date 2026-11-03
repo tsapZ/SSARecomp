@@ -614,3 +614,7 @@ launcher's achievements screen.
 ## 2026-11-03: shared libraries
 
 - GPU commands are replayed and submitted on a thread of their own (SDK ec3bdbf): Spyro's Adventure Level 36 about +6 % FPS where the CPU is the limit
+
+## 2026-11-03: shared libraries
+
+- Direct resolve (SDK 45280bf): most copies from the emulated render memory skip the dump, +3-4 % FPS at scale 2; Extras > Show cheats (lib f4e72e1)
