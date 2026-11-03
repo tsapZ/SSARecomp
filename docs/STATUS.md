@@ -610,3 +610,7 @@ launcher's achievements screen.
 ## 2026-11-03: 0.4.1-beta.3
 
 - The setup's version for what came since the last one: the graphics command thread no longer waits for a lock on almost every draw (up to 12 % more FPS where the CPU is the limit).
+
+## 2026-11-03: shared libraries
+
+- GPU commands are replayed and submitted on a thread of their own (SDK ec3bdbf): Spyro's Adventure Level 36 about +6 % FPS where the CPU is the limit
