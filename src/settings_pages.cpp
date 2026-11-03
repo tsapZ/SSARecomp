@@ -472,6 +472,8 @@ SettingsPage ControlsPage() {
 // Cheats (hooks/extras.cpp): while one is on, achievements don't unlock (CheatSetting).
 SettingsPage ExtrasPage() {
   SettingsPage page{"Extras", "Extras", {}};
+  // The owner's wish (2026-11-03): every cheat below can be hidden (and is switched off then).
+  page.settings.push_back(skylanders::ShowCheatsSetting());
   page.settings.push_back(skylanders::CheatSetting(
       {"cheat_no_health_loss", "No health loss", "Keine Lebenspunkte verlieren",
        "Your Skylanders get their health back to full all the time.",
