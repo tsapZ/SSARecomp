@@ -586,3 +586,7 @@ launcher's achievements screen.
 ## 2026-11-03: 0.4.0-beta.8
 
 - The setup's version for what came since the last one: Xbox 360 portal fourth try (TrapTeamRecomp #19)
+
+## 2026-11-03: shared libraries
+
+- Xbox 360 portal: every endpoint logged at open, every non-status reply logged (TrapTeamRecomp #19)
