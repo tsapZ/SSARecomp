@@ -476,6 +476,7 @@ SettingsPage ExtrasPage() {
       {"cheat_no_health_loss", "No health loss", "Keine Lebenspunkte verlieren",
        "Your Skylanders get their health back to full all the time.",
        "Deine Skylander bekommen ihre Lebenspunkte die ganze Zeit wieder aufgef\xC3\xBCllt."}));
+  page.settings.push_back(skylanders::FullGoldCheatSetting());
   return page;
 }
 
