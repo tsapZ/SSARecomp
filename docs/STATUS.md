@@ -622,3 +622,7 @@ launcher's achievements screen.
 ## 2026-11-03: shared libraries
 
 - Render target updates of unchanged draws skip the lookups and EDRAM ownership walks (SDK ef9c6f9): Spyro's Adventure Level 36 about +4 % FPS where the CPU is the limit
+
+## 2026-11-03: 0.4.1-beta.6
+
+- The setup's version for what came since the last one: Less CPU work per draw: render target updates of unchanged draws are skipped (about +4 % FPS where the CPU is the limit)
