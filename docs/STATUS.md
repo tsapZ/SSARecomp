@@ -578,3 +578,7 @@ launcher's achievements screen.
 ## 2026-11-03: 0.4.0-beta.7
 
 - The setup's version for what came since the last one: Quick swap (Back+X / F2) and the Xbox 360 portal's third try (TrapTeamRecomp #19)
+
+## 2026-11-03: shared libraries
+
+- Xbox 360 portal: overlapped reads and writes, the first 12 commands' write results logged (TrapTeamRecomp #19)
