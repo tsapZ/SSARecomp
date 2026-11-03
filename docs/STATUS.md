@@ -630,3 +630,7 @@ launcher's achievements screen.
 ## 2026-11-04: shared libraries
 
 - Draws wait up to 4 ms per frame for a shader pipeline still being created instead of being skipped (SDK 9e359ad): far fewer objects missing for a frame the first time they show
+
+## 2026-11-04: 0.4.1-beta.7
+
+- The setup's version for what came since the last one: Fewer objects missing for a moment the first time they show (draws wait briefly for new shaders)
