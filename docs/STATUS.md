@@ -562,3 +562,7 @@ launcher's achievements screen.
 ## 2026-11-01: 0.4.0-beta.3
 
 - The setup's version for what came since the last one: A bit faster renderer (unchanged shader constants skipped, only changed textures reloaded); Trap Team also gets the villain time cheat (#18)
+
+## 2026-11-03: shared libraries
+
+- Xbox 360 portal over WinUSB: each read can hold two 32-byte frames (the portal sends full packets), each now goes to the game; the first 12 commands are logged (TrapTeamRecomp #19)
