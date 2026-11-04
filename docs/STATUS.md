@@ -642,3 +642,7 @@ launcher's achievements screen.
 ## 2026-11-04: 0.4.1-beta.8
 
 - The setup's version for what came since the last one: Less copying before full-screen passes (about 1 % more FPS at 2x in Trap Team)
+
+## 2026-11-04: shared libraries
+
+- Overwritten-transfer skip also for full-screen triangles drawn with culling on (SDK 463a021): SuperChargers +1.5 %, Imaginators +0.7 % at scale 2; the portal menu says why the Imaginators tab is empty (lib 6424139, ImaginatorsRecomp #17)
