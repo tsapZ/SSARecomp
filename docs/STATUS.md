@@ -638,3 +638,7 @@ launcher's achievements screen.
 ## 2026-11-04: shared libraries
 
 - Full-screen passes that overwrite whole tile rows no longer get the old EDRAM contents transferred in first (SDK 36d9239): about 1 % more FPS at scale 2 in Trap Team
+
+## 2026-11-04: 0.4.1-beta.8
+
+- The setup's version for what came since the last one: Less copying before full-screen passes (about 1 % more FPS at 2x in Trap Team)
