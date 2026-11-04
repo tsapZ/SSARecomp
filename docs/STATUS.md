@@ -666,3 +666,7 @@ launcher's achievements screen.
 ## 2026-11-04: 0.4.2-beta.2
 
 - The setup's version for what came since the last one: No more waiting at the end of each frame (Spyro's Adventure about 11 % faster where the CPU is the limit)
+
+## 2026-11-04: shared libraries
+
+- Less CPU work per frame (SDK 0ddcfc4: logger asked once per primary buffer, texture extents cached at a scale): Spyro's Adventure l036 68.2 -> 70.8 FPS
