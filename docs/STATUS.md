@@ -658,3 +658,7 @@ launcher's achievements screen.
 ## 2026-11-04: 0.4.2-beta.1
 
 - The setup's version for what came since the last one: Less copying before full-screen passes drawn as rectangles (Swap Force, Trap Team)
+
+## 2026-11-04: shared libraries
+
+- No wait at the swap for the submit thread (SDK 00bf733): Spyro's Adventure l036 61.6 -> 68.5 FPS where the CPU is the limit
