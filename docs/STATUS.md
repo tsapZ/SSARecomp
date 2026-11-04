@@ -634,3 +634,7 @@ launcher's achievements screen.
 ## 2026-11-04: 0.4.1-beta.7
 
 - The setup's version for what came since the last one: Fewer objects missing for a moment the first time they show (draws wait briefly for new shaders)
+
+## 2026-11-04: shared libraries
+
+- Full-screen passes that overwrite whole tile rows no longer get the old EDRAM contents transferred in first (SDK 36d9239): about 1 % more FPS at scale 2 in Trap Team
