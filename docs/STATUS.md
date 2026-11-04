@@ -654,3 +654,7 @@ launcher's achievements screen.
 ## 2026-11-04: shared libraries
 
 - Overwritten-transfer skip also for full-screen rectangle lists (SDK c7d8aba): with the skip on vs off at scale 2, Swap Force +2.8 %, Trap Team +1.8 %
+
+## 2026-11-04: 0.4.2-beta.1
+
+- The setup's version for what came since the last one: Less copying before full-screen passes drawn as rectangles (Swap Force, Trap Team)
