@@ -670,3 +670,7 @@ launcher's achievements screen.
 ## 2026-11-04: shared libraries
 
 - Less CPU work per frame (SDK 0ddcfc4: logger asked once per primary buffer, texture extents cached at a scale): Spyro's Adventure l036 68.2 -> 70.8 FPS
+
+## 2026-11-04: 0.4.2-beta.3
+
+- The setup's version for what came since the last one: A bit less CPU work per frame (Spyro's Adventure about 4 % faster where the CPU is the limit)
