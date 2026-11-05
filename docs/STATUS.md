@@ -678,3 +678,7 @@ launcher's achievements screen.
 ## 2026-11-05: shared libraries
 
 - Far fewer copies to the graphics card (SDK fa164f6, clear_memory_page_state off as in Xenia): hubs at scale 2 +9 to +37 %, SuperChargers GPU-bound; Imaginators: every crystal and chest file in the portal menu (portal feee2f5, ImaginatorsRecomp #18)
+
+## 2026-11-05: 0.4.2-beta.4
+
+- The setup's version for what came since the last one: The setup's version for what came since the last one: Far fewer copies to the graphics card (the hubs 9 to 37 % faster where the CPU is the limit); Imaginators: every crystal and chest file in the portal menu (#18)

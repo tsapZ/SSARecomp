@@ -1,5 +1,5 @@
 #define MyAppName "Spyro's Adventure Recompiled"
-#define MyAppVersion "0.4.2-beta.3"
+#define MyAppVersion "0.4.2-beta.4"
 #define MyAppExeName "ssarecompiled.exe"
 
 [Setup]
