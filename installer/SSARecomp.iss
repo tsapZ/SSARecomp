@@ -50,6 +50,8 @@ Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch {#MyAppName}"; Flags: nowait postinstall skipifsilent
 
 [Code]
+// Which graphics cards get 1x (shared by the six setups and kept next to the portal code).
+#include "..\thirdparty\skylanders-portal\installer\weak_gpu.iss"
 var
   RomPage: TWizardPage;
   RomIsIsoRadio, RomIsFolderRadio: TNewRadioButton;
@@ -521,7 +523,9 @@ begin
 
   ResolutionScaleEdit := TNewEdit.Create(SettingsPage);
   ResolutionScaleEdit.Parent := SettingsPage.Surface;
-  ResolutionScaleEdit.Text := '2';
+  // 1 on a weak graphics card (weak_gpu.iss, the same list as Core of Light's), else 2; /SCALE= and
+  // the player still decide.
+  if WeakGraphicsCard then ResolutionScaleEdit.Text := '1' else ResolutionScaleEdit.Text := '2';
   ResolutionScaleEdit.Top := ResolutionScaleLabel.Top + ResolutionScaleLabel.Height + 4;
   ResolutionScaleEdit.Width := 60;
 
