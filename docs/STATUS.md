@@ -690,3 +690,7 @@ launcher's achievements screen.
 ## 2026-11-05: shared libraries
 
 - Less CPU work per draw (SDK a0fa267: render state register blocks stored in one go, the scaled resolve answer kept per texture): Spyro's Adventure Level_036 80.8 -> 84.3, Level_006 91.1 -> 94.8 FPS at scale 2; the dev kit's shot <name> full (portal 0599229)
+
+## 2026-11-05: 0.4.2-beta.5
+
+- The setup's version for what came since the last one: Less CPU work per draw (about 4 % faster where the CPU is the limit); a rare crash at boot fixed; the setup starts at 1x on weak graphics cards
