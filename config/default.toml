@@ -118,6 +118,22 @@ name = "NullTreeNodeHook"
 registers = ["r3"]
 return_on_true = true
 
+# sub_8275A440 and sub_8275A550 add a pickup's gold and an award's XP to the player's data (properties
+# 0x47A91D51 and 0xAF511216, capped at 65000 and 33000); 0x8275A454 and 0x8275A564 are their
+# `mr r31,r4`, r4 the amount. Found 2026-11-06 with the developer kit: a write watch on the gold
+# property while Chop Chop picked up coins (sub_8220CAA8 <- sub_829555B8 <- sub_8275A440); the XP
+# function is its twin. src/hooks/multiplier_cheats_hook.cpp scales r4 by cheat_gold_multiplier /
+# cheat_xp_multiplier (1, off, by default); r4 is only copied to r31 here.
+[[midasm_hook]]
+address = 0x8275A454
+name = "GoldGainHook"
+registers = ["r4"]
+
+[[midasm_hook]]
+address = 0x8275A564
+name = "XpGainHook"
+registers = ["r4"]
+
 [functions]
 # Function starts the analyzer put one instruction late (SSARecomp #33 / GiantsRecomp #23), found in
 # the whole code (a dump of guest memory with the input script's `save`): right after a `blr`, an

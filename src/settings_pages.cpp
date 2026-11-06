@@ -479,6 +479,9 @@ SettingsPage ExtrasPage() {
        "Your Skylanders get their health back to full all the time.",
        "Deine Skylander bekommen ihre Lebenspunkte die ganze Zeit wieder aufgef\xC3\xBCllt."}));
   page.settings.push_back(skylanders::FullGoldCheatSetting());
+  // CoL #48: src/hooks/multiplier_cheats_hook.cpp, the gold and XP gain functions.
+  page.settings.push_back(skylanders::GoldMultiplierCheatSetting());
+  page.settings.push_back(skylanders::XpMultiplierCheatSetting());
   return page;
 }
 
