@@ -7,7 +7,7 @@
 </p>
 
 <p>
-<sub><a href="https://github.com/tsapZ/SkylandersCoreOfLight">Core of Light</a> (the launcher for all six) · <a href="#getting-started">Getting started</a> · <a href="#which-disc">Which disc</a> · <a href="#help">Help</a> · <a href="https://github.com/tsapZ/SSARecomp/issues/new/choose">Report a problem</a></sub>
+<sub><a href="https://github.com/tsapZ/SkylandersCoreOfLight">Core of Light</a> (the launcher for all six) · <a href="#questions-people-ask">Questions</a> · <a href="#getting-started">Getting started</a> · <a href="#which-disc">Which disc</a> · <a href="#help">Help</a> · <a href="https://github.com/tsapZ/SSARecomp/issues/new/choose">Report a problem</a></sub>
 </p>
 
 </div>
@@ -19,6 +19,20 @@
 comes with this project.
 
 > Unofficial fan project. Not affiliated with or endorsed by Activision or Toys for Bob.
+
+## Questions people ask
+
+**Can I use my real portal and figures?** Yes. Plug in a Portal of Power and pick F4 > Portal > *USB only*: the game reads your figures and saves their progress on them, as on the console. *Both* uses the real portal and the portal menu together (for the figures you have and the ones you don't) and keeps a backup file of every figure you put on. The PS3, Wii and PC portals work as they are; an Xbox 360 portal needs the WinUSB driver (Zadig), as for Xenia. If yours doesn't work, F4 > Game > *Report a problem*: its log says what the game saw.
+
+**Can I play without figures?** Yes, that's the default (*Virtual*): when the game asks for a Skylander, a menu with every figure opens. Their progress is kept in files in `Documents\Skylanders\Figures`, and one button swaps back to the Skylander you played before.
+
+**Which game do I need? Does my Wii or PS3 copy work?** Your own copy of Spyro's Adventure on Xbox 360: the region-free Xbox 360 disc ([which one exactly](#which-disc)), as an ISO or an extracted folder. The setup takes the game's data from it; nothing of the game comes with this. Wii, PS3 and other versions are different programs and don't work.
+
+**Is this an emulator?** No. The game's code is recompiled into a Windows program, so it runs natively: higher resolutions, 60 FPS and more, a settings menu, the portal menu. Emulators like Dolphin or Xenia run the original game instead; both are fine ways to play.
+
+**Does it run on Linux, Steam Deck or Android handhelds?** It's made for Windows (64-bit) and tested there. Wine / Proton may work but isn't tested much; Android and ARM handhelds aren't supported.
+
+**Was AI used?** Yes, almost all of the code was written with Claude; see [How it was made](#how-it-was-made).
 
 ## Getting started
 
