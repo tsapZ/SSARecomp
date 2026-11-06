@@ -698,3 +698,7 @@ launcher's achievements screen.
 ## 2026-11-06: shared libraries
 
 - Fewer copies into depth buffers at higher resolutions (SDK 20dd8d1, transfer_skip_overwritten_depth): hubs at scale 2 Trap Team 109.7 -> 112.1, Swap Force 115.8 -> 117.4, Imaginators 122.0 -> 123.3 FPS; the shared Extras rows can be cheats with options (gold and XP multipliers, portal 7be41de)
+
+## 2026-11-06: 0.4.2-beta.6
+
+- The setup's version for what came since the last one: Fewer copies into depth buffers at higher resolutions (Trap Team about 2 % faster at 2x); Swap Force, SuperChargers and Imaginators: always crit, elemental power everywhere, gold and XP multipliers as cheats
