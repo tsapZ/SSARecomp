@@ -722,3 +722,7 @@ launcher's achievements screen.
 ## 2026-11-06: always crit and elemental power
 
 - Extras: always crit and elemental power everywhere, behind Show cheats (CoL #48; the last two cheats the other games had). The lux classes' RTTI gave the damage rules' vtables (debug tool ssa_rtti.py): the players' SpyroDamageRule (820AF7E0, slot 0 -> sub_82761F80) rolls 0 to 100 twice, below the hit's crit chance the hit is critical (+50 %), below the target's block chance it is blocked; then, on one of two ways picked by a mode check, the attacker's element is compared with the area's (through the table at 0x82AA5800) or the level's, and a match adds damage * elemental power * 0.01. The enemies' SpyroEnemyDamageRule (sub_82761AF0) has no crit roll. src/hooks/attribute_cheats_hook.cpp: at the crit compare (0x82762084) the roll becomes -1; at each element way's start (0x82762164, 0x8276219C) the area's / level's element becomes 8 ("all") when the attacker has one. Developer kit (TEMP DIAG, heroic challenges 0-3): 12 hits through the roll, all with Chop Chop's chance of 2 % and rolls from 3.9 to 94.8, each made critical; the element way 'element 3 level 9' (undead in a level without one) took the bonus. The hooks run per hit, not per frame.
+
+## 2026-11-06: 0.4.2-beta.9
+
+- The setup's version for what came since the last one: Spyro's Adventure: always crit and elemental power everywhere as cheats
