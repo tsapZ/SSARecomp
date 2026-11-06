@@ -734,3 +734,7 @@ launcher's achievements screen.
 ## 2026-11-06: 0.5.0-beta.1
 
 - The setup's version for what came since the last one: Settings are read again with an accent or umlaut in the Windows user name; portal traffic in the log.
+
+## 2026-11-06: shared libraries
+
+- Any movie can be skipped with a button (Start; F4 > Game), and the settings texts read better.
