@@ -702,3 +702,7 @@ launcher's achievements screen.
 ## 2026-11-06: 0.4.2-beta.6
 
 - The setup's version for what came since the last one: Fewer copies into depth buffers at higher resolutions (Trap Team about 2 % faster at 2x); Swap Force, SuperChargers and Imaginators: always crit, elemental power everywhere, gold and XP multipliers as cheats
+
+## 2026-11-06: shared libraries
+
+- Fewer copies before narrow full-screen passes at higher resolutions (SDK b23e3f8, transfer_skip_overwritten_partial): hubs at scale 2 Swap Force 119.4 -> 120.4, Trap Team 112.1 -> 112.5, Imaginators 123.2 -> 123.9 FPS; the RenderDoc dumps tool prints dispatch sizes (portal ffe4030)
