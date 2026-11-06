@@ -479,6 +479,16 @@ SettingsPage ExtrasPage() {
        "Your Skylanders get their health back to full all the time.",
        "Deine Skylander bekommen ihre Lebenspunkte die ganze Zeit wieder aufgef\xC3\xBCllt."}));
   page.settings.push_back(skylanders::FullGoldCheatSetting());
+  // CoL #48: src/hooks/attribute_cheats_hook.cpp, the players' damage rule.
+  page.settings.push_back(skylanders::CheatSetting(
+      {"cheat_always_crit", "Always crit", "Immer kritisch",
+       "Every hit of your Skylanders is a critical hit.",
+       "Jeder Treffer deiner Skylander ist ein kritischer Treffer."}));
+  page.settings.push_back(skylanders::CheatSetting(
+      {"cheat_elemental_power", "Elemental power everywhere", "Elementarkraft \xC3\xBC" "berall",
+       "Your Skylanders get their element's bonus in every area, as if each area were theirs.",
+       "Deine Skylander bekommen den Bonus ihres Elements in jedem Gebiet, als w\xC3\xA4re jedes "
+       "Gebiet ihres."}));
   // CoL #48: src/hooks/multiplier_cheats_hook.cpp, the gold and XP gain functions.
   page.settings.push_back(skylanders::GoldMultiplierCheatSetting());
   page.settings.push_back(skylanders::XpMultiplierCheatSetting());

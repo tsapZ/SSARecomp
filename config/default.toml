@@ -134,6 +134,29 @@ address = 0x8275A564
 name = "XpGainHook"
 registers = ["r4"]
 
+# sub_82761F80 is the players' damage rule (SpyroDamageRule, vtable 820AF7E0 slot 0 -> sub_82762AC0):
+# 0x82762084 is fcmpu cr6,f1,f0 with f1 the roll from 0 to 100 and f0 the hit's crit chance (below it
+# the hit is critical, +50 %); 0x82762164 (cmpwi r29,9) and 0x8276219C (cmpwi r30,9) start its two
+# element checks, r29 the attacker's element (9 none, 8 all), r27 the area's, r30 the level's.
+# Found 2026-11-06 from the lux classes' RTTI (debug/ssa_rtti.py) to the rule's code. The enemies'
+# rule (SpyroEnemyDamageRule, sub_82761AF0) has no crit roll. src/hooks/attribute_cheats_hook.cpp sets
+# the roll to -1 with cheat_always_crit and the area's / level's element to 8 with
+# cheat_elemental_power (both off by default); the registers are read only by the compares here.
+[[midasm_hook]]
+address = 0x82762084
+name = "CritRollHook"
+registers = ["f0", "f1"]
+
+[[midasm_hook]]
+address = 0x82762164
+name = "ElementAreaHook"
+registers = ["r27", "r29"]
+
+[[midasm_hook]]
+address = 0x8276219C
+name = "ElementLevelHook"
+registers = ["r29", "r30"]
+
 [functions]
 # Function starts the analyzer put one instruction late (SSARecomp #33 / GiantsRecomp #23), found in
 # the whole code (a dump of guest memory with the input script's `save`): right after a `blr`, an

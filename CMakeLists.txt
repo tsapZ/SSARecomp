@@ -61,6 +61,7 @@ set(SSARECOMP_SOURCES
     src/game/ui_images.cpp
     src/localization.cpp
     src/settings_pages.cpp
+    src/hooks/attribute_cheats_hook.cpp
     src/hooks/extras.cpp
     src/hooks/intro_skip_hook.cpp
     src/hooks/lua_error_hook.cpp
