@@ -681,7 +681,7 @@ launcher's achievements screen.
 
 ## 2026-11-05: 0.4.2-beta.4
 
-- The setup's version for what came since the last one: The setup's version for what came since the last one: Far fewer copies to the graphics card (the hubs 9 to 37 % faster where the CPU is the limit); Imaginators: every crystal and chest file in the portal menu (#18)
+- The setup's version for what came since the last one: Far fewer copies to the graphics card (the hubs 9 to 37 % faster where the CPU is the limit); Imaginators: every crystal and chest file in the portal menu (#18)
 
 ## 2026-11-05: boot crash guard
 
@@ -709,4 +709,4 @@ launcher's achievements screen.
 
 ## 2026-11-06: 0.4.2-beta.7
 
-- The setup's version for what came since the last one: The setup's version for what came since the last one: Fewer copies before narrow full-screen passes at higher resolutions (Swap Force about 1 % faster at 2x); Trap Team: always crit and elemental power everywhere as cheats
+- The setup's version for what came since the last one: Fewer copies before narrow full-screen passes at higher resolutions (Swap Force about 1 % faster at 2x); Trap Team: always crit and elemental power everywhere as cheats
