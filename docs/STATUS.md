@@ -706,3 +706,7 @@ launcher's achievements screen.
 ## 2026-11-06: shared libraries
 
 - Fewer copies before narrow full-screen passes at higher resolutions (SDK b23e3f8, transfer_skip_overwritten_partial): hubs at scale 2 Swap Force 119.4 -> 120.4, Trap Team 112.1 -> 112.5, Imaginators 123.2 -> 123.9 FPS; the RenderDoc dumps tool prints dispatch sizes (portal ffe4030)
+
+## 2026-11-06: 0.4.2-beta.7
+
+- The setup's version for what came since the last one: The setup's version for what came since the last one: Fewer copies before narrow full-screen passes at higher resolutions (Swap Force about 1 % faster at 2x); Trap Team: always crit and elemental power everywhere as cheats
