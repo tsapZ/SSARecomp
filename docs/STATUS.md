@@ -714,3 +714,7 @@ launcher's achievements screen.
 ## 2026-11-06: gold and XP multipliers
 
 - Extras: gold and XP multipliers (x2 to x10, the rows from skylanders-portal, behind Show cheats; CoL #48). Spyro's Adventure keeps gold and XP as properties of the player's data, keyed by the zlib CRC32 of their lower-case names (crc32("gold") = 0x47A91D51; the total XP is 0xAF511216, 9914 for a level 6 figure, "exp" the XP into the level). Found with the developer kit: full gold made 65000 easy to scan for, which led to the HUD's copy at +0x448 of 0x82C577B4 and from there to the gold property; a write watch on it while Chop Chop picked up coins gave sub_8220CAA8 <- sub_829555B8 <- sub_8275A440, which adds a pickup's gold capped at 65000. Its twin sub_8275A550 adds XP capped at 33000; the pickup handler sub_8273B3D8 calls one or the other by the pickup's type (and adds food to the health itself). src/hooks/multiplier_cheats_hook.cpp scales the amount (r4) at each function's `mr r31,r4`; the caps stay. Kit runs at x10: Oilspill Island 'gold ... (2 -> 20)', the HUD 1727 -> 1747; heroic challenges 0-7 'XP ... (1 -> 10)', all at 60 FPS. The two hooks run only for a pickup, not every frame.
+
+## 2026-11-06: 0.4.2-beta.8
+
+- The setup's version for what came since the last one: Spyro's Adventure: gold and XP multipliers as cheats
