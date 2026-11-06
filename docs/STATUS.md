@@ -726,3 +726,7 @@ launcher's achievements screen.
 ## 2026-11-06: 0.4.2-beta.9
 
 - The setup's version for what came since the last one: Spyro's Adventure: always crit and elemental power everywhere as cheats
+
+## 2026-11-06: shared libraries
+
+- Settings are read again when the Windows user name has an accent or umlaut (SDK 62929a0); a real portal's traffic goes into the log (lib d48858a).
