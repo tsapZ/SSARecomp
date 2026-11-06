@@ -1,3 +1,4 @@
+#include "portal_rex/movie_skip.h"
 #include "settings_pages.h"
 
 #include <string>
@@ -222,8 +223,8 @@ SettingsPage GraphicsPage() {
        "An: HUD, Dialogfenster und Men\xC3\xBCs in ihren eigenen Proportionen statt gestreckt.\n"
        "Aus: auf die Fensterbreite gestreckt.\n"
        "\n"
-       "Mit An erscheinen zwei Hinweise, die das Spiel au\xC3\x9F" "erhalb des Bildes h\xC3\xA4lt, "
-       "am linken Rand, und die Abdunklung im Pausenmen\xC3\xBC l\xC3\xA4sst die Seiten hell."});
+       "Wenn das an ist, erscheinen am linken Rand zwei Hinweise, die das Spiel sonst au\xC3\x9F" "erhalb "
+       "des Bildes h\xC3\xA4lt, und die Abdunklung im Pausenmen\xC3\xBC l\xC3\xA4sst die Seiten hell."});
   return page;
 }
 
@@ -239,18 +240,18 @@ SettingsPage FrameRatePage() {
   // 60 is the default (app header).
   page.settings.push_back(
       {"frame_rate_limit", "Frame rate", "Bildrate",
-       "The game was made for 30 FPS and keeps its normal speed with more.\n"
-       "Best: your screen's refresh rate. If your PC can't reach it, the game simply runs as fast "
-       "as it can.\n"
+       "The game was made for 30 FPS and keeps its normal speed at higher rates.\n"
+       "Best: your screen's refresh rate. If your PC can't reach it, the game simply runs as "
+       "fast as it can.\n"
        "\n"
-       "A few effects (the shine over \"Press Start\", the portal screen's light) run faster above "
-       "30.",
-       "Das Spiel ist f\xC3\xBCr 30 FPS gemacht und l\xC3\xA4uft mit mehr normal schnell.\n"
-       "Am besten: die Bildwiederholrate deines Bildschirms. Schafft dein PC das nicht, "
-       "l\xC3\xA4uft das Spiel einfach so schnell, wie er kann.\n"
+       "A few effects (the shine over \"Press Start\", the portal screen's light) run faster "
+       "above 30.",
+       "Das Spiel ist f\xC3\xBCr 30 FPS gemacht und l\xC3\xA4uft auch mit mehr FPS normal schnell.\n"
+       "Am besten: die Bildwiederholrate deines Bildschirms. Schafft dein PC das nicht, l\xC3\xA4uft "
+       "das Spiel einfach so schnell, wie er kann.\n"
        "\n"
-       "Einige Effekte (der Glanz \xC3\xBC" "ber \xE2\x80\x9E" "Dr\xC3\xBC" "cke Start\xE2\x80\x9C, "
-       "das Licht am Portal-Bildschirm) laufen \xC3\xBC" "ber 30 schneller.",
+       "Einige Effekte (der Glanz \xC3\xBC" "ber \xE2\x80\x9E" "Dr\xC3\xBC" "cke Start\xE2\x80\x9C, das Licht am Portal-Bildschirm) laufen "
+       "\xC3\xBC" "ber 30 schneller.",
        {{"30", "30 (as on the console)", "30 (wie auf der Konsole)"},
         {"60", "60", "60"},
         {"120", "120", "120"},
@@ -267,18 +268,19 @@ SettingsPage FrameRatePage() {
                            "Aus: reagiert minimal schneller, kann aber rei\xC3\x9F" "en."});
   page.settings.push_back(
       {"render_target_path_d3d12", "Render path", "Renderpfad",
-       "How the Xbox 360's graphics memory is copied.\n"
+       "How the Xbox 360's graphics memory is emulated.\n"
        "Fast (RTV): the one to use.\n"
-       "Exact (ROV): bit for bit, about a third fewer frames. Only for comparing graphics errors.",
+       "Exact (ROV): bit for bit, about a third fewer frames. Only for comparing graphics "
+       "errors.",
        "Wie der Grafikspeicher der Xbox 360 nachgebildet wird.\n"
-       "Schnell (RTV): der richtige.\n"
+       "Schnell (RTV): die richtige Wahl.\n"
        "Genau (ROV): Bit f\xC3\xBCr Bit, rund ein Drittel weniger Bilder. Nur zum Vergleichen bei "
        "Grafikfehlern.",
        {{"rtv", "Fast (RTV)", "Schnell (RTV)"}, {"rov", "Exact (ROV)", "Genau (ROV)"}}});
   page.settings.push_back(
       {"d3d12_adapter", "Graphics card", "Grafikkarte",
        "Which graphics card draws the game, for PCs with more than one.",
-       "Welche Grafikkarte das Spiel zeichnet, f\xC3\xBCr PCs mit mehreren.",
+       "Welche Grafikkarte das Spiel darstellt, f\xC3\xBCr PCs mit mehreren Grafikkarten.",
        {{"-1", "Automatic", "Automatisch"}, {"0", "GPU 1", "GPU 1"}, {"1", "GPU 2", "GPU 2"}}});
   page.settings.push_back(
       {"gpu_backend", "Graphics interface", "Grafikschnittstelle",
@@ -286,7 +288,7 @@ SettingsPage FrameRatePage() {
        "D3D12: the tested one, and the only one with the render path above.\n"
        "Vulkan: just as fast, to try if D3D12 causes trouble (crashes, graphics errors).",
        "Wie das Spiel mit der Grafikkarte spricht.\n"
-       "D3D12: die getestete und die einzige mit dem Renderpfad oben.\n"
+       "D3D12: getestet, und nur damit gibt es den Renderpfad von oben.\n"
        "Vulkan: genauso schnell, zum Ausprobieren, falls D3D12 Probleme macht (Abst\xC3\xBCrze, "
        "Grafikfehler).",
        {{"any", "Automatic (D3D12)", "Automatisch (D3D12)"}, {"d3d12", "D3D12", "D3D12"},
@@ -324,6 +326,7 @@ SettingsPage GamePage() {
                            "Skips the movie at the start of a new game (Eon, about a minute).",
                            "\xC3\x9C" "berspringt den Film beim Start eines neuen Spiels (Eon, etwa "
                            "eine Minute)."});
+  page.settings.push_back(skylanders::MovieSkipSetting());
   page.settings.push_back(skylanders::AchievementsSetting());
   page.settings.push_back(skylanders::DiscordPresenceSetting());
   // Spiel beenden / neu starten: a controller alone can't press Alt+F4.
@@ -413,10 +416,10 @@ SettingsPage ControlsPage() {
       "What opens the portal menu on a controller (keyboard: F6). Applies to every controller.\n"
       "\n"
       "If the Xbox button also opens the Xbox Game Bar, turn the Game Bar off in Windows.",
-      "Womit sich das Portal-Men\xC3\xBC am Controller \xC3\xB6" "ffnet (Tastatur: F6). Gilt "
-      "f\xC3\xBCr jeden Controller.\n"
+      "Womit sich das Portal-Men\xC3\xBC am Controller \xC3\xB6" "ffnet (Tastatur: F6). Gilt f\xC3\xBCr jeden "
+      "Controller.\n"
       "\n"
-      "\xC3\x96" "ffnet die Xbox-Taste auch die Xbox Game Bar, die Game Bar in Windows ausschalten.",
+      "Wenn die Xbox-Taste auch die Xbox Game Bar \xC3\xB6" "ffnet, schalte die Game Bar in Windows aus.",
       {{"guide,back+start,hold_back", "Xbox, Back+Start, hold Back",
         "Xbox, Back+Start, Back halten"},
        {"guide", "Xbox button only", "Nur Xbox-Taste"},
@@ -424,18 +427,17 @@ SettingsPage ControlsPage() {
        {"back+start", "Back+Start only", "Nur Back+Start"}}));
   page.settings.push_back(ButtonSetting(
       "portal_item_off_buttons", "Portal overview", "Portal-\xC3\x9C" "bersicht",
-      "Opens the portal overview: what is on the portal, each figure taken off on its own, the "
-      "magic item too (keyboard: F5).",
-      "\xC3\x96" "ffnet die Portal-\xC3\x9C" "bersicht: was auf dem Portal steht, jede Figur "
-      "einzeln herunterzunehmen, das magische Objekt auch (Tastatur: F5).",
+      "Opens the portal overview: see what is on the portal and take each figure or the magic "
+      "item off on its own (keyboard: F5).",
+      "\xC3\x96" "ffnet die Portal-\xC3\x9C" "bersicht: Du siehst, was auf dem Portal steht, und kannst jede Figur "
+      "und das magische Objekt einzeln herunternehmen (Tastatur: F5).",
       {{"back+y", "Back+Y", "Back+Y"}, {"back+b", "Back+B", "Back+B"}, {"", "Off", "Aus"}}));
   page.settings.push_back(ButtonSetting(
       "portal_quick_swap_buttons", "Quick swap", "Schnelltausch",
       "Puts the Skylander you played before back on the portal without opening the portal menu; "
       "press it again to swap back (keyboard: F2).",
-      "Stellt den Skylander, den du vorher gespielt hast, wieder aufs Portal, ohne das Portal-Men"
-      "\xC3\xBC zu \xC3\xB6" "ffnen; noch einmal gedr\xC3\xBC" "ckt, tauscht er zur\xC3\xBC" "ck "
-      "(Tastatur: F2).",
+      "Stellt den Skylander, den du vorher gespielt hast, wieder aufs Portal, ohne das "
+      "Portal-Men\xC3\xBC zu \xC3\xB6" "ffnen; ein zweiter Druck tauscht zur\xC3\xBC" "ck (Tastatur: F2).",
       {{"back+x", "Back+X", "Back+X"}, {"", "Off", "Aus"}}));
   page.settings.push_back(ButtonSetting(
       "player_menu_buttons", "Player menu", "Spieler-Men\xC3\xBC",
@@ -476,8 +478,8 @@ SettingsPage ExtrasPage() {
   page.settings.push_back(skylanders::ShowCheatsSetting());
   page.settings.push_back(skylanders::CheatSetting(
       {"cheat_no_health_loss", "No health loss", "Keine Lebenspunkte verlieren",
-       "Your Skylanders get their health back to full all the time.",
-       "Deine Skylander bekommen ihre Lebenspunkte die ganze Zeit wieder aufgef\xC3\xBCllt."}));
+       "Your Skylanders' health keeps refilling to full.",
+       "Die Lebenspunkte deiner Skylander werden st\xC3\xA4ndig wieder aufgef\xC3\xBCllt."}));
   page.settings.push_back(skylanders::FullGoldCheatSetting());
   // CoL #48: src/hooks/attribute_cheats_hook.cpp, the players' damage rule.
   page.settings.push_back(skylanders::CheatSetting(
