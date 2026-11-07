@@ -750,3 +750,7 @@ launcher's achievements screen.
 ## 2026-11-07: shared libraries
 
 - Portal menu, Recent tab: R3 pins a figure on top, L3 removes it (keyboard F and Delete).
+
+## 2026-11-07: 0.5.0-beta.3
+
+- The setup's version for what came since the last one: Raising the frame rate in F4 takes effect at once; Recent tab: pin and remove figures.
