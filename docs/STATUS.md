@@ -746,3 +746,7 @@ launcher's achievements screen.
 ## 2026-11-07: shared libraries
 
 - Raising the frame rate in F4 takes effect at once (it needed a restart).
+
+## 2026-11-07: shared libraries
+
+- Portal menu, Recent tab: R3 pins a figure on top, L3 removes it (keyboard F and Delete).
