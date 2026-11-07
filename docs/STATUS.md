@@ -742,3 +742,7 @@ launcher's achievements screen.
 ## 2026-11-07: 0.5.0-beta.2
 
 - The setup's version for what came since the last one: Any movie can be skipped with a button (Start; F4 > Game); clearer settings texts.
+
+## 2026-11-07: shared libraries
+
+- Raising the frame rate in F4 takes effect at once (it needed a restart).
