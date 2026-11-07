@@ -754,3 +754,7 @@ launcher's achievements screen.
 ## 2026-11-07: 0.5.0-beta.3
 
 - The setup's version for what came since the last one: Raising the frame rate in F4 takes effect at once; Recent tab: pin and remove figures.
+
+## 2026-11-07: shared libraries
+
+- 2026-11-07: release bundle: frame rate in F4, Recent pins, Enter no longer opens the pause menu, DS4Windows twin left out, idle cursor, Discord on by default.
