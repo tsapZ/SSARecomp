@@ -14,7 +14,7 @@
 
 <br>
 
-**Skylanders: Spyro's Adventure** (Xbox 360, 2011) as a native Windows game: a controller, up to
+**Skylanders: Spyro's Adventure** (Xbox 360, 2011) as a native Windows game: your real portal and figures or none at all, a controller, up to
 3x the console's resolution, 60 FPS, no emulator. You bring your own copy of the game; nothing of it
 comes with this project.
 
@@ -26,11 +26,15 @@ comes with this project.
 
 **Can I play without figures?** Yes, that's the default (*Virtual*): when the game asks for a Skylander, a menu with every figure opens. Their progress is kept in files in `Documents\Skylanders\Figures`, and one button swaps back to the Skylander you played before.
 
+**Can I play with a friend?** Yes, two players on one PC, as on the console: the second player opens the portal menu on their controller (Guide, or Back + Start) and puts their Skylander on. L3 + R3 sorts out which controller plays which player. Online play isn't there yet.
+
 **Which game do I need? Does my Wii or PS3 copy work?** Your own copy of Spyro's Adventure on Xbox 360: the region-free Xbox 360 disc ([which one exactly](#which-disc)), as an ISO or an extracted folder. The setup takes the game's data from it; nothing of the game comes with this. Wii, PS3 and other versions are different programs and don't work.
 
 **Is this an emulator?** No. The game's code is recompiled into a Windows program, so it runs natively: higher resolutions, 60 FPS and more, a settings menu, the portal menu. Emulators like Dolphin or Xenia run the original game instead; both are fine ways to play.
 
-**Does it run on Linux, Steam Deck or Android handhelds?** It's made for Windows (64-bit) and tested there. Wine / Proton may work but isn't tested much; Android and ARM handhelds aren't supported.
+**Does it run on Linux, Steam Deck, Mac or Android handhelds?** It's made for Windows (64-bit) and tested there. Wine / Proton may work but isn't tested much; Mac, Android and ARM handhelds aren't supported.
+
+**Is it safe?** All of the source is here on GitHub. The setup isn't signed, so Windows may warn before it runs ([what to click](#getting-started)).
 
 **Was AI used?** Yes, almost all of the code was written with Claude; see [How it was made](#how-it-was-made).
 
