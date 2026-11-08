@@ -22,9 +22,9 @@ comes with this project.
 
 ## Questions people ask
 
-**Can I use my real portal and figures?** Yes. Plug in a Portal of Power and pick F4 > Portal > *USB only*: the game reads your figures and saves their progress on them, as on the console. *Both* uses the real portal and the portal menu together (for the figures you have and the ones you don't) and keeps a backup file of every figure you put on. The PS3, Wii and PC portals work as they are; an Xbox 360 portal needs the WinUSB driver (Zadig), as for Xenia. If yours doesn't work, F4 > Game > *Report a problem*: its log says what the game saw.
+**Can I use my real portal and figures?** Yes. Plug it in: the game finds it by itself (F4 > Portal is *Automatic*), reads your figures and saves their progress on them, as on the console, and the portal menu still has the figures you don't own. Every figure you put on gets a backup file. *Real USB portal only* leaves the menu out. The PS3, Wii and PC portals work as they are, also with the WinUSB driver a Dolphin or Cemu setup gives them; an Xbox 360 portal needs WinUSB (Zadig), as for Xenia. If yours doesn't work, F4 > Game > *Report a problem*: its log says what the game saw.
 
-**Can I play without figures?** Yes, that's the default (*Virtual*): when the game asks for a Skylander, a menu with every figure opens. Their progress is kept in files in `Documents\Skylanders\Figures`, and one button swaps back to the Skylander you played before.
+**Can I play without figures?** Yes: without a real portal, a menu with every figure opens when the game asks for a Skylander. Their progress is kept in files in `Documents\Skylanders\Figures`, and one button swaps back to the Skylander you played before.
 
 **Can I play with a friend?** Yes, two players on one PC, as on the console: the second player opens the portal menu on their controller (Guide, or Back + Start) and puts their Skylander on. L3 + R3 sorts out which controller plays which player. Online play isn't there yet.
 
