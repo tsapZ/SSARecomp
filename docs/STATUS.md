@@ -762,3 +762,7 @@ launcher's achievements screen.
 ## 2026-11-08: shared libraries
 
 - 2026-11-08: SDK 3395338: HD texture files load in the background, Intel Arc takes the faster render target path.
+
+## 2026-11-08: shared libraries
+
+- The portal fixes from Core of Light #58 and #60: a portal on the WinUSB driver (set up for Dolphin or Cemu) is found, the portal menu says when no real portal is found, F4 > Portal shows the mode when Core of Light started the game, and TheBiemGamer's six portal bugs (figure names outside the code page, dumps, replugging, one file in one slot, failed saves, swaps). skylanders-portal 6f272ee.
