@@ -368,13 +368,12 @@ SettingsPage PortalPage() {
        "f\xC3\xBCr diesen Spieler."});
   page.settings.push_back(
       {"portal_menu_owned_only", "Only my figures", "Nur eigene Figuren",
-       "Every menu button on the controller.\n"
-       "\n"
-       "The game's own buttons (jump, attacks) are shown by the game: Pause > Options > Controls.",
-       "Alle Men\xC3\xBC-Tasten am Controller.\n"
-       "\n"
-       "Die Tasten des Spiels selbst (Sprung, Angriffe) zeigt das Spiel: Pause > Optionen > "
-       "Steuerung."});
+       "The portal menu lists only the figures you have a figure file for, in "
+       "Documents\\Skylanders\\Figures (for example dumps of your own toys).\n"
+       "Off: every Skylander of the game.",
+       "Das Portal-Men\xC3\xBC zeigt nur die Figuren, f\xC3\xBCr die du eine Figurendatei hast, in "
+       "Dokumente\\Skylanders\\Figures (zum Beispiel Dumps deiner eigenen Figuren).\n"
+       "Aus: jeder Skylander des Spiels."});
   page.settings.push_back(
       {"portal_menu_later_versions", "Later games' figures", "Figuren sp\xC3\xA4terer Spiele",
        "Also shows the tabs of later games, with figures of the Skylanders this game knows.\n"
