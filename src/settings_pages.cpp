@@ -338,23 +338,25 @@ SettingsPage PortalPage() {
   SettingsPage page{"Portal", "Portal", {}};
   Setting mode{"portal_mode", "Portal", "Portal",
                "Where the figures come from.\n"
-               "Virtual: the portal menu (Xbox button) puts figures on.\n"
-               "Both: the menu and a real Portal of Power together, for the figures you have and "
-               "the ones you don't.\n"
+               "Automatic: the portal menu (Xbox button) puts figures on, and a real Portal of "
+               "Power works as soon as it's plugged in, for the figures you have and the ones you "
+               "don't.\n"
+               "Virtual: only the menu; a real portal is ignored.\n"
                "USB only: just the real portal.\n"
                "None: no portal at all.\n"
                "\n"
                "Real figures are backed up in figures\\real before the game writes to them.",
                "Woher die Figuren kommen.\n"
-               "Virtuell: Das Portal-Men\xC3\xBC (Xbox-Taste) stellt Figuren auf.\n"
-               "Beides: das Men\xC3\xBC und ein echtes Portal of Power zusammen, f\xC3\xBCr die "
-               "Figuren, die du hast, und die, die du nicht hast.\n"
+               "Automatisch: Das Portal-Men\xC3\xBC (Xbox-Taste) stellt Figuren auf, und ein echtes "
+               "Portal of Power geht, sobald es eingesteckt ist, f\xC3\xBCr die Figuren, die du hast, "
+               "und die, die du nicht hast.\n"
+               "Virtuell: nur das Men\xC3\xBC; ein echtes Portal wird nicht benutzt.\n"
                "Nur USB: nur das echte Portal.\n"
                "Keins: gar kein Portal.\n"
                "\n"
                "Echte Figuren werden in figures\\real gesichert, bevor das Spiel auf sie schreibt.",
-               {{"software", "Virtual (menu)", "Virtuell (Men\xC3\xBC)"},
-                {"hybrid", "Both (menu + real portal)", "Beides (Men\xC3\xBC + echtes Portal)"},
+               {{"hybrid", "Automatic (menu + real portal)", "Automatisch (Men\xC3\xBC + echtes Portal)"},
+                {"software", "Virtual (menu only)", "Virtuell (nur Men\xC3\xBC)"},
                 {"usb", "Real USB portal only", "Nur echtes USB-Portal"},
                 {"none", "None", "Keins"}}};
   mode.restart = true;
