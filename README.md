@@ -109,10 +109,10 @@ The settings menu shows the keyboard keys for the game itself under Controls.
 
 ## How far it is
 
-Chapter 1 plays all the way through, cutscenes and voices included, and has been played a lot. The
-rest of the game should work the same way, but nobody has played it to the end yet. If something
-breaks further in, please [tell me](https://github.com/tsapZ/SSARecomp/issues/new/choose).
-
+Chapter 1 plays all the way through, cutscenes and voices included, and has been played a lot. In
+automated test runs all 28 story levels load without a crash. Nobody has played the game to the end
+yet, so if something breaks further in, please [tell
+me](https://github.com/tsapZ/SSARecomp/issues/new/choose).
 What's being worked on: [docs/roadmap.md](docs/roadmap.md). Known bugs and the details:
 [docs/STATUS.md](docs/STATUS.md).
 
