@@ -758,3 +758,7 @@ launcher's achievements screen.
 ## 2026-11-07: shared libraries
 
 - 2026-11-07: release bundle: frame rate in F4, Recent pins, Enter no longer opens the pause menu, DS4Windows twin left out, idle cursor, Discord on by default.
+
+## 2026-11-08: shared libraries
+
+- 2026-11-08: SDK 3395338: HD texture files load in the background, Intel Arc takes the faster render target path.
