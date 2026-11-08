@@ -766,3 +766,7 @@ launcher's achievements screen.
 ## 2026-11-08: shared libraries
 
 - The portal fixes from Core of Light #58 and #60: a portal on the WinUSB driver (set up for Dolphin or Cemu) is found, the portal menu says when no real portal is found, F4 > Portal shows the mode when Core of Light started the game, and TheBiemGamer's six portal bugs (figure names outside the code page, dumps, replugging, one file in one slot, failed saves, swaps). skylanders-portal 6f272ee.
+
+## 2026-11-08: shared libraries
+
+- Hybrid mode (Automatic) with a real portal (Core of Light #62, TheBiemGamer): a portal that misses the activate right after it is plugged in is set up again, a stale status no longer starts a read too early, Trap Team's J and L lights reach the real portal, and a toy whose backup file is already on the portal through the menu is left out with a message. skylanders-portal 214aed4.
