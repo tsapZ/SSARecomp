@@ -770,3 +770,7 @@ launcher's achievements screen.
 ## 2026-11-08: shared libraries
 
 - Hybrid mode (Automatic) with a real portal (Core of Light #62, TheBiemGamer): a portal that misses the activate right after it is plugged in is set up again, a stale status no longer starts a read too early, Trap Team's J and L lights reach the real portal, and a toy whose backup file is already on the portal through the menu is left out with a message. skylanders-portal 214aed4.
+
+## 2026-11-09: graphics
+
+- More FPS where the graphics card is the limit: the console's 4x clears run at the sample count of the picture they clear, and a resolve copies its result straight into the textures that view it (6 to 13 % at 3x resolution). gpu_msaa_fill_at_1x = false and gpu_native_resolves = false go back. SDK 4c8f3b3.
