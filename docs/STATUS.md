@@ -778,3 +778,7 @@ launcher's achievements screen.
 ## 2026-11-09: 0.5.0-beta.5
 
 - The setup's version for what came since the last one: a real portal used by itself (Automatic), the Xbox 360 portal and portals on the WinUSB driver found, TheBiemGamer's portal fixes (Core of Light #60, #62), and more FPS where the graphics card is the limit (4x clears at their picture's sample count, resolves straight into the textures).
+
+## 2026-11-09: shared libraries
+
+- Sound output setting: Stereo for headphones on a 5.1/7.1 output (movie voices on the center channel were lost, Core of Light #61)
