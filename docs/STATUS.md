@@ -774,3 +774,7 @@ launcher's achievements screen.
 ## 2026-11-09: graphics
 
 - More FPS where the graphics card is the limit: the console's 4x clears run at the sample count of the picture they clear, and a resolve copies its result straight into the textures that view it (6 to 13 % at 3x resolution). gpu_msaa_fill_at_1x = false and gpu_native_resolves = false go back. SDK 4c8f3b3.
+
+## 2026-11-09: 0.5.0-beta.5
+
+- The setup's version for what came since the last one: a real portal used by itself (Automatic), the Xbox 360 portal and portals on the WinUSB driver found, TheBiemGamer's portal fixes (Core of Light #60, #62), and more FPS where the graphics card is the limit (4x clears at their picture's sample count, resolves straight into the textures).
