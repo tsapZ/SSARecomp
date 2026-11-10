@@ -268,10 +268,11 @@ end;
 function PortalModeTomlValue: AnsiString;
 begin
   case PortalModeCombo.ItemIndex of
-    1: Result := 'usb';
-    2: Result := 'none';
+    1: Result := 'software';
+    2: Result := 'usb';
+    3: Result := 'none';
   else
-    Result := 'software';
+    Result := 'hybrid';
   end;
 end;
 
@@ -370,7 +371,7 @@ end;
 // Values from the command line for the two pages, so an install can run unattended
 // (/VERYSILENT /SUPPRESSMSGBOXES, e.g. from the launcher or a test) or start with them filled in:
 // /ROM=<the .iso or the extracted disc folder>, /LANGUAGE=english|german|... (as the settings
-// file names them), /PORTAL=software|usb|none, /RESOLUTION=<width>x<height>, /SCALE=1-8. A value
+// file names them), /PORTAL=hybrid|software|usb|none, /RESOLUTION=<width>x<height>, /SCALE=1-8. A value
 // that isn't given, or that the page doesn't offer, leaves the page's default.
 procedure ApplyCommandLine;
 var
@@ -494,9 +495,12 @@ begin
   PortalModeCombo := TNewComboBox.Create(SettingsPage);
   PortalModeCombo.Parent := SettingsPage.Surface;
   PortalModeCombo.Style := csDropDownList;
-  PortalModeCombo.Items.Add('software (virtual Portal of Power)');
-  PortalModeCombo.Items.Add('usb (real Portal of Power over USB)');
-  PortalModeCombo.Items.Add('none (no portal)');
+  // The four choices of F4 > Portal, by the same names. Automatic first: the games' own default
+  // (the portal menu, and a real portal as soon as one is plugged in).
+  PortalModeCombo.Items.Add('Automatic (menu + real portal)');
+  PortalModeCombo.Items.Add('Virtual (menu only)');
+  PortalModeCombo.Items.Add('Real USB portal only');
+  PortalModeCombo.Items.Add('None');
   PortalModeCombo.ItemIndex := 0;
   PortalModeCombo.Top := PortalModeLabel.Top + PortalModeLabel.Height + 4;
   PortalModeCombo.Width := SettingsPage.SurfaceWidth;

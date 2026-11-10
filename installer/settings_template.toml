@@ -2,7 +2,7 @@
 # The in-game Settings overlay (F4) reads and writes this same file.
 
 ["Portal"]
-portal_mode = "__PORTAL_MODE__"           # "software", "usb" (real portal), or "none"
+portal_mode = "__PORTAL_MODE__"           # "hybrid" (Automatic: the menu and a real portal), "software" (Virtual: the menu only), "usb" (real portal only), or "none"
 portal_figures_dir = ""                   # empty = Documents\Skylanders\Figures, shared by every game
 # portal_figure = "C:\\path\\to\\Skylander.dump"  # loads this dump onto the portal at startup
 # Portal menu: opens by itself when the game asks for a Skylander, or with the Guide button,

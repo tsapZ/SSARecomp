@@ -12,8 +12,8 @@ what is particular to Spyro's Adventure.
 
 | Value | What |
 |---|---|
-| `software` | the emulated portal, filled from the portal menu (default) |
-| `hybrid` | the emulated portal and the real USB portal together |
+| `hybrid` | the emulated portal and the real USB portal together (default; F4: Automatic) |
+| `software` | the emulated portal, filled from the portal menu (F4: Virtual) |
 | `usb` | the real USB portal only |
 | `none` | no portal |
 
