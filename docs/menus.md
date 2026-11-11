@@ -40,7 +40,7 @@ takes them off. See [portal.md](portal.md#portal-check).
 - **Graphics:** preset (As on the console: 1x without sharpening, 30 FPS, #72; Performance: scale 1 + FSR, no native 3D picture; Quality: scale 2 + Automatic sharpening + native
   3D picture; Best: scale 3, the same),
   internal resolution (`resolution_scale`), the native 3D picture (`scene_size`, on), sharpening (`present_effect`, Automatic: CAS, FSR 1 when enlarging), texture filtering
-  (`anisotropic_override`), HD textures on or off (`hd_textures`, with a pack installed), extra edge smoothing (`swap_post_effect`), fullscreen, window size.
+  (`anisotropic_override`), HD textures on or off (`hd_textures`, with a pack installed), extra edge smoothing (`swap_post_effect`), fullscreen, the screen it opens on (`monitor`), window size.
 - **Frame rate:** `frame_rate_limit` (0 = 30 FPS like the console; higher values let the game run
   as fast as the PC allows, its speed stays the same), VSync, render path, graphics card, graphics
   interface (D3D12 or Vulkan).

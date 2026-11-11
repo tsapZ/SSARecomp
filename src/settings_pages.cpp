@@ -223,6 +223,7 @@ SettingsPage GraphicsPage() {
                      "Startet das Spiel im Vollbild oder im Fenster."};
   fullscreen.restart = true;
   page.settings.push_back(fullscreen);
+  page.settings.push_back(skylanders::MonitorSetting());  // which screen (all six, Core of Light #75)
   page.settings.push_back(
       {"resolution", "Window size", "Fenstergr\xC3\xB6\xC3\x9F" "e",
        "The window's size outside fullscreen, and the picture size the game works with.\n"
