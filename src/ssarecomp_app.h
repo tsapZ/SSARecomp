@@ -125,10 +125,14 @@ class SsarecompApp : public rex::ReXApp {
     }
     // The Xenos GPU plugin renders the Xbox 360 command stream; without it nothing is drawn.
     if (config.gpu_plugin.empty()) config.gpu_plugin = "xenos";
-    // A specific graphics backend (the plugin otherwise takes D3D12 when it has it). Vulkan only
-    // exists in builds configured with REXGLUE_USE_VULKAN=ON.
-    if (const std::string backend = REXCVAR_GET(gpu_backend); backend != "any" && !config.graphics) {
-      config.graphics = rex::system::LoadGpuPlugin(config.gpu_plugin, backend);
+    // Loaded here with the backend gpu_backend names ("any": D3D12 when the plugin has it; Vulkan
+    // only exists in builds configured with REXGLUE_USE_VULKAN=ON), not by the SDK right after this
+    // function: the plugin's own settings (draw_resolution_scale_threshold, gpu_native_surfaces,
+    // gpu_native_resolves_unscaled) only exist once it is loaded, and the defaults below set them.
+    // Before that SetFlagByName fails ("Could not set ..." in the log, 2026-11-11); the settings file
+    // and the command line are applied when a setting registers, defaults set in code are not.
+    if (!config.graphics) {
+      config.graphics = rex::system::LoadGpuPlugin(config.gpu_plugin, REXCVAR_GET(gpu_backend));
     }
     // Some of the game's text (e.g. the autosave warning dialog) is already resolved by the time
     // OnPostSetup runs -- apply this as early as possible, before the XEX even loads.
