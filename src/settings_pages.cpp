@@ -63,6 +63,31 @@ Setting PresetSetting() {
     if (value == "best") return {{"resolution_scale", "3"}, {"present_effect", "fsr"}, {"scene_size", "1280x720"}};
     return {{"resolution_scale", "2"}, {"present_effect", "fsr"}, {"scene_size", "1280x720"}};
   };
+  // "As on the console" (Core of Light #72): the Xbox 360's picture, its 720p unsharpened without the
+  // native 3D picture, 30 FPS, no extra edge smoothing, glow and motion blur as in the game (motion
+  // blur where the game has the setting). Another preset after it puts the frame rate back to 60.
+  s.options.push_back({"console", "As on the console", "Wie auf der Konsole"});
+  s.help_en += "\nAs on the console: the Xbox 360's 720p picture without sharpening, at 30 FPS.";
+  s.help_de += "\nWie auf der Konsole: das 720p-Bild der Xbox 360 ohne Nachsch\xC3\xA4rfen, mit 30 FPS.";
+  s.current = [base = s.current] {
+    if (rex::cvar::GetFlagByName("resolution_scale") == "1" && rex::cvar::GetFlagByName("present_effect") == "bilinear" &&
+        rex::cvar::GetFlagByName("frame_rate_limit") == "30") {
+      return std::string("console");
+    }
+    return base();
+  };
+  s.preset = [base = s.preset](const std::string& value) -> std::vector<std::pair<std::string, std::string>> {
+    if (value == "console") {
+      std::vector<std::pair<std::string, std::string>> look = {
+          {"resolution_scale", "1"}, {"present_effect", "bilinear"}, {"scene_size", ""},
+          {"frame_rate_limit", "30"}, {"swap_post_effect", "none"},  {"bloom_strength", "0"}};
+      if (rex::cvar::GetFlagInfo("motion_blur_strength")) look.push_back({"motion_blur_strength", "1"});
+      return look;
+    }
+    std::vector<std::pair<std::string, std::string>> settings = base(value);
+    if (rex::cvar::GetFlagByName("frame_rate_limit") == "30") settings.push_back({"frame_rate_limit", "60"});
+    return settings;
+  };
   return s;
 }
 

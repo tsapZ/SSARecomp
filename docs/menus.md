@@ -37,7 +37,7 @@ takes them off. See [portal.md](portal.md#portal-check).
 
 `portal_rex/settings_menu.cpp` draws the menu; `src/settings_pages.cpp` describes its pages:
 
-- **Graphics:** preset (Performance: scale 1 + FSR, no native 3D picture; Quality: scale 2 + Automatic sharpening + native
+- **Graphics:** preset (As on the console: 1x without sharpening, 30 FPS, #72; Performance: scale 1 + FSR, no native 3D picture; Quality: scale 2 + Automatic sharpening + native
   3D picture; Best: scale 3, the same),
   internal resolution (`resolution_scale`), the native 3D picture (`scene_size`, on), sharpening (`present_effect`, Automatic: CAS, FSR 1 when enlarging), texture filtering
   (`anisotropic_override`), HD textures on or off (`hd_textures`, with a pack installed), extra edge smoothing (`swap_post_effect`), fullscreen, window size.
