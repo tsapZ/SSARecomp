@@ -384,11 +384,15 @@ class SsarecompApp : public rex::ReXApp {
     const auto result = skylanders::xex::VerifyXex(xex, SKYLANDERS_XEX_SHA256);
     const auto problem = skylanders::xex::DescribeXexProblem(
         xex, result, SKYLANDERS_XEX_SHA256, SKYLANDERS_GAME_TITLE);
-    if (problem.empty()) {
-      REXLOG_INFO("default.xex verified");
-      return;
+    if (!problem.empty()) Fatal(problem);
+    REXLOG_INFO("default.xex verified");
+    // The text and menus are in a folder per language (text\<language>\global.lxb,
+    // ui\<language>\hudmenu.str); an extract tool that left those folders out gave a game that froze
+    // on its title screen with no word why (CoL #64). Any language folder will do: the game picks one.
+    const auto missing = skylanders::xex::MissingRomFile(game_data_root_, "text/*/global.lxb,ui/*/hudmenu.str");
+    if (!missing.empty()) {
+      Fatal(skylanders::xex::DescribeMissingRomFile(game_data_root_, missing, SKYLANDERS_GAME_TITLE));
     }
-    Fatal(problem);
   }
 
  private:
