@@ -258,6 +258,17 @@ class SsarecompApp : public rex::ReXApp {
     // the Chapter 1 cutscene: the composite's picture one pixel up-left of its input before, on it
     // with the centred position. The title screen lines up with scale 1 either way.
     SetDefaultIfUnset("draw_resolution_scaled_pixel_position_centered", "true");
+    // Native surfaces: the SDK leaves a render target's pixels where the game drew them instead of
+    // copying them through its EDRAM model each time another target takes the same EDRAM, except
+    // the copies this game needs (gpu_native_surfaces_keep, in gpu_transfer_report's names). This
+    // one needs two, depth to the 2x MSAA colour target that reads it and back (D0x1->C2x1,
+    // C2x1->D0x1): without them the lighting goes wrong, as in Giants, SuperChargers and Imaginators
+    // without theirs (2026-11-08). Found with gpu_transfer_report and story sweeps of every level
+    // with and without (pictures alike); in the hub at scale 3 it gave 74.0 -> 80.2 FPS (+8 %) on top
+    // of the native resolves. Swap Force and Trap Team still need all their copies (a white sky,
+    // streaks in the hub), so the SDK default stays off. Both only when nothing set them.
+    SetDefaultIfUnset("gpu_native_surfaces", "true");
+    SetDefaultIfUnset("gpu_native_surfaces_keep", "D0x1->C2x1,C2x1->D0x1");
     // Estimate the EDRAM extent of draws without clipping by running their vertex shader on the
     // CPU (Xenia's default; the SDK defaults to off). In Swap Force, without it, the faster RTV
     // render target path let a full-screen float pass wrap around the EDRAM onto the lit scene and
