@@ -786,3 +786,7 @@ launcher's achievements screen.
 ## 2026-11-11: shared libraries
 
 - SDK 9e32a59: the resolution scale threshold, direct resolves from depth, integer and full-format colour targets, lazy resolve copies on by default (also at 1x). skylanders-portal 5bbc6f3: missing language folder check (Core of Light #64), portal_audio = pc (#67), older portals light up in the newer games, quicker swaps and the menu lock with a real portal (TrapTeamRecomp #22), the Monitor row (#75).
+
+## 2026-11-11: 0.5.0-beta.6
+
+- The setup's version for what came since the last one: more FPS where the graphics card is the limit (small render targets at 1x, direct resolves, lazy copies, native surfaces), the native 3D picture and Automatic sharpening (FSR 1 when enlarging) by default, As on the console in the presets (Core of Light #72), the Monitor row (#75), older portals light up, quicker swaps and the menu lock with a real portal (TrapTeamRecomp #22), Nederlands (#68), a missing language folder named instead of a frozen title screen (#64).
