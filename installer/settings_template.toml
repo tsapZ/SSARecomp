@@ -25,7 +25,7 @@ anisotropic_override = 5                  # texture filtering: 5 = 16x, 3 = 4x, 
 # ui_scale = 1.5                          # ImGui overlay font/widget scale
 
 ["UI/Presenter"]
-present_effect = "cas"                   # sharpen the final picture (default "bilinear"); costs < 1 FPS.
+present_effect = "fsr"                   # sharpened like CAS; FSR 1 enlarges when the window is bigger (4K at 2x)
 #                                         # Recommended with resolution_scale 2 on 1440p: the game's 3D scene is 1024x624
 
 ["Input"]

@@ -109,20 +109,20 @@ SettingsPage GraphicsPage() {
        "How the finished picture is scaled to your window.\n"
        "Soft: plain scaling, no sharpening.\n"
        "Sharpened (CAS): best when the internal resolution fits your screen.\n"
-       "FSR 1: enlarges a smaller picture with FSR and sharpens it; when nothing needs enlarging, "
-       "it sharpens like CAS.\n"
+       "Automatic: sharpened like CAS when the picture fits the window, enlarged with FSR 1 "
+       "when the window is bigger (1x, or a 4K screen at 2x).\n"
        "\n"
        "Costs almost nothing.",
        "Wie das fertige Bild auf dein Fenster skaliert wird.\n"
        "Weich: einfaches Skalieren ohne Sch\xC3\xA4rfen.\n"
        "Gesch\xC3\xA4rft (CAS): am besten, wenn die interne Aufl\xC3\xB6sung zum Bildschirm passt.\n"
-       "FSR 1: vergr\xC3\xB6\xC3\x9F" "ert ein kleineres Bild mit FSR und sch\xC3\xA4rft es nach; muss "
-       "nichts vergr\xC3\xB6\xC3\x9F" "ert werden, sch\xC3\xA4rft es wie CAS.\n"
+       "Automatisch: gesch\xC3\xA4rft wie CAS, wenn das Bild ins Fenster passt, mit FSR 1 "
+       "vergr\xC3\xB6\xC3\x9F" "ert, wenn das Fenster gr\xC3\xB6\xC3\x9F" "er ist (1x oder 4K-Bildschirm bei 2x).\n"
        "\n"
        "Kostet fast nichts.",
        {{"bilinear", "Soft", "Weich"},
         {"cas", "Sharpened (CAS)", "Gesch\xC3\xA4rft (CAS)"},
-        {"fsr", "FSR 1 upscaling", "FSR 1 (hochskaliert)"}}});
+        {"fsr", "Automatic (FSR 1 when enlarging)", "Automatisch (FSR 1 beim Vergr\xC3\xB6\xC3\x9F" "ern)"}}});
   // Two of the SDK's presenter settings the menu didn't offer (presenter.cpp): CAS's strength and
   // dithering the 10-bit picture down to the window's 8 bits.
   Setting cas_strength{"present_cas_additional_sharpness", "Sharpening strength", "Sch\xC3\xA4rfe-St\xC3\xA4rke",

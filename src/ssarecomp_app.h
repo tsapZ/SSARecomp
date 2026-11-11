@@ -150,11 +150,13 @@ class SsarecompApp : public rex::ReXApp {
     // keeps its speed with a faster vblank (it ran at frame_rate_limit 144 and 240 with that vblank
     // at normal speed, docs/STATUS.md).
     SetDefault("guest_vblank_rate", "240");
-    // The final picture sharpened with CAS (the menu's "Quality" preset) unless the settings file
+    // The final picture sharpened (the menu's "Quality" preset) unless the settings file
     // or the command line sets present_effect (the owner asked for the best picture by default,
     // 2026-10-21). resolution_scale, the preset's other half, belongs to the GPU plugin, which
     // isn't loaded yet here; the installer's settings file sets it for the screen.
-    SetDefaultIfUnset("present_effect", "cas");
+    // "fsr" is CAS whenever the picture fits the window and FSR 1's upscaler only when the window is
+    // bigger (a 4K screen at 2x; presenter.cpp), so it is the same picture as "cas" everywhere else.
+    SetDefaultIfUnset("present_effect", "fsr");
     // Dithering the 10-bit picture to the window's 8 bits, against bands in skies and fog (F4 >
     // Grafik, the dithering row): noise too fine to see, nothing to lose.
     SetDefaultIfUnset("present_dither", "true");
