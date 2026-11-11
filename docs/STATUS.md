@@ -782,3 +782,7 @@ launcher's achievements screen.
 ## 2026-11-09: shared libraries
 
 - Sound output setting: Stereo for headphones on a 5.1/7.1 output (movie voices on the center channel were lost, Core of Light #61)
+
+## 2026-11-11: shared libraries
+
+- SDK 9e32a59: the resolution scale threshold, direct resolves from depth, integer and full-format colour targets, lazy resolve copies on by default (also at 1x). skylanders-portal 5bbc6f3: missing language folder check (Core of Light #64), portal_audio = pc (#67), older portals light up in the newer games, quicker swaps and the menu lock with a real portal (TrapTeamRecomp #22), the Monitor row (#75).
