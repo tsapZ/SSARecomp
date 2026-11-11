@@ -291,10 +291,12 @@ SettingsPage FrameRatePage() {
   page.settings.push_back({"vsync", "VSync", "VSync",
                            "Waits for the screen before showing a frame.\n"
                            "On: the picture never tears in two when the camera moves.\n"
-                           "Off: reacts a tiny bit faster but may tear.",
+                           "Off: reacts a tiny bit faster but may tear; with a FreeSync or G-Sync screen it follows "
+                           "the game's frame rate instead.",
                            "Wartet vor jedem Bild auf den Bildschirm.\n"
                            "An: Das Bild rei\xC3\x9Ft bei Kamerabewegungen nie in zwei Teile.\n"
-                           "Aus: reagiert minimal schneller, kann aber rei\xC3\x9F" "en."});
+                           "Aus: reagiert minimal schneller, kann aber rei\xC3\x9F" "en; mit einem FreeSync- "
+                           "oder G-Sync-Bildschirm folgt er dann der Bildrate des Spiels."});
   page.settings.push_back(
       {"render_target_path_d3d12", "Render path", "Renderpfad",
        "How the Xbox 360's graphics memory is emulated.\n"
