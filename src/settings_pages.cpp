@@ -340,7 +340,9 @@ SettingsPage GamePage() {
                     {"german", "Deutsch", "Deutsch"},
                     {"french", "Fran\xC3\xA7" "ais", "Fran\xC3\xA7" "ais"},
                     {"spanish", "Espa\xC3\xB1ol", "Espa\xC3\xB1ol"},
-                    {"italian", "Italiano", "Italiano"}}};
+                    {"italian", "Italiano", "Italiano"},
+                    // Dutch through the country, not a language id (localization.cpp, CoL #68).
+                    {"dutch", "Nederlands", "Nederlands"}}};
   language.restart = true;
   page.settings.push_back(language);
   Setting intro{"skip_intro", "Skip logo movies", "Logo-Videos \xC3\xBC" "berspringen",

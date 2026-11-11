@@ -15,11 +15,13 @@
 
 // Defined in the SDK (xam_user.cpp); both XGetLanguage and ExGetXConfigSetting read this.
 REXCVAR_DECLARE(uint32_t, user_language);
+// Defined in the SDK (xam_locale.cpp): the console's country (XC_COUNTRY ids), which XGetLocale reads.
+REXCVAR_DECLARE(uint32_t, user_country);
 
 REXCVAR_DEFINE_STRING(language, "auto", "Game",
                       "Game text/voice language: auto (the Windows display language if it is one "
                       "of the following, else English), english, french, german, spanish, "
-                      "italian. A raw Xbox 360 language ID (a number) also works, for languages "
+                      "italian, dutch. A raw Xbox 360 language ID (a number) also works, for languages "
                       "the disc supports that aren't confirmed here yet.");
 
 namespace ssarecomp {
@@ -44,6 +46,8 @@ std::string SystemLanguage() {
       return "spanish";
     case LANG_ITALIAN:
       return "italian";
+    case LANG_DUTCH:
+      return "dutch";
     default:
       break;
   }
@@ -74,6 +78,18 @@ void ApplyLanguageSetting() {
   if (setting == "auto") {
     setting = SystemLanguage();
     REXLOG_INFO("Language: auto, from the Windows display language");
+  }
+  // Dutch isn't an Xbox 360 language id: the game picks its Dutch text and movies (text\dut,
+  // movies\dut) when the language is English and the console's country is the Netherlands
+  // (CoL #68; checked 2026-11-09 on the European disc: the menus came up in Dutch). A country set
+  // directly (--user_country) stays.
+  if (setting == "dutch") {
+    REXCVAR_SET(user_language, 1u);
+    if (!rex::cvar::HasNonDefaultValue("user_country")) {
+      REXCVAR_SET(user_country, 74u);  // XC_COUNTRY_NL
+    }
+    REXLOG_INFO("Language: dutch (English with the country {})", REXCVAR_GET(user_country));
+    return;
   }
   if (auto it = kNames.find(setting); it != kNames.end()) {
     REXCVAR_SET(user_language, it->second);

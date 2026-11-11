@@ -35,7 +35,7 @@ mnk_mode = true                           # enable keyboard/mouse controller emu
 # connected is player 1, the second player 2.
 
 ["Game"]
-language = "__LANGUAGE__"                 # auto (Windows language), english, french, german, spanish, italian
+language = "__LANGUAGE__"                 # auto (Windows language), english, french, german, spanish, italian, dutch
 skip_intro = false                         # true: skip the Activision, XPEC and Toys for Bob logo movies
 # skip_opening_movie = true                # skip the opening movie of a new game
 # skip_opening_movie = true                # skip the long opening movie of a new game
