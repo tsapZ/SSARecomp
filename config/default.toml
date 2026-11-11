@@ -27,8 +27,8 @@ address = 0x829EC1CC
 name = "BinkHeaderLoaded"
 registers = ["r1"]
 
-# The scene size hooks (src/hooks/scene_size_hook.cpp, experimental, #30; they do nothing unless
-# scene_size is set). The scene's sizes are constants in the code: found by searching the generated
+# The scene size hooks (src/hooks/scene_size_hook.cpp, #30; on by default with scene_size =
+# 1280x720, they do nothing when it is empty). The scene's sizes are constants in the code: found by searching the generated
 # code for li r5,1120 / li r6,704 and their halves. Safe: each hook changes only registers that hold
 # exactly the game's sizes (1120x704, 560x352, 280x176, the 35 x 22 grid), and only with scene_size
 # set and the 4096-tile EDRAM in use.

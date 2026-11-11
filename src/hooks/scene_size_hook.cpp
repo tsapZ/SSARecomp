@@ -38,8 +38,8 @@
 #include <rex/logging.h>
 #include <rex/ppc/context.h>
 
-REXCVAR_DEFINE_STRING(scene_size, "", "Graphics",
-                      "EXPERIMENTAL: draw the 3D scene at this size instead of the Xbox 360's "
+REXCVAR_DEFINE_STRING(scene_size, "1280x720", "Graphics",
+                      "Draw the 3D scene at this size instead of the Xbox 360's "
                       "1120x704, e.g. 1280x720 (#30). Empty: the game's size")
     .lifecycle(rex::cvar::Lifecycle::kRequiresRestart);
 

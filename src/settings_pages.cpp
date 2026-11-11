@@ -30,7 +30,8 @@ Setting PresetSetting() {
   s.help_en =
       "Sets the internal resolution and sharpening together.\n"
       "Performance: the game's own 720p picture, upscaled with FSR. For weaker PCs.\n"
-      "Quality (recommended): twice the resolution, sharpened. Sharp on a 1440p screen.\n"
+      "Quality (recommended): twice the resolution, sharpened. Sharp on a 1440p screen; on a 4K "
+      "screen FSR enlarges it, much faster than Best.\n"
       "Best: three times the resolution, for 4K screens. Needs a strong graphics card.\n"
       "\n"
       "Each step up roughly halves the frame rate.";
@@ -39,7 +40,8 @@ Setting PresetSetting() {
       "Leistung: das 720p-Bild des Spiels, mit FSR hochgerechnet. F\xC3\xBCr schw\xC3\xA4" "chere "
       "PCs.\n"
       "Qualit\xC3\xA4t (empfohlen): doppelte Aufl\xC3\xB6sung, nachgesch\xC3\xA4rft. Scharf auf "
-      "einem 1440p-Bildschirm.\n"
+      "einem 1440p-Bildschirm; auf einem 4K-Bildschirm vergr\xC3\xB6\xC3\x9F" "ert es FSR, viel "
+      "schneller als Beste.\n"
       "Beste: dreifache Aufl\xC3\xB6sung, f\xC3\xBCr 4K-Bildschirme. Braucht eine starke "
       "Grafikkarte.\n"
       "\n"
@@ -52,14 +54,14 @@ Setting PresetSetting() {
     const std::string scale = rex::cvar::GetFlagByName("resolution_scale");
     const std::string effect = rex::cvar::GetFlagByName("present_effect");
     if (scale == "1" && effect == "fsr") return std::string("performance");
-    if (scale == "2" && effect == "cas") return std::string("quality");
-    if (scale == "3" && effect == "cas") return std::string("best");
+    if (scale == "2" && (effect == "cas" || effect == "fsr")) return std::string("quality");
+    if (scale == "3" && (effect == "cas" || effect == "fsr")) return std::string("best");
     return std::string();
   };
   s.preset = [](const std::string& value) -> std::vector<std::pair<std::string, std::string>> {
-    if (value == "performance") return {{"resolution_scale", "1"}, {"present_effect", "fsr"}};
-    if (value == "best") return {{"resolution_scale", "3"}, {"present_effect", "cas"}};
-    return {{"resolution_scale", "2"}, {"present_effect", "cas"}};
+    if (value == "performance") return {{"resolution_scale", "1"}, {"present_effect", "fsr"}, {"scene_size", ""}};
+    if (value == "best") return {{"resolution_scale", "3"}, {"present_effect", "fsr"}, {"scene_size", "1280x720"}};
+    return {{"resolution_scale", "2"}, {"present_effect", "fsr"}, {"scene_size", "1280x720"}};
   };
   return s;
 }
@@ -84,20 +86,20 @@ SettingsPage GraphicsPage() {
         {"2", "2x (1440p)", "2x (1440p)"},
         {"3", "3x (4K)", "3x (4K)"},
         {"4", "4x", "4x"}}});
-  Setting scene{"scene_size", "Native 3D picture (experimental)",
-                "Natives 3D-Bild (experimentell)",
+  Setting scene{"scene_size", "Native 3D picture",
+                "Natives 3D-Bild",
                 "Draws the 3D scene at the screen's size instead of a smaller one.\n"
                 "Off: as on the Xbox 360, the scene at 1120x704 stretched to 720p, a bit soft.\n"
                 "Native: the scene at 1264x704, just under the 1280x720 screen. Sharper at every "
                 "internal resolution.\n"
                 "\n"
-                "Costs some frame rate. Needs D3D12.",
+                "At 2x it costs about 12 % of the frame rate, at 1x almost nothing. The Performance preset turns it off. Needs D3D12.",
                 "Zeichnet die 3D-Szene in Bildschirmgr\xC3\xB6\xC3\x9F" "e statt kleiner.\n"
                 "Aus: wie auf der Xbox 360, die Szene in 1120x704 auf 720p gestreckt, etwas weich.\n"
                 "Nativ: die Szene in 1264x704, knapp unter den 1280x720 des Bildschirms. "
                 "Sch\xC3\xA4rfer bei jeder internen Aufl\xC3\xB6sung.\n"
                 "\n"
-                "Kostet etwas Bildrate. Braucht D3D12.",
+                "Kostet bei 2x etwa 12 % Bildrate, bei 1x fast nichts. Die Voreinstellung Leistung schaltet es aus. Braucht D3D12.",
                 {{"", "Off (1120x704)", "Aus (1120x704)"},
                  {"1280x720", "Native (720p)", "Nativ (720p)"}}};
   scene.restart = true;
@@ -107,14 +109,15 @@ SettingsPage GraphicsPage() {
        "How the finished picture is scaled to your window.\n"
        "Soft: plain scaling, no sharpening.\n"
        "Sharpened (CAS): best when the internal resolution fits your screen.\n"
-       "FSR 1: enlarges a smaller picture and sharpens it, good with 1x.\n"
+       "FSR 1: enlarges a smaller picture with FSR and sharpens it; when nothing needs enlarging, "
+       "it sharpens like CAS.\n"
        "\n"
        "Costs almost nothing.",
        "Wie das fertige Bild auf dein Fenster skaliert wird.\n"
        "Weich: einfaches Skalieren ohne Sch\xC3\xA4rfen.\n"
        "Gesch\xC3\xA4rft (CAS): am besten, wenn die interne Aufl\xC3\xB6sung zum Bildschirm passt.\n"
-       "FSR 1: vergr\xC3\xB6\xC3\x9F" "ert ein kleineres Bild und sch\xC3\xA4rft es nach, gut bei "
-       "1x.\n"
+       "FSR 1: vergr\xC3\xB6\xC3\x9F" "ert ein kleineres Bild mit FSR und sch\xC3\xA4rft es nach; muss "
+       "nichts vergr\xC3\xB6\xC3\x9F" "ert werden, sch\xC3\xA4rft es wie CAS.\n"
        "\n"
        "Kostet fast nichts.",
        {{"bilinear", "Soft", "Weich"},
