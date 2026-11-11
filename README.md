@@ -57,7 +57,7 @@ What you need:
 - your own Xbox 360 disc of the game ([which one](#which-disc))
 - a controller (Xbox or compatible); keyboard and mouse work too. A real Portal of Power is optional.
 
-Tested on a Ryzen 5 5600 with a Radeon RX 6800 XT (32 GB RAM, Windows 11): a steady 60 FPS at 2x (1440p). Without the frame cap the hub runs at about 121 FPS at 2x, with the native 3D picture on.
+Tested on a Ryzen 5 5600 with a Radeon RX 6800 XT (32 GB RAM, Windows 11): a steady 60 FPS at 2x (1440p). Without the frame cap the hub runs at about 173 FPS at 2x, with the native 3D picture on.
 
 The setup isn't signed, so Windows may say "Windows protected your PC": click **More info**, then
 **Run anyway**. No admin rights needed.
