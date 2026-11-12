@@ -106,6 +106,20 @@ name = "NullObjectListHook"
 registers = ["r3"]
 return_on_true = true
 
+# 0x82289530 is the start of sub_82289530, which goes on with that walk from the node in 0x82BB4F50
+# (lwz r10,20304(r4) at 0x82289544, then the node's next with lwz r11,4(r10)) until the sentinel. In
+# the first frames the sentinel can be there (NullObjectListHook put it) while the list isn't made
+# yet and the sentinel's own next is still 0: a read of guest 0x4 on the title screen (2026-11-12,
+# a dev kit run, right after NullObjectListHook's warnings; call chain sub_82289530 <-
+# sub_82631098). src/hooks/object_list_guard_hook.cpp returns at once when the node or its next is
+# 0 and leaves the sentinel in 0x82BB4F50, so the caller's loop ends too; with a list it does
+# nothing.
+[[midasm_hook]]
+address = 0x82289530
+name = "NullResumeNodeHook"
+registers = ["r3"]
+return_on_true = true
+
 # 0x82631098 is the start of sub_82631098, which runs the tree node in the global 0x82BB4F4C (lwz
 # r31,20300(r27) at 0x826310C0) and first calls sub_826326B8, which reads that node's +872: with the
 # global 0 a read of guest 0x368, SSARecomp #32's crash (seen under RenderDoc and again 2026-10-25

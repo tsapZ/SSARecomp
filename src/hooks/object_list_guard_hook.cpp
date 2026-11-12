@@ -12,7 +12,9 @@
 //
 // With r3 = 0 the hook returns at once (nothing to walk) and puts the sentinel into 0x82BB4F50,
 // so the caller's loop ends right away too: after a full pass it holds the sentinel anyway, and the
-// guard keeps it so on the first frames, before the game ever wrote it.
+// guard keeps it so on the first frames, before the game ever wrote it. sub_82289530, which goes
+// on with the walk from 0x82BB4F50, gets the same guard (NullResumeNodeHook, 2026-11-12): with the
+// list not made yet, the sentinel's own next is 0.
 //
 // The crash of #32 itself (a read of guest 0x368, seen under RenderDoc and again 2026-10-25 with
 // an HD texture pack, both times when the game ran slowly): sub_82631098 runs a node of the same
@@ -46,6 +48,27 @@ bool NullObjectListHook(PPCRegister& r3) {
   static std::atomic<int> logged{0};
   if (logged.fetch_add(1) < 3) {
     REXLOG_WARN("Object list: sub_822895E0 was given no list (r3 = 0); skipped this frame (SSARecomp #32)");
+  }
+  return true;
+}
+
+// At the start of sub_82289530 (return_on_true): true when there is no list to go on with.
+// sub_82289530 goes on with the walk from the node in 0x82BB4F50: it reads that node's next (+4)
+// and walks on until the sentinel. In the first frames the sentinel can be in 0x82BB4F50 (put
+// there by NullObjectListHook) while the list isn't made yet and the sentinel's own next is still
+// 0: the walk then reads guest 0x4 (2026-11-12, a dev kit run, 36 s in on the title screen, right
+// after NullObjectListHook's warnings; call chain sub_82289530 <- sub_82631098). Nothing to go on
+// with: the sentinel stays in 0x82BB4F50, so the caller's loop ends at once.
+bool NullResumeNodeHook(PPCRegister& r3) {
+  (void)r3;  // the node comes from the global, not an argument
+  uint8_t* base = rex::system::kernel_state()->memory()->virtual_membase();
+  const uint32_t node = rex::memory::load_and_swap<uint32_t>(base + kCurrentNode);
+  if (node != 0 && rex::memory::load_and_swap<uint32_t>(base + node + 4) != 0) return false;
+  rex::memory::store_and_swap<uint32_t>(base + kCurrentNode, kListSentinel);
+  static std::atomic<int> logged{0};
+  if (logged.fetch_add(1) < 3) {
+    REXLOG_WARN("Object list: sub_82289530 found no list to go on with (node {:08X}); skipped this frame "
+                "(SSARecomp #32)", node);
   }
   return true;
 }
