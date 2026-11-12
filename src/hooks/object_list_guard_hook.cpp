@@ -22,6 +22,13 @@
 // sub_826326B8 first, which reads that node's +872 (0x368). With the global 0 there is no node to
 // run, and the second hook returns at its start, before anything is changed (its counter at
 // 0x82BB4FA8 is raised only after that).
+//
+// A third case of the same walk (Core of Light #76, a player's report of 2026-11-12, 0.5.0-beta.6,
+// Level_021, a minute after the level loaded): sub_829B71D0, run for a node of the tree, calls the
+// sixth virtual function of the node's member at +240. That member was already freed: its first
+// word, the vtable, was a heap address (45249480) and the slot read from it 0x18C, so the call went
+// to guest 0x18C ("Call to invalid or unregistered function"). DanglingMemberHook skips the call
+// when the member or its vtable isn't in the game's image.
 
 #include <atomic>
 #include <cstdint>
@@ -37,6 +44,9 @@ namespace {
 constexpr uint32_t kListSentinel = 0x82B5FAAC;
 constexpr uint32_t kCurrentNode = 0x82BB4F50;
 constexpr uint32_t kCurrentTreeNode = 0x82BB4F4C;
+// The game's image: every vtable of a live guest object is in it.
+constexpr uint32_t kImageStart = 0x82000000;
+constexpr uint32_t kImageEnd = 0x83000000;
 
 }  // namespace
 
@@ -81,6 +91,24 @@ bool NullTreeNodeHook(PPCRegister& r3) {
   static std::atomic<int> logged{0};
   if (logged.fetch_add(1) < 3) {
     REXLOG_WARN("Object tree: sub_82631098 found no node at 0x82BB4F4C; skipped this frame (SSARecomp #32)");
+  }
+  return true;
+}
+
+// At the start of sub_829B71D0 (return_on_true): true when its object's member at +240 is gone. The
+// function calls that member's sixth virtual function (lwz r3,240(r3); lwz r11,0(r3); lwz r10,24(r11);
+// bctrl) and then hands the object on (sub_82269B90 or sub_8226A5D0 by the answer). A member whose
+// vtable word isn't in the image was freed (or never made): skipping the function for this frame
+// leaves the object alone instead of calling into garbage.
+bool DanglingMemberHook(PPCRegister& r3) {
+  uint8_t* base = rex::system::kernel_state()->memory()->virtual_membase();
+  const uint32_t member = r3.u32 ? rex::memory::load_and_swap<uint32_t>(base + r3.u32 + 240) : 0;
+  const uint32_t vtable = member ? rex::memory::load_and_swap<uint32_t>(base + member) : 0;
+  if (vtable >= kImageStart && vtable < kImageEnd) return false;
+  static std::atomic<int> logged{0};
+  if (logged.fetch_add(1) < 3) {
+    REXLOG_WARN("Object tree: sub_829B71D0's object {:08X} has a member {:08X} without a vtable ({:08X}); "
+                "skipped (Core of Light #76, SSARecomp #32's family)", r3.u32, member, vtable);
   }
   return true;
 }

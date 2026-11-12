@@ -132,6 +132,20 @@ name = "NullTreeNodeHook"
 registers = ["r3"]
 return_on_true = true
 
+# 0x829B71D0 is the start of sub_829B71D0, run for a node from sub_82631098's walk: it calls the
+# sixth virtual function of the node's member at +240 (lwz r3,240(r3); lwz r11,0(r3);
+# lwz r10,24(r11); bctrl). That member can already be freed: its vtable word is then a heap address
+# and the call went to guest 0x18C (Core of Light #76's report of 2026-11-12, 0.5.0-beta.6,
+# Level_021: r11 = 45249480, r10 = 0x18C; found from the crash's call chain sub_829B71D0 <-
+# sub_82631098). src/hooks/object_list_guard_hook.cpp returns at once when the member or its vtable
+# isn't in the game's image (0x82000000-0x83000000), before anything is changed; with a live member
+# it does nothing.
+[[midasm_hook]]
+address = 0x829B71D0
+name = "DanglingMemberHook"
+registers = ["r3"]
+return_on_true = true
+
 # sub_8275A440 and sub_8275A550 add a pickup's gold and an award's XP to the player's data (properties
 # 0x47A91D51 and 0xAF511216, capped at 65000 and 33000); 0x8275A454 and 0x8275A564 are their
 # `mr r31,r4`, r4 the amount. Found 2026-11-06 with the developer kit: a write watch on the gold
