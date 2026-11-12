@@ -346,7 +346,12 @@ SettingsPage GamePage() {
                     {"spanish", "Espa\xC3\xB1ol", "Espa\xC3\xB1ol"},
                     {"italian", "Italiano", "Italiano"},
                     // Dutch through the country, not a language id (localization.cpp, CoL #68).
-                    {"dutch", "Nederlands", "Nederlands"}}};
+                    {"dutch", "Nederlands", "Nederlands"},
+                    // The Nordic four the same way (localization.cpp, SSA #47).
+                    {"swedish", "Svenska", "Svenska"},
+                    {"norwegian", "Norsk", "Norsk"},
+                    {"danish", "Dansk", "Dansk"},
+                    {"finnish", "Suomi", "Suomi"}}};
   language.restart = true;
   page.settings.push_back(language);
   Setting intro{"skip_intro", "Skip logo movies", "Logo-Videos \xC3\xBC" "berspringen",
