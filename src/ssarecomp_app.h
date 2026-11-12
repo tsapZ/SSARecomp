@@ -42,6 +42,7 @@
 #include "portal_rex/player_menu.h"
 #include "portal_rex/settings_menu.h"
 #include "portal_rex/settings_schema.h"
+#include "portal_rex/mods.h"
 #include "portal_rex/title_music.h"
 #include "settings_pages.h"
 #include "portal_rex/portal_rex.h"
@@ -111,6 +112,9 @@ class SsarecompApp : public rex::ReXApp {
     // "Fenstergröße: Automatisch" in fullscreen: the screen's size for this start, so an ultrawide
     // screen gets the wider picture by itself (UltrawideActive below reads `resolution`).
     skylanders::ResolutionFromScreenIfAutomatic();
+    // Mods (F4 > Mods): their files folders laid over the disc, before the runtime mounts it
+    // (portal_rex/mods.h).
+    skylanders::ApplyMods("ssa");
     // Before the GPU plugin creates its device (testing only, gpu_crash_diagnostics).
     skylanders::dev::EnableGpuCrashDiagnostics();
     // A wider window with ultrawide_fov: the picture fills it (the camera sees more to the sides)

@@ -7,9 +7,11 @@
 #include <rex/cvar.h>
 
 #include "portal_rex/achievements_ui.h"
+#include "portal_rex/button_prompts.h"
 #include "portal_rex/discord_presence.h"
 #include "portal_rex/player_menu.h"
 #include "portal_rex/settings_schema.h"
+#include "portal_rex/mods.h"
 
 namespace ssarecomp {
 namespace {
@@ -500,6 +502,9 @@ SettingsPage ControlsPage() {
        {"2", "Player 2", "Spieler 2"}}};
   keyboard_player.enabled_by = "mnk_mode";  // greyed while the keyboard is off
   page.settings.push_back(keyboard_player);
+  // PlayStation or Nintendo button prompts where the game's prompt textures are known (skylanders-portal
+  // button_prompts.h); nothing for a game without.
+  skylanders::AddButtonPromptsSetting(page, "Spyro's Adventure");
   return page;
 }
 
@@ -533,7 +538,7 @@ SettingsPage ExtrasPage() {
 
 std::vector<SettingsPage> BuildSettingsPages(std::function<void()> open_all_settings) {
   std::vector<SettingsPage> pages = {GraphicsPage(), FrameRatePage(), GamePage(), PortalPage(),
-                                     ControlsPage(), ExtrasPage()};
+                                     ControlsPage(), ExtrasPage(), skylanders::ModsPage("ssa")};
   SettingsPage advanced{"Advanced", "Erweitert", {}};
   Setting all;
   all.en = "All settings (developers, keyboard and mouse)";

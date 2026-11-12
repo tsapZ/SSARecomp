@@ -28,6 +28,7 @@
 #include "dev/where.h"
 #include "hooks/extras.h"
 #include "hooks/where_hook.h"
+#include "portal_rex/soul_gems.h"
 
 namespace {
 
@@ -65,6 +66,15 @@ uint32_t PlayerOne(uint8_t* base) {
   return object;
 }
 
+// The Soul Gem movies (skylanders-portal soul_gems.h): movies\<name>.bik, one per Skylander
+// (chopchop.bik, legendarybash.bik). Only the catalog's names count, so the logos, the legal
+// notes and the story movies (sl_sc*, sky_800_moment_*) are left out.
+std::string SoulGemOf(std::string_view path) {
+  if (!skylanders::InFolder(path, "movies")) return {};
+  const std::string_view stem = skylanders::FileStem(path, ".bik");
+  return stem.empty() ? std::string() : skylanders::SkylanderNamed(stem);
+}
+
 }  // namespace
 
 namespace ssarecomp {
@@ -78,6 +88,7 @@ void InstallWhere(const std::filesystem::path& game_data_root) {
   }
   g_names.emplace(Crc32("FrontEnd"), "FrontEnd");
   REXLOG_INFO("Level names for the Where lines: {}", g_names.size());
+  skylanders::WatchSoulGems(&SoulGemOf);
 }
 
 }  // namespace ssarecomp
