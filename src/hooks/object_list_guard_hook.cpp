@@ -107,7 +107,7 @@ bool DanglingMemberHook(PPCRegister& r3) {
   if (vtable >= kImageStart && vtable < kImageEnd) return false;
   static std::atomic<int> logged{0};
   if (logged.fetch_add(1) < 3) {
-    REXLOG_WARN("Object tree: sub_829B71D0's object {:08X} has a member {:08X} without a vtable ({:08X}); "
+    REXLOG_WARN("Object tree: an event handler's object {:08X} has a member {:08X} without a vtable ({:08X}); "
                 "skipped (Core of Light #76, SSARecomp #32's family)", r3.u32, member, vtable);
   }
   return true;

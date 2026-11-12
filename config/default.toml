@@ -146,6 +146,30 @@ name = "DanglingMemberHook"
 registers = ["r3"]
 return_on_true = true
 
+# 0x829B6FB8, 0x829B7088 and 0x829B7100 are sub_829B71D0's siblings: the other handlers in the same event table
+# (0x820FCA48, handler and event mask pairs; found from the guarded one's address in the image, 2026-11-12). Each
+# begins the same way (mr r31,r3; lwz r3,240(r3)) and uses the member at +240 at once (a virtual call, or its byte
+# at +160 first), so a freed member crashes them alike. sub_82631098's walk calls the handlers through its callback
+# list and reads no result after them (lwz r30,8(r30)), so skipping one is safe. The same DanglingMemberHook returns
+# at once only when that member or its vtable isn't in the game's image; with a live member it does nothing.
+[[midasm_hook]]
+address = 0x829B6FB8
+name = "DanglingMemberHook"
+registers = ["r3"]
+return_on_true = true
+
+[[midasm_hook]]
+address = 0x829B7088
+name = "DanglingMemberHook"
+registers = ["r3"]
+return_on_true = true
+
+[[midasm_hook]]
+address = 0x829B7100
+name = "DanglingMemberHook"
+registers = ["r3"]
+return_on_true = true
+
 # sub_8275A440 and sub_8275A550 add a pickup's gold and an award's XP to the player's data (properties
 # 0x47A91D51 and 0xAF511216, capped at 65000 and 33000); 0x8275A454 and 0x8275A564 are their
 # `mr r31,r4`, r4 the amount. Found 2026-11-06 with the developer kit: a write watch on the gold
