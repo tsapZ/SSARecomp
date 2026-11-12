@@ -114,6 +114,17 @@ Chapter 1 plays all the way through, cutscenes and voices included, and has been
 automated test runs all 28 story levels load without a crash. Nobody has played the game to the end
 yet, so if something breaks further in, please [tell
 me](https://github.com/tsapZ/SSARecomp/issues/new/choose).
+
+**What's tested** (as of 2026-11-12):
+
+| | |
+|---|---|
+| Every story level loads | all 28, by script |
+| Played by hand | Chapter 1, all the way through |
+| Real USB portal | not confirmed yet ([#13](https://github.com/tsapZ/SSARecomp/issues/13)): tell me if yours works |
+| Two players | player 2 joins and leaves on a second controller, by script; a whole game with two controllers is still to do ([#14](https://github.com/tsapZ/SSARecomp/issues/14)) |
+| Graphics | D3D12 and Vulkan, by script |
+
 What's being worked on, for all six games and the launcher: the [roadmap
 board](https://github.com/users/tsapZ/projects/1), and [docs/roadmap.md](docs/roadmap.md) for this
 game. Questions and ideas: [Discussions](https://github.com/tsapZ/SkylandersCoreOfLight/discussions). Known bugs and the details:

@@ -790,3 +790,10 @@ launcher's achievements screen.
 ## 2026-11-11: 0.5.0-beta.6
 
 - The setup's version for what came since the last one: more FPS where the graphics card is the limit (small render targets at 1x, direct resolves, lazy copies, native surfaces), the native 3D picture and Automatic sharpening (FSR 1 when enlarging) by default, As on the console in the presets (Core of Light #72), the Monitor row (#75), older portals light up, quicker swaps and the menu lock with a real portal (TrapTeamRecomp #22), Nederlands (#68), a missing language folder named instead of a frozen title screen (#64).
+
+## 2026-11-12: what's tested, for the README
+
+The README's "What's tested" table (bundle/next4). Story sweep with the developer kit the night before: all 28 story
+levels loaded, none failed, pictures alike to the night before. Smoke (the save route and the menus) on D3D12 and on
+Vulkan with the SDK's native-surfaces fix (Core of Light #76): both ok. The other rows come from the entries
+above and docs/roadmap.md.
