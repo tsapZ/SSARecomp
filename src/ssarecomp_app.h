@@ -140,6 +140,7 @@ class SsarecompApp : public rex::ReXApp {
     }
     // Some of the game's text (e.g. the autosave warning dialog) is already resolved by the time
     // OnPostSetup runs -- apply this as early as possible, before the XEX even loads.
+    ssarecomp::SetDiscRoot(game_data_root());
     ssarecomp::ApplyLanguageSetting();
     // The portal menu wraps every input driver: it notices its open button on any controller,
     // knows which player that controller is, and hides input from the game while it is open.

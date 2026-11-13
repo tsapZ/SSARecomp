@@ -21,8 +21,8 @@ REXCVAR_DECLARE(uint32_t, user_country);
 REXCVAR_DEFINE_STRING(language, "auto", "Game",
                       "Game text/voice language: auto (the Windows display language if it is one "
                       "of the following, else English), english, french, german, spanish, "
-                      "italian, dutch, swedish, norwegian, danish, finnish. A raw Xbox 360 language ID (a number) also works, for languages "
-                      "the disc supports that aren't confirmed here yet.");
+                      "italian, and dutch, swedish, norwegian, danish, finnish when the disc has "
+                      "them. A raw Xbox 360 language ID (a number) also works, for experiments.");
 
 namespace ssarecomp {
 
@@ -33,6 +33,29 @@ std::string Lower(std::string s) {
                  [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
   return s;
 }
+
+// Dutch and the Nordic four aren't Xbox 360 language ids: the game picks their text and movies
+// (text\dut, movies\dut, ...) when the language is English and the console's country is theirs
+// (Dutch: CoL #68, checked 2026-11-09 on the European disc, the menus came up in Dutch; Swedish:
+// SSA #47, checked 2026-11-12 with the country Sweden, title, menus and chapter texts in Swedish).
+// The countries are XC_COUNTRY ids (the SDK's xam_locale.cpp table).
+struct CountryLanguage {
+  uint32_t country;
+  const char* folder;  // under text\ (and movies\, audio\)
+};
+
+const std::unordered_map<std::string, CountryLanguage>& CountryLanguages() {
+  static const std::unordered_map<std::string, CountryLanguage> kLanguages = {
+      {"dutch", {74u, "dut"}},      // XC_COUNTRY_NL
+      {"swedish", {90u, "swe"}},    // XC_COUNTRY_SE
+      {"norwegian", {75u, "nor"}},  // XC_COUNTRY_NO
+      {"danish", {25u, "dan"}},     // XC_COUNTRY_DK
+      {"finnish", {32u, "fin"}},    // XC_COUNTRY_FI
+  };
+  return kLanguages;
+}
+
+std::filesystem::path g_disc_root;
 
 // The Windows display language as one of the names below; English for any other.
 std::string SystemLanguage() {
@@ -65,6 +88,16 @@ std::string SystemLanguage() {
 
 }  // namespace
 
+void SetDiscRoot(const std::filesystem::path& root) { g_disc_root = root; }
+
+bool DiscHasCountryLanguage(const std::string& name) {
+  const auto it = CountryLanguages().find(name);
+  if (it == CountryLanguages().end()) return false;
+  if (g_disc_root.empty()) return true;
+  std::error_code ec;
+  return std::filesystem::is_directory(g_disc_root / "text" / it->second.folder, ec);
+}
+
 void ApplyLanguageSetting() {
   // A direct --user_language / user_language=<n> override (raw, for experimentation) always
   // wins: don't clobber it with whatever `language` defaults to (a real bug this had until now --
@@ -76,8 +109,8 @@ void ApplyLanguageSetting() {
   }
 
   // Xbox 360 XLanguage IDs (include/rex/system/xcontent.h); only these five are confirmed to
-  // match a real console. Dutch/Swedish/Norwegian/Danish/Finnish aren't in that enum at all, even
-  // though this game's disc supports them on real hardware -- use a raw numeric id to try one.
+  // match a real console. Dutch and the Nordic four aren't in that enum: they come from the
+  // console's country (CountryLanguages above).
   static const std::unordered_map<std::string, uint32_t> kNames = {
       {"english", 1}, {"german", 3}, {"french", 4}, {"spanish", 5}, {"italian", 6},
   };
@@ -87,23 +120,19 @@ void ApplyLanguageSetting() {
     setting = SystemLanguage();
     REXLOG_INFO("Language: auto, from the Windows display language");
   }
-  // Dutch isn't an Xbox 360 language id: the game picks its Dutch text and movies (text\dut,
-  // movies\dut) when the language is English and the console's country is the Netherlands
-  // (CoL #68; checked 2026-11-09 on the European disc: the menus came up in Dutch). A country set
-  // directly (--user_country) stays.
-  // Swedish, Norwegian, Danish and Finnish come the same way (SSA #47): the discs have them, and
-  // the game takes them from the country as it takes Dutch.
-  static const std::unordered_map<std::string, uint32_t> kByCountry = {
-      {"dutch", 74u},      // XC_COUNTRY_NL
-      {"swedish", 90u},    // XC_COUNTRY_SE
-      {"norwegian", 75u},  // XC_COUNTRY_NO
-      {"danish", 25u},     // XC_COUNTRY_DK
-      {"finnish", 32u},    // XC_COUNTRY_FI
-  };
-  if (auto it = kByCountry.find(setting); it != kByCountry.end()) {
+  // Dutch and the Nordic four: English with their country. Only when the disc has the language: a
+  // pressing without its text folder stays English, as before these were added (Automatic on a
+  // Finnish Windows, or a settings file from another disc). A country set directly
+  // (--user_country) stays.
+  if (auto it = CountryLanguages().find(setting); it != CountryLanguages().end()) {
     REXCVAR_SET(user_language, 1u);
+    if (!DiscHasCountryLanguage(setting)) {
+      REXLOG_WARN("Language: the disc has no {} (no text/{} folder); using English", setting,
+                  it->second.folder);
+      return;
+    }
     if (!rex::cvar::HasNonDefaultValue("user_country")) {
-      REXCVAR_SET(user_country, it->second);
+      REXCVAR_SET(user_country, it->second.country);
     }
     REXLOG_INFO("Language: {} (English with the country {})", setting, REXCVAR_GET(user_country));
     return;

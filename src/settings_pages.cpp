@@ -1,6 +1,8 @@
 #include "portal_rex/movie_skip.h"
 #include "settings_pages.h"
 
+#include "localization.h"
+
 #include <string>
 #include <utility>
 
@@ -344,14 +346,15 @@ SettingsPage GamePage() {
                     {"german", "Deutsch", "Deutsch"},
                     {"french", "Fran\xC3\xA7" "ais", "Fran\xC3\xA7" "ais"},
                     {"spanish", "Espa\xC3\xB1ol", "Espa\xC3\xB1ol"},
-                    {"italian", "Italiano", "Italiano"},
-                    // Dutch through the country, not a language id (localization.cpp, CoL #68).
-                    {"dutch", "Nederlands", "Nederlands"},
-                    // The Nordic four the same way (localization.cpp, SSA #47).
-                    {"swedish", "Svenska", "Svenska"},
-                    {"norwegian", "Norsk", "Norsk"},
-                    {"danish", "Dansk", "Dansk"},
-                    {"finnish", "Suomi", "Suomi"}}};
+                    {"italian", "Italiano", "Italiano"}}};
+  // Dutch (CoL #68) and the Nordic four (SSA #47) through the country, not a language id, and only
+  // when the disc has them (localization.cpp).
+  static const std::pair<const char*, const char*> kByCountry[] = {
+      {"dutch", "Nederlands"}, {"swedish", "Svenska"}, {"norwegian", "Norsk"},
+      {"danish", "Dansk"},     {"finnish", "Suomi"}};
+  for (const auto& [name, label] : kByCountry) {
+    if (ssarecomp::DiscHasCountryLanguage(name)) language.options.push_back({name, label, label});
+  }
   language.restart = true;
   page.settings.push_back(language);
   Setting intro{"skip_intro", "Skip logo movies", "Logo-Videos \xC3\xBC" "berspringen",
