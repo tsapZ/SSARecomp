@@ -45,7 +45,13 @@
 #include <string>
 #include <thread>
 
+#ifdef _WIN32
 #include <windows.h>  // Sleep, FlushProcessWriteBuffers (the build defines WIN32_LEAN_AND_MEAN and NOMINMAX)
+#elif defined(__linux__)
+#include <linux/membarrier.h>
+#include <sys/syscall.h>
+#include <unistd.h>
+#endif
 
 #include <rex/cvar.h>
 #include <rex/hook.h>
@@ -103,7 +109,23 @@ void Leave(Slot* slot) {
   }
 }
 
-// True when no other thread is marked (the loading thread calls it after FlushProcessWriteBuffers).
+inline void FlushStoreBuffers() {
+#ifdef _WIN32
+  FlushProcessWriteBuffers();
+#elif defined(__linux__)
+  static const bool registered =
+      syscall(SYS_membarrier, MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED, 0) == 0;
+  if (!registered || syscall(SYS_membarrier, MEMBARRIER_CMD_PRIVATE_EXPEDITED, 0) != 0) {
+    if (syscall(SYS_membarrier, MEMBARRIER_CMD_GLOBAL, 0) != 0) {
+      std::atomic_thread_fence(std::memory_order_seq_cst);
+    }
+  }
+#else
+  std::atomic_thread_fence(std::memory_order_seq_cst);
+#endif
+}
+
+// True when no other thread is marked (the loading thread calls it after FlushStoreBuffers).
 bool NoneInside() {
   const int used = std::min(g_slot_count.load(), kSlots);
   for (int i = 0; i < used; ++i) {
@@ -215,7 +237,7 @@ REX_HOOK_RAW(sub_827F9298) {
     return;
   }
   g_want.store(true);
-  FlushProcessWriteBuffers();
+  FlushStoreBuffers();
   if (!NoneInside()) {
     const auto start = std::chrono::steady_clock::now();
     int spins = 0;
@@ -228,7 +250,7 @@ REX_HOOK_RAW(sub_827F9298) {
       if (++spins < 200) {
         std::this_thread::yield();
       } else {
-        Sleep(1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
       }
     }
     g_pass_waits.fetch_add(1, std::memory_order_relaxed);

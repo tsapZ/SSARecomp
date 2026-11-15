@@ -43,6 +43,7 @@
 #include "portal_rex/settings_menu.h"
 #include "portal_rex/settings_schema.h"
 #include "portal_rex/mods.h"
+#include "portal_rex/menu_draw.h"
 #include "portal_rex/title_music.h"
 #include "settings_pages.h"
 #include "portal_rex/portal_rex.h"
@@ -301,19 +302,8 @@ class SsarecompApp : public rex::ReXApp {
 #ifdef _WIN32
     font = atlas->AddFontFromFileTTF("C:\\Windows\\Fonts\\segoeui.ttf", font_size);
 #else
-    // No single well-known path across distros; try common ones in order and keep the first that
-    // exists. Falls through to the SDK's built-in ProggyTiny font if none of these are installed.
-    static constexpr const char* kLinuxFontCandidates[] = {
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/usr/share/fonts/dejavu/DejaVuSans.ttf",
-        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
-        "/usr/share/fonts/liberation/LiberationSans-Regular.ttf",
-        "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf",
-    };
-    for (const char* path : kLinuxFontCandidates) {
-      if (!std::filesystem::exists(path)) continue;
-      font = atlas->AddFontFromFileTTF(path, font_size);
-      if (font) break;
+    if (const std::string path = skylanders::menu_draw::FindDefaultUiFontPath(); !path.empty()) {
+      font = atlas->AddFontFromFileTTF(path.c_str(), font_size);
     }
 #endif
     if (font) ImGui::GetIO().FontDefault = font;
