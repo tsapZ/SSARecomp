@@ -209,7 +209,7 @@ class SsarecompApp : public rex::ReXApp {
     // A real crash logs where in the game it happened (guest call chain and registers).
     skylanders::dev::InstallCrashReport(runtime()->memory());
     // And where the player was: the log's "Where:" lines name the level and player 1's position.
-    ssarecomp::InstallWhere(game_data_root_);
+    ssarecomp::InstallWhere(game_data_root_, user_data_root());
     // The achievements list (F7, F4 > Spiel > Erfolge); the kernel's list exists from launch on.
     skylanders::RegisterAchievementsMenu(
         imgui_drawer(), immediate_drawer(), &app_context(), runtime(),

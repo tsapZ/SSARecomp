@@ -9,8 +9,9 @@
 
 namespace ssarecomp {
 
-// Reads the level table (gamedata.lxb in the game's data folder), so the log names the level.
-void InstallWhere(const std::filesystem::path& game_data_root);
+// Reads the level table (gamedata.lxb in the game's data folder), so the log names the level; and
+// watches the slot saves under `user_data_root` for Soul Gems (Core of Light #71).
+void InstallWhere(const std::filesystem::path& game_data_root, const std::filesystem::path& user_data_root);
 
 }  // namespace ssarecomp
 
