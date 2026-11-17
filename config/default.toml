@@ -59,6 +59,21 @@ address = 0x828924E0
 name = "SceneGridRowsHook"
 registers = ["r8", "r10"]
 
+# 0x82892528 and 0x82892550 are stw r4,252(r31) and stw r8,304(r31) in the same function: the sun
+# grid's rows split between its two worker threads (rows / 2 in r4, the rest in r8; r5 / r10 hold the
+# rows). With the 40-column grid the hooks give each worker a multiple of 16 cells (10 / 12 rows): a
+# remainder made one cell come out as sky, a light square by the stump on the turtle island (see
+# scene_size_hook.cpp). Safe: only with the grid changed by the hooks, the same rows in total.
+[[midasm_hook]]
+address = 0x82892528
+name = "SceneGridSplitHook"
+registers = ["r4", "r5"]
+
+[[midasm_hook]]
+address = 0x82892550
+name = "SceneGridSplitRestHook"
+registers = ["r8", "r10"]
+
 # 0x827F5794 is stfs f13,17900(r11) in sub_827F56A0, which keeps the display's aspect ratio (the
 # video mode's width over its height, 16:9) at 0x82BB45EC; the cameras take their aspect from it
 # through the renderer's state, and the game widens its horizontal FOV with it (Hor+). Found from
