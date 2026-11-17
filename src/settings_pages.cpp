@@ -369,6 +369,13 @@ SettingsPage GamePage() {
                            "Skips the movie at the start of a new game (Eon, about a minute).",
                            "\xC3\x9C" "berspringt den Film beim Start eines neuen Spiels (Eon, etwa "
                            "eine Minute)."});
+  // hooks/skip_talks_hook.cpp: the levels' talks and cutscenes made skippable when a level loads.
+  page.settings.push_back({"skip_talks", "Skip talks", "Gespr\xC3\xA4" "che \xC3\xBC" "berspringen",
+                           "B skips every talk and cutscene in the levels, also the ones the game "
+                           "doesn't let you skip. From the next level on.",
+                           "B \xC3\xBC" "berspringt jedes Gespr\xC3\xA4" "ch und jede Zwischensequenz in "
+                           "den Leveln, auch die, die das Spiel sonst nicht \xC3\xBC" "berspringen "
+                           "l\xC3\xA4" "sst. Ab dem n\xC3\xA4" "chsten Level."});
   page.settings.push_back(skylanders::MovieSkipSetting());
   page.settings.push_back(skylanders::AchievementsSetting());
   page.settings.push_back(skylanders::DiscordPresenceSetting());
