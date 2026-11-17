@@ -53,6 +53,13 @@ constexpr int32_t kScreenWidth = 1280;
 constexpr int32_t kScreenHeight = 720;
 constexpr int32_t kScreenSizeStep = 16;
 
+// The sun grid's cells the game's buffers hold: sub_828924B8 allocates two of 3620 bytes, a 32-bit
+// word per cell for both workers together (sub_828917F8), so 905; 1264x704 has 40 x 22 = 880.
+constexpr int32_t kMaxGridCells = 905;
+
+// The grid's columns the hooks gave the game, 0 while it keeps its 35 (SceneGridSplitHook).
+std::atomic<int32_t> g_grid_columns{0};
+
 struct Size {
   int32_t width = 0, height = 0;
 };
@@ -71,6 +78,13 @@ Size ConfiguredSize() {
     }
   } else if (!text.empty()) {
     REXLOG_WARN("Scene size: '{}' is not WIDTHxHEIGHT; keeping the game's size", text);
+  }
+  const int32_t cells = ((size.width + kCellSize - 1) / kCellSize) *
+                        ((size.height + kCellSize - 1) / kCellSize);
+  if (size.width && cells > kMaxGridCells) {
+    REXLOG_WARN("Scene size: {}x{} needs {} sun grid cells, the game holds {}; keeping 1120x704",
+                size.width, size.height, cells, kMaxGridCells);
+    size = {};
   }
   return size;
 }
@@ -121,7 +135,52 @@ void SceneHeaderSizeHook(PPCRegister& r3, PPCRegister& r4) { Swap(r3, r4, "textu
 // Before 0x828924D8 (stw r11,488(r31) in sub_828924B8): r11 / r10 are the scene size and r9 the
 // grid's columns (35, the width in 32-pixel cells), stored next to it.
 void SceneGridSizeHook(PPCRegister& r9, PPCRegister& r10, PPCRegister& r11) {
-  if (Swap(r11, r10, "grid")) r9.u64 = uint64_t((r11.s32 + kCellSize - 1) / kCellSize);
+  if (Swap(r11, r10, "grid")) {
+    r9.u64 = uint64_t((r11.s32 + kCellSize - 1) / kCellSize);
+    if (r9.s32 != kGameWidth / kCellSize) g_grid_columns.store(r9.s32);
+  }
+}
+
+// The grid is the sun's: two worker threads (sub_828917F8 hands them their rows every frame, from the
+// split sub_828924B8 stores at +252 and +304: rows / 2 and the rest) sort its cells by what they show,
+// one byte each, 16 cells at a time. When a worker's cell count leaves a remainder of 16, the first
+// cell of that remainder comes out as class 8 (what sky cells get), and the sun is drawn there without
+// its shadow: a light 32-pixel square. At the game's 35 x 22 each worker has 385 cells, remainder 1, so
+// only its last cell (the right end of row 10, the bottom right corner), sky or at the edge. At
+// 1264x704 the grid is 40 x 22, 440 cells each, remainder 8, and cell 432 (column 32, row 10) turned
+// light: the square by the tree stump on the turtle island in Chapter 1 (the owner, 2026-11-16;
+// Core of Light #76's square chunks), Direct3D 12 only because scene_size is. Found 2026-11-17 with
+// the dev kit at that spot: gone at 1120x704; the workers' output bytes (0xBA95FA80) had 08 at 432 and
+// 433 over geometry; poking the split to 10 / 12 rows (400 and 480 cells, no remainder) took it away.
+// Safe: only with the grid changed by the hooks above, the same rows in total, each worker still
+// within the cells the game's buffers hold (kMaxGridCells).
+int32_t FirstWorkerRows(int32_t rows) {
+  const int32_t columns = g_grid_columns.load();
+  const int32_t half = rows / 2;
+  // A remainder of 1 only hits the worker's last cell, as at the game's size.
+  if (!columns || (columns * half) % 16 <= 1) return half;
+  for (int32_t d = 1; d < half; ++d) {
+    if ((columns * (half - d)) % 16 == 0) return half - d;
+    if (half + d < rows && (columns * (half + d)) % 16 == 0) return half + d;
+  }
+  return half;
+}
+
+// Before 0x82892528 (stw r4,252(r31) in sub_828924B8): r4 is the first worker's rows (rows / 2), r5
+// the grid's rows.
+void SceneGridSplitHook(PPCRegister& r4, PPCRegister& r5) {
+  const int32_t first = FirstWorkerRows(r5.s32);
+  if (first != r4.s32) {
+    REXLOG_INFO("Scene size: sun tile workers {} / {} rows instead of {} / {}", first,
+                r5.s32 - first, r4.s32, r5.s32 - r4.s32);
+    r4.u64 = uint64_t(first);
+  }
+}
+
+// Before 0x82892550 (stw r8,304(r31)): r8 is the second worker's rows (rows - rows / 2), r10 the
+// grid's rows.
+void SceneGridSplitRestHook(PPCRegister& r8, PPCRegister& r10) {
+  r8.u64 = uint64_t(r10.s32 - FirstWorkerRows(r10.s32));
 }
 
 // Before 0x828924E0 (stw r10,492(r31)): r8 is the grid's rows (22) and r10 the height.
