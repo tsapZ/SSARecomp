@@ -797,3 +797,7 @@ The README's "What's tested" table (bundle/next4). Story sweep with the develope
 levels loaded, none failed, pictures alike to the night before. Smoke (the save route and the menus) on D3D12 and on
 Vulkan with the SDK's native-surfaces fix (Core of Light #76): both ok. The other rows come from the entries
 above and docs/roadmap.md.
+
+## 2026-11-18: shared libraries
+
+- The menus' stone frame and nicer settings rows; controller in the background with real pads.
