@@ -205,6 +205,8 @@ The banner and the button at the top are drawn by Core of Light's [`tools/make_b
 - **[skylanders-portal](https://github.com/TheBiemGamer/skylanders-portal)** by TheBiemGamer:
   the portal (software and USB), its overlay and the figure catalog, here in a fork with the
   shared portal and settings menus on top.
+- **[morpheus284](https://github.com/morpheus284)**: the stone frame around the menus, cut from his Core of
+  Light artwork (CC BY 4.0).
 - Figure save-data decoding builds on public reverse-engineering of the Skylanders NFC format,
   among others **[SkyReader](https://github.com/reedstrm/SkyReader)**.
 - **[extract-xiso](https://github.com/XboxDev/extract-xiso)** is included (prebuilt, unmodified)
