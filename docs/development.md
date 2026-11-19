@@ -4,8 +4,8 @@ Building SSARecomp from source. There is no playable build yet; see [STATUS.md](
 
 ## What you need
 
-1. **Windows 10 or 11, 64-bit,** with a DirectX 12 capable graphics card. The CMake presets for
-   Linux and macOS come from the template and are untested here.
+1. **Windows 10 or 11, 64-bit,** with a DirectX 12 capable graphics card. A native Linux build is
+   described in [Linux](#linux) below; the macOS presets come from the template and are untested.
 2. **Your own copy of the game:** the Xbox 360 disc of Skylanders: Spyro's Adventure, as an ISO or an
    extracted folder. Which exact version is supported is decided in Phase 1, see
    [game/spyros-adventure.md](game/spyros-adventure.md).
@@ -74,6 +74,28 @@ codegen has run.
 
 Keep the checkout path short. In a deep folder, CMake warns that FidelityFX object paths may exceed
 its 250-character limit.
+
+## Linux
+
+The setup above is the Windows one. On Linux the same checkout builds natively:
+
+- **clang 19 or newer.** Ubuntu 24.04's clang 18 with libstdc++ 13 hides the `std::expected` that
+  the SDK's `src/system/map_parser` uses; `clang-19` from noble-updates works. If `clang` and
+  `clang++` on your `PATH` are older, configure once with
+  `cmake --preset linux-amd64-release -DCMAKE_C_COMPILER=clang-19 -DCMAKE_CXX_COMPILER=clang++-19`.
+- **X11-xcb and the runtime libraries' development packages:** `libx11-xcb-dev`,
+  `libusb-1.0-0-dev`, `libcurl4-openssl-dev`, `libssl-dev`, `libarchive-dev`, `libgl1-mesa-dev`,
+  `libudev-dev`, `pkg-config`, `cmake`, `ninja-build` and `just`.
+- **The disc in place** as in step 4 (`rom/default.xex` next to the rest of the disc), then:
+
+  ```
+  just build-release
+  just package-linux      # dist/SSARecomp-linux-amd64.tar.gz
+  ```
+
+Unpack the tarball and run `./linux-setup.sh <your ISO>` once: it copies the disc into `rom/` and
+writes `ssarecomp.toml`. `./ssarecompiled` starts the game, `--portal_mode=software` runs it
+without a portal.
 
 ## Everyday commands
 
