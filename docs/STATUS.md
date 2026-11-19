@@ -801,3 +801,7 @@ above and docs/roadmap.md.
 ## 2026-11-18: shared libraries
 
 - The menus' stone frame and nicer settings rows; controller in the background with real pads.
+
+## 2026-11-19: shared libraries
+
+- On Vulkan at a resolution scale above 1 the depth-of-field no longer reads a pixel off (a haze round the characters).
