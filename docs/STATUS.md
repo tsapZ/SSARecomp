@@ -806,3 +806,7 @@ above and docs/roadmap.md.
 
 - On Vulkan at a resolution scale above 1 the depth-of-field no longer reads a pixel off (a haze round the characters).
 - On Vulkan, depth a shader writes itself into a float24 depth target is no longer twice too large (Imaginators' hub light cone was missing).
+
+## 2026-11-20: sidekicks
+
+- The sidekicks (Gill Runt, Terrabite, Trigger Snappy, Whisper Elf) are back in the portal menu (Core of Light #114): this game takes them as companions that walk along with the Skylander on the portal, not on their own. #28 had hidden them.
