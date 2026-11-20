@@ -180,9 +180,10 @@ class SsarecompApp : public rex::ReXApp {
     // Spyro's Adventure knows only its own figures (later games' figures of the same characters
     // carry their own toy ids too).
     SetDefault("portal_menu_games", "Spyro's Adventure");
-    // Sidekicks came with Giants; this game doesn't know their toy ids (500 + their Skylander's),
-    // so the menu leaves them out (#28).
-    SetDefault("portal_menu_hidden_categories", "Sidekicks");
+    // The sidekicks (Gill Runt, Terrabite, Trigger Snappy, Whisper Elf) stay in the menu: this game
+    // takes them as companions that follow the Skylander on the portal, though not on their own
+    // (Core of Light #114, tried 2026-11-20: Gill Runt alone, the game asks on for a Skylander; with
+    // Chop Chop he walks along). #28 had hidden them as unknown here.
     // Player 2 leaves this game's portal screen with the right stick ("RS Spiel verlassen" under
     // the request), not with B as in Giants and Swap Force (#27).
     SetDefault("portal_menu_leave_button", "rs");
