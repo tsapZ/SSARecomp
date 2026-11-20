@@ -810,3 +810,7 @@ above and docs/roadmap.md.
 ## 2026-11-20: sidekicks
 
 - The sidekicks (Gill Runt, Terrabite, Trigger Snappy, Whisper Elf) are back in the portal menu (Core of Light #114): this game takes them as companions that walk along with the Skylander on the portal, not on their own. #28 had hidden them.
+
+## 2026-11-20: shared libraries
+
+- Laytonator2's PlayStation button prompts (Core of Light #112).
