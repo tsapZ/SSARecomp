@@ -379,6 +379,44 @@ SettingsPage GamePage() {
   page.settings.push_back(skylanders::MovieSkipSetting());
   page.settings.push_back(skylanders::AchievementsSetting());
   page.settings.push_back(skylanders::DiscordPresenceSetting());
+  // hooks/free_camera_hook.cpp (docs/free-camera.md); every free_camera_* setting is in the
+  // settings file, the menu has the switch and the ones most worth changing.
+  page.settings.push_back(
+      {"free_camera", "Free camera", "Freie Kamera",
+       "Two more cameras besides the game's own: a third-person camera behind your Skylander and "
+       "one you turn yourself. LT + R3 switches between the three; LT + right stick (or the right "
+       "mouse button) turns the camera. The game takes its camera back in talks and cutscenes.",
+       "Zwei weitere Kameras neben der des Spiels: eine Verfolgerkamera hinter deinem Skylander "
+       "und eine, die du selbst drehst. LT + R3 wechselt zwischen den dreien; LT + rechter Stick "
+       "(oder die rechte Maustaste) dreht die Kamera. In Gespr\xC3\xA4" "chen und "
+       "Zwischensequenzen \xC3\xBC" "bernimmt das Spiel seine Kamera wieder."});
+  Setting camera_fov{"free_camera_fov", "Free camera: field of view", "Freie Kamera: Sichtfeld",
+                     "The field of view of the third-person and turned cameras (horizontal). The "
+                     "game's own camera keeps the game's.",
+                     "Das Sichtfeld der Verfolger- und der gedrehten Kamera (waagerecht). Die "
+                     "Kamera des Spiels beh\xC3\xA4lt das des Spiels.",
+                     {{"0", "As in the game", "Wie im Spiel"},
+                      {"90", "90\xC2\xB0", "90\xC2\xB0"},
+                      {"100", "100\xC2\xB0", "100\xC2\xB0"},
+                      {"110", "110\xC2\xB0", "110\xC2\xB0"}}};
+  camera_fov.enabled_by = "free_camera";
+  page.settings.push_back(camera_fov);
+  Setting camera_distance{"free_camera_chase_distance", "Free camera: distance",
+                          "Freie Kamera: Abstand",
+                          "How far the third-person camera stays behind your Skylander.",
+                          "Wie weit die Verfolgerkamera hinter deinem Skylander bleibt.",
+                          {{"8", "Close", "Nah"},
+                           {"10", "Normal", "Normal"},
+                           {"15", "Far", "Weit"},
+                           {"20", "Very far", "Sehr weit"}}};
+  camera_distance.enabled_by = "free_camera";
+  page.settings.push_back(camera_distance);
+  Setting camera_invert{"free_camera_invert_y", "Free camera: invert up / down",
+                        "Freie Kamera: oben / unten umkehren",
+                        "Up on the right stick (or the mouse) turns the camera down.",
+                        "Oben am rechten Stick (oder der Maus) dreht die Kamera nach unten."};
+  camera_invert.enabled_by = "free_camera";
+  page.settings.push_back(camera_invert);
   // Spiel beenden / neu starten: a controller alone can't press Alt+F4.
   skylanders::AddQuitSettings(page);
   return page;

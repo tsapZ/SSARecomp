@@ -1,4 +1,4 @@
-// Free camera (mod): the right stick orbits the camera around the player (free_camera_hook.cpp).
+// Free camera (free_camera, off by default): third-person and turned cameras (free_camera_hook.cpp).
 
 #pragma once
 
@@ -23,7 +23,3 @@ void FreeCameraFrameStart(uint8_t* base);
 
 // The main scene's build (sub_828578E8's wrapper): turns the game camera's transform (ctx.r4).
 void FreeCameraSceneBuild(PPCContext& ctx, uint8_t* base);
-
-namespace ssarecomp {
-
-}  // namespace ssarecomp
