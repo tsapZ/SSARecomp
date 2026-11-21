@@ -818,3 +818,15 @@ above and docs/roadmap.md.
 ## 2026-11-21: shared libraries
 
 - Spyro's Adventure's key gate prompt (Core of Light #112), Series 2 Double Trouble (#117).
+
+## 2026-11-21: the Russian disc (0.0.0.4)
+
+- The Russian and Polish disc (title `415608AB`, version 0.0.0.4) recompiles and runs through its
+  own config: `default.xex verified`, title screen, autosave notices, main menu and save slots in
+  Russian, the portal prompt opens by itself, and a new game reaches Level_027 at 60 FPS. The
+  0.0.0.2 hook addresses do not apply, so this build has none of the 0.0.0.2 extras
+  (docs/game/russian-disc.md). Linux, clang 23, Intel Iris Xe, Vulkan.
+- Scripted runs, hidden and muted: 28/28 test binaries; 54/54 Spyro's Adventure figures placed,
+  none rejected; a 10-minute random-play run with no crash or assert; a save from that run loads
+  again from Continue; and Polish text with `--language=polish` and with `LANG=pl_PL.UTF-8`.
+- Not run: the developer kit's 28-level sweep, the 0.0.0.2 extra hooks, and Windows/D3D12.

@@ -43,6 +43,22 @@ No crash, no script error and no missing required file were seen in those runs. 
 `levels\frontend\camera.lxb` and `movies\rus\sl_sc01.bik` lookups are the same optional ones the
 supported disc does; the game falls back and carries on.
 
+### Scripted runs
+
+Hidden window, muted audio, software portal and copies of user data, on the build above:
+
+- all 28 test binaries pass (`ssarecomp_tests`, the two `xex_check` tests and the portal's tests);
+- `ssarecomp_xexcheck` accepts this disc and rejects the supported 0.0.0.2 disc;
+- all 54 Spyro's Adventure figures were placed in one run; none was rejected;
+- a 10-minute random-play run ended with no crash, assert or fatal line, and the project's verdict
+  is `ok`;
+- a save from that run is listed under Continue and loads again into Level_027; and
+- `--language=polish` and `auto` with `LANG=pl_PL.UTF-8` both load `text/pol/global.lxb`; the main
+  menu is Polish.
+
+The developer kit's 28-level sweep and its figure sweep were not run: the kit is private and the
+public input script has no level jump.
+
 ## What is off
 
 `config/default.toml`'s midasm hooks are keyed to 0.0.0.2 addresses and are not applied to this
@@ -76,8 +92,9 @@ was hit in the runs above.
    locale after the language names were added, but an English system needs the flag.
 
 The disc's hash and code pin are in `docs/game/russian/` (selected by the same CMake gate), so the
-game and `ssarecomp_xexcheck` accept it; a 0.0.0.2 build still checks only the supported hash. Core of Light doesn't know the disc yet; its launcher pin and its "another build" message
-still treat it as unsupported until this build ships.
+game and `ssarecomp_xexcheck` accept it; a 0.0.0.2 build still checks only the supported hash.
+Core of Light doesn't know the disc yet; its launcher pin and its "another build" message still
+treat it as unsupported until this build ships.
 
 ## What is still to do
 
@@ -86,6 +103,7 @@ still treat it as unsupported until this build ships.
   scene-size/texture hooks.
 - Re-find the per-frame function the `Where:` line used (`sub_8280A008` in 0.0.0.2) and
   `sub_827C1BD0` / `sub_8278F7C0` for skip talks.
-- Run the level and figure sweeps of the test suite against this disc; the routes and expected
-  strings are the supported disc's.
+- Run the developer kit's level sweep against this disc (all 28 story levels) and its figure sweep
+  with the expected strings; the public input script has no level jump, so only the placement run
+  above could be done here.
 - Teach Core of Light to accept the disc once this build is released.
