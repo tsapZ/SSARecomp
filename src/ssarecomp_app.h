@@ -386,6 +386,12 @@ class SsarecompApp : public rex::ReXApp {
         xex, result, SKYLANDERS_XEX_SHA256, SKYLANDERS_GAME_TITLE);
     if (!problem.empty()) Fatal(problem);
     REXLOG_INFO("default.xex verified");
+#ifdef SKYLANDERS_XEX_RUSSIAN
+    // The 0.0.0.2 hooks are address-specific; in this build they are compiled out or not applied
+    // (docs/game/russian-disc.md).
+    REXLOG_INFO("Russian 0.0.0.4 build: the 0.0.0.2 hooks are off (intro skip, ultrawide, scene "
+                "size, bloom, cheats, skip talks, Where)");
+#endif
     // The text and menus are in a folder per language (text\<language>\global.lxb,
     // ui\<language>\hudmenu.str); an extract tool that left those folders out gave a game that froze
     // on its title screen with no word why (CoL #64). Any language folder will do: the game picks one.
