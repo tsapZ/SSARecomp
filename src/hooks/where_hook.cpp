@@ -30,6 +30,7 @@
 
 #include "dev/where.h"
 #include "hooks/extras.h"
+#include "hooks/free_camera_hook.h"
 #include "hooks/where_hook.h"
 #include "portal/save_medals.h"
 #include "portal_rex/soul_gems.h"
@@ -160,6 +161,9 @@ void InstallWhere(const std::filesystem::path& game_data_root, const std::filesy
 extern "C" void __imp__sub_8280A008(PPCContext& __restrict ctx, uint8_t* base);
 
 REX_HOOK_RAW(sub_8280A008) {
+  // The free camera: the game camera's own transform back before its camera logic runs
+  // (free_camera_hook.cpp).
+  ssarecomp::FreeCameraFrameStart(base);
   if (Load32(base, kGameState) == 2) {
     const uint32_t hash = Load32(base, kCurrentLevel);
     static std::string unknown;

@@ -28,6 +28,7 @@
 #include "game/portal_prompt_watch.h"
 #include "game/game_fonts.h"
 #include "hooks/ultrawide_hook.h"
+#include "hooks/free_camera_hook.h"
 #include "hooks/where_hook.h"
 #include "game/game_text.h"
 #include "game/hats.h"
@@ -211,6 +212,8 @@ class SsarecompApp : public rex::ReXApp {
     skylanders::dev::InstallCrashReport(runtime()->memory());
     // And where the player was: the log's "Where:" lines name the level and player 1's position.
     ssarecomp::InstallWhere(game_data_root_, user_data_root());
+    // The free camera (free_camera, off by default) reads the right stick (free_camera_hook.cpp).
+    ssarecomp::InstallFreeCamera(runtime()->input_system());
     // The achievements list (F7, F4 > Spiel > Erfolge); the kernel's list exists from launch on.
     skylanders::RegisterAchievementsMenu(
         imgui_drawer(), immediate_drawer(), &app_context(), runtime(),

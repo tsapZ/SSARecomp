@@ -257,3 +257,28 @@ registers = ["r29", "r30"]
 address = 0x82852E28
 name = "MovieEndCheckHook"
 registers = ["r3"]
+
+# Free camera (free_camera, off by default). 0x826340A0 is the start of sub_826340A0, which derives
+# a render state's matrices (world, view x projection, its inverse, culling planes) from the view
+# matrix at +0x170; r3 = the state. Found 2026-11-20 with the input script's write watches on the
+# main scene's camera in the hub (its writers sub_82857230, sub_82857360 and sub_828578E8 each call
+# it right after writing the view). src/hooks/free_camera_hook.cpp only changes the view of a state
+# whose camera is the game's unturned one while the player has turned the camera (passes such as
+# the button prompts, "3D Button", take their own copy of it); with the option off it returns at once.
+[[midasm_hook]]
+address = 0x826340A0
+name = "FreeCameraHook"
+registers = ["r3"]
+
+# Free camera: sub_828578E8, the main scene's per-frame build (r4 = the game camera's transform, r5 + 148
+# its field of view), is wrapped with REX_HOOK_RAW in src/hooks/free_camera_hook.cpp (no entry here).
+
+# Free camera: 0x82854AEC is right after the game's pad read (bl 0x822de498, XamInputGetState; the
+# only caller), r3 = its result, the X_INPUT_STATE at r1+96. FreeCameraPadHook turns the sticks by the
+# turned camera's yaw (so up goes into the screen), aims the right stick by the player's facing, and
+# hides the right stick from the game while the left trigger turns the camera; only the guest's copy
+# of the state is changed, and nothing with the option off.
+[[midasm_hook]]
+address = 0x82854AEC
+name = "FreeCameraPadHook"
+registers = ["r1", "r3"]
