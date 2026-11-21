@@ -814,3 +814,7 @@ above and docs/roadmap.md.
 ## 2026-11-20: shared libraries
 
 - Laytonator2's PlayStation button prompts (Core of Light #112).
+
+## 2026-11-21: shared libraries
+
+- Spyro's Adventure's key gate prompt (Core of Light #112), Series 2 Double Trouble (#117).
