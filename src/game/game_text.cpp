@@ -90,6 +90,8 @@ const char* LanguageFolder(uint32_t language) {
     case 4: return "fre";
     case 5: return "spa";
     case 6: return "ita";
+    case 11: return "pol";
+    case 12: return "rus";
     // English with the country the Netherlands is the game's Dutch (localization.cpp, CoL #68).
     case 1: return REXCVAR_GET(user_country) == 74 ? "dut" : "eng";
     default: return "eng";

@@ -80,12 +80,21 @@ std::string SystemLanguage() {
       return "danish";
     case LANG_FINNISH:
       return "finnish";
+    case LANG_POLISH:
+      return "polish";
+    case LANG_RUSSIAN:
+      return "russian";
     default:
       break;
   }
   return "english";
 #else
-  const std::string lang = skylanders::PosixSystemLanguage();
+  // The shared locale mapping has no Russian or Polish (the supported disc has neither); read the
+  // locale here for the Russian 0.0.0.4 disc, whose languages are these two.
+  const skylanders::SystemLocale locale = skylanders::CurrentPosixLocale();
+  if (locale.language == "ru") return "russian";
+  if (locale.language == "pl") return "polish";
+  const std::string lang = skylanders::LanguageFromLocale(locale);
   if (lang == "german" || lang == "french" || lang == "spanish" || lang == "italian" ||
       CountryLanguages().count(lang) != 0) {
     return lang;
@@ -121,12 +130,13 @@ void ApplyLanguageSetting() {
   // console's country (CountryLanguages above).
   static const std::unordered_map<std::string, uint32_t> kNames = {
       {"english", 1}, {"german", 3}, {"french", 4}, {"spanish", 5}, {"italian", 6},
+      {"polish", 11}, {"russian", 12},
   };
 
   std::string setting = Lower(REXCVAR_GET(language));
   if (setting == "auto") {
     setting = SystemLanguage();
-    REXLOG_INFO("Language: auto, from the Windows display language");
+    REXLOG_INFO("Language: auto, from the system display language");
   }
   // Dutch and the Nordic four: English with their country. Only when the disc has the language: a
   // pressing without its text folder stays English, as before these were added (Automatic on a
