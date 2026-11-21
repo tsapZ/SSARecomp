@@ -157,6 +157,7 @@ void InstallWhere(const std::filesystem::path& game_data_root, const std::filesy
 
 }  // namespace ssarecomp
 
+#ifndef SKYLANDERS_XEX_RUSSIAN
 extern "C" void __imp__sub_8280A008(PPCContext& __restrict ctx, uint8_t* base);
 
 REX_HOOK_RAW(sub_8280A008) {
@@ -183,3 +184,4 @@ REX_HOOK_RAW(sub_8280A008) {
 #endif
   __imp__sub_8280A008(ctx, base);
 }
+#endif

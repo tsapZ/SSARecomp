@@ -1,0 +1,7 @@
+# Codegen fixes for the Russian 0.0.0.4 disc (title 415608AB, media 0D31DE7E).
+#
+# The addresses in default.toml (the supported 0.0.0.2 disc) are a different build's and do not
+# apply. This build boots and plays without midasm hooks; the game's data globals, including the
+# portal prompt's object, are at the same addresses, so the shared portal menu still opens by
+# itself. The 0.0.0.2-era extras (intro skip, ultrawide, scene size, bloom, cheats, skip talks,
+# the object guards and the Where line) are off in this build; see docs/game/russian-disc.md.

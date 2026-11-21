@@ -49,6 +49,23 @@ if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/generated/default/sources.cmake")
         "See README.md.")
 endif()
 
+# The Russian disc is a different build (0.0.0.4): the 0.0.0.2 codegen hooks and the sources that
+# call its addresses don't apply to it. Codegen reads one config; the chosen one is copied to
+# config/active.toml (git-ignored) so a checkout can build either disc without touching the other.
+set(SSARECOMP_RUSSIAN_DISC OFF)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/rom/default.xex")
+    file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/rom/default.xex" SSARECOMP_XEX_SHA256)
+    if(SSARECOMP_XEX_SHA256 STREQUAL "0598a9638d92ec0070f4fb701323c132427dd76af3cd5a0ebc1d61f211b84041")
+        set(SSARECOMP_RUSSIAN_DISC ON)
+    endif()
+endif()
+if(SSARECOMP_RUSSIAN_DISC)
+    message(STATUS "Skylanders: Spyro's Adventure: the Russian 0.0.0.4 disc; the 0.0.0.2 hooks are off")
+    configure_file(config/russian.toml "${CMAKE_CURRENT_SOURCE_DIR}/config/active.toml" COPYONLY)
+else()
+    configure_file(config/default.toml "${CMAKE_CURRENT_SOURCE_DIR}/config/active.toml" COPYONLY)
+endif()
+
 # Sources
 set(SSARECOMP_SOURCES
     src/main.cpp
@@ -69,16 +86,26 @@ set(SSARECOMP_SOURCES
     src/hooks/object_list_guard_hook.cpp
     src/hooks/post_effects_hook.cpp
     src/hooks/scene_size_hook.cpp
-    src/hooks/skip_talks_hook.cpp
-    src/hooks/ultrawide_hook.cpp
     src/hooks/where_hook.cpp
-    src/hooks/anim_race_guard_hook.cpp
+    src/hooks/ultrawide_hook.cpp
 )
+
+# The two hooks whose bodies call the 0.0.0.2 functions they replace (skip_talks_hook.cpp,
+# anim_race_guard_hook.cpp) can't link against the Russian build's generated code.
+if(NOT SSARECOMP_RUSSIAN_DISC)
+    list(APPEND SSARECOMP_SOURCES
+        src/hooks/anim_race_guard_hook.cpp
+        src/hooks/skip_talks_hook.cpp)
+endif()
 
 if(WIN32)
     add_executable(ssarecompiled WIN32 ${SSARECOMP_SOURCES})
 else()
     add_executable(ssarecompiled ${SSARECOMP_SOURCES})
+endif()
+
+if(SSARECOMP_RUSSIAN_DISC)
+    target_compile_definitions(ssarecompiled PRIVATE SKYLANDERS_XEX_RUSSIAN=1)
 endif()
 
 rexglue_setup_target(ssarecompiled GPU_PLUGINS xenos)
