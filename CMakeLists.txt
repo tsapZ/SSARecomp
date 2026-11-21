@@ -52,6 +52,8 @@ endif()
 # The Russian disc is a different build (0.0.0.4): the 0.0.0.2 codegen hooks and the sources that
 # call its addresses don't apply to it. Codegen reads one config; the chosen one is copied to
 # config/active.toml (git-ignored) so a checkout can build either disc without touching the other.
+# A disc added or swapped after the first configure must pick its config before codegen runs.
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/rom/default.xex")
 set(SSARECOMP_RUSSIAN_DISC OFF)
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/rom/default.xex")
     file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/rom/default.xex" SSARECOMP_XEX_SHA256)
@@ -141,5 +143,12 @@ skylanders_game_icon(ssarecompiled "${CMAKE_CURRENT_SOURCE_DIR}/rom")
 # The disc check (skylanders-portal src/xex, cmake/game_xex.cmake): the supported discs' SHA-256
 # from docs/game/default.xex.sha256 in the game and in ssarecomp_xexcheck, the installer's check,
 # with their tests.
+# The Russian build checks only its own disc: the 0.0.0.4 code is not what a 0.0.0.2 build runs,
+# so its hash must not be in the supported list.
+if(SSARECOMP_RUSSIAN_DISC)
+    set(SSARECOMP_HASH_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/game/russian/default.xex.sha256")
+else()
+    set(SSARECOMP_HASH_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/game/default.xex.sha256")
+endif()
 skylanders_game_xex(TARGET ssarecompiled PREFIX ssarecomp TITLE "Skylanders: Spyro's Adventure"
-                    HASH_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/game/default.xex.sha256")
+                    HASH_FILE "${SSARECOMP_HASH_FILE}")

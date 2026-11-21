@@ -75,8 +75,8 @@ was hit in the runs above.
 3. Start it with `--language=russian` (or `polish`); `auto` follows a Russian Windows/Linux
    locale after the language names were added, but an English system needs the flag.
 
-The disc's hash is in `docs/game/default.xex.sha256`, so the game and `ssarecomp_xexcheck` accept
-it. Core of Light doesn't know the disc yet; its launcher pin and its "another build" message
+The disc's hash and code pin are in `docs/game/russian/` (selected by the same CMake gate), so the
+game and `ssarecomp_xexcheck` accept it; a 0.0.0.2 build still checks only the supported hash. Core of Light doesn't know the disc yet; its launcher pin and its "another build" message
 still treat it as unsupported until this build ships.
 
 ## What is still to do
