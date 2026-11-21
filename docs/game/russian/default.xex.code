@@ -1,0 +1,4 @@
+# The code pin of the Russian 0.0.0.4 disc's default.xex (skylanders-portal,
+# src/xex/xex_header.h): where its code loads and the SHA-256 of the XEX header's page table from
+# there on. Another pressing with the same pin runs the same code.
+82110000:3d6a86a8777cd8bd093d15c19cad2394bc825d4795eb80c9ce9e8fb2e3e5ce3e

@@ -7,6 +7,7 @@ Pages, roughly in reading order:
 | [roadmap.md](roadmap.md) | Phases 0 to 4: what is done, what comes next, with issue numbers |
 | [STATUS.md](STATUS.md) | What works right now and how each part was found; updated at the end of every session |
 | [game/spyros-adventure.md](game/spyros-adventure.md) | The game, the target dump, its file formats and how it differs from Swap Force |
+| [game/russian-disc.md](game/russian-disc.md) | The Russian 0.0.0.4 build: what it is, what works, what is still to do |
 | [portal.md](portal.md) | The Portal of Power here: modes, the figure folder, the menu at the game's own portal screens, the portal check |
 | [menus.md](menus.md) | Menus and keys: portal menu, player menu, settings menu |
 | [development.md](development.md) | Building from source on Windows, scripted test runs |
