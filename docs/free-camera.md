@@ -1,8 +1,8 @@
 # Free camera
 
 An optional camera for the levels and the hub, off by default. Turn it on in the settings menu
-(F4 > Game > Free camera, which also has its field of view, distance and inversion) or
-with `free_camera = true` in `ssarecomp.toml` (section `[Game]`). The code is
+(F4 > Camera, with the settings most worth changing, in English and German; the rest are in the settings file) or with `free_camera = true`
+in `ssarecomp.toml` (section `[Game]`). The code is
 `src/hooks/free_camera_hook.cpp`; how it hooks the game is described at the top of that file.
 
 ## Cameras
