@@ -97,21 +97,21 @@ REXCVAR_DEFINE_INT32(free_camera_collision_mask, 48, "Game",
 REXCVAR_DEFINE_DOUBLE(free_camera_min_height, 1.5, "Game",
                       "the turned camera's least height above your Skylander's feet (keeps it "
                       "above water, which it can't detect, and out from under ledges)");
-REXCVAR_DEFINE_DOUBLE(free_camera_chase_distance, 15.0, "Game",
+REXCVAR_DEFINE_DOUBLE(free_camera_chase_distance, 10.0, "Game",
                       "the third-person camera's distance from your Skylander");
-REXCVAR_DEFINE_DOUBLE(free_camera_chase_elevation, 10.0, "Game",
+REXCVAR_DEFINE_DOUBLE(free_camera_chase_elevation, 20.0, "Game",
                       "how far the third-person camera looks down at your Skylander, in degrees");
 REXCVAR_DEFINE_DOUBLE(free_camera_chase_look_above, 3.0, "Game",
                       "how far above your Skylander the third-person camera aims (higher puts "
                       "your Skylander lower on the screen)");
-REXCVAR_DEFINE_DOUBLE(free_camera_chase_turn_rate, 1.6, "Game",
+REXCVAR_DEFINE_DOUBLE(free_camera_chase_turn_rate, 15.0, "Game",
                       "how quickly the third-person camera swings behind your Skylander (share "
                       "of the remaining angle per second)");
-REXCVAR_DEFINE_DOUBLE(free_camera_chase_max_turn_speed, 150.0, "Game",
+REXCVAR_DEFINE_DOUBLE(free_camera_chase_max_turn_speed, 360.0, "Game",
                       "the third-person camera's fastest swing, in degrees per second");
 REXCVAR_DEFINE_BOOL(free_camera_chase_hold_in_air, true, "Game",
                     "the third-person camera doesn't swing while your Skylander is in the air");
-REXCVAR_DEFINE_DOUBLE(free_camera_fov, 0.0, "Game",
+REXCVAR_DEFINE_DOUBLE(free_camera_fov, 100.0, "Game",
                       "field of view of the third-person and turned cameras, horizontal degrees "
                       "(0 = the game's own, about 85 on a 16:9 screen)");
 REXCVAR_DEFINE_BOOL(free_camera_jump_smoothing, true, "Game",
@@ -123,8 +123,15 @@ REXCVAR_DEFINE_BOOL(free_camera_auto_recenter, true, "Game",
                     "turning it, while moving");
 REXCVAR_DEFINE_DOUBLE(free_camera_recenter_delay, 3.0, "Game",
                       "seconds without turning before the turned camera recenters");
-REXCVAR_DEFINE_DOUBLE(free_camera_speed_fov, 0.12, "Game",
+REXCVAR_DEFINE_DOUBLE(free_camera_speed_fov, 0.5, "Game",
                       "how much wider the third-person camera's view gets when moving fast (0 = off)");
+REXCVAR_DEFINE_BOOL(free_camera_chase_follow_facing, true, "Game",
+                    "the third-person camera turns with the way your Skylander faces (turning on "
+                    "the spot too), not only with where it walks");
+REXCVAR_DEFINE_DOUBLE(free_camera_slope_tilt, 0.5, "Game",
+                      "how much the third-person and turned cameras follow the slope of the "
+                      "ground they look along: lower going uphill, higher going downhill "
+                      "(0.5 = half the slope's angle, 0 = off)");
 REXCVAR_DEFINE_DOUBLE(free_camera_bounce_zoom, 0.6, "Game",
                       "how much further the third-person and turned cameras pull back when "
                       "a bounce pad launches your Skylander (0.6 = 60 % further, 0 = off)");
@@ -174,12 +181,20 @@ constexpr float kSpeedFovStart = 8.5f, kSpeedFovFull = 13.0f;
 constexpr float kFallStart = 4.0f, kFallFull = 25.0f;
 constexpr float kFallTilt = 25.0f * 3.14159265358979f / 180.0f;
 constexpr float kFallTiltInRate = 3.0f, kFallTiltOutRate = 1.5f;  // per second
+// Slopes: the ground's height kSlopeReach in front of and behind the player along the camera's
+// view, from which the slope's angle; free_camera_slope_tilt of it (at most kSlopeMaxTilt) lowers
+// the camera going uphill and raises it going downhill. Under kSlopeDeadband nothing (bumps,
+// stairs' edges), eased at kSlopeRate of kSlopeMaxTilt per second; kept while briefly airborne.
+constexpr float kSlopeReach = 2.5f;
+constexpr float kSlopeDeadband = 5.0f * 3.14159265358979f / 180.0f;
+constexpr float kSlopeMaxTilt = 18.0f * 3.14159265358979f / 180.0f;
+constexpr float kSlopeRate = 1.2f;
 constexpr float kSpeedWindow = 0.3f;         // seconds the ground speed is measured over
 // Zoomed out, it only goes back in when the speed drops this much below the speed that zoomed it
 // out (flying varies between 11 and 12.8: no in and out while flying), then at once, no pause.
 constexpr float kSpeedFovDeadband = 3.0f;  // (2 still wobbled a little while flying)
-// Back in: eased out (quick at first, gentle at the end), about done within this (the owner's
-// choice, 2026-11-21).
+// Back in: eased out (quick at first, gentle at the end), about done within this (chosen in
+// testing, 2026-11-21).
 constexpr float kSpeedFovOutSeconds = 0.5f;
 // Bounce pads: from this upward speed on the camera zooms out and follows up, fully at that one.
 constexpr float kRiseStart = 8.0f, kRiseFull = 45.0f;
@@ -225,6 +240,8 @@ bool g_step_valid = false;
 float g_step_heading = 0;
 // The fall tilt now (radians of added elevation, eased).
 float g_fall_tilt = 0;
+float g_slope_tilt = 0;
+float g_view_dir[3] = {0, 0, 0};  // the turned camera's forward, last frame
 // The game holds the player (a talk, a cutscene): the camera stays the game's (AutoRelease).
 std::atomic<bool> g_held{false};
 // The turned camera's own direction in the world, kept while g_free.
@@ -240,6 +257,18 @@ Clock::time_point g_blend_time{};
 constexpr float kBlendSeconds = 0.5f;
 // The third-person camera follows where the player goes from this speed of the player on.
 constexpr float kChaseMinSpeed = 1.5f;
+// Turning round (2026-11-21, chosen in testing): running back
+// towards the camera (more than kChaseRunBackAngle off) only swings it after kChaseRunBackSeconds;
+// a swing of more than kChaseSideStart keeps its side until under kChaseSideEnd (kept beyond
+// kChaseSideKeep); turning speeds up and slows down at kChaseTurnAccel (radians/s^2), its limit
+// up to kChaseBigTurnBoost times free_camera_chase_max_turn_speed for a half turn.
+constexpr float kChaseRunBackAngle = 140.0f * 3.14159265358979f / 180.0f;
+constexpr float kChaseRunBackSeconds = 0.5f;
+constexpr float kChaseSideStart = 100.0f * 3.14159265358979f / 180.0f;
+constexpr float kChaseSideEnd = 30.0f * 3.14159265358979f / 180.0f;
+constexpr float kChaseSideKeep = 150.0f * 3.14159265358979f / 180.0f;
+constexpr float kChaseTurnAccel = 12.0f;
+constexpr float kChaseBigTurnBoost = 3.0f;
 constexpr float kDeferStart = 0.6f, kDeferFull = 1.0f, kDeferSeconds = 0.4f;
 // The player held by the game (AutoRelease): a flag at +0x750, or what holds the player at +0x114.
 constexpr uint32_t kHeldFlagsOffset = 0x750, kHeldFlag = 0x00010000, kHolderOffset = 0x114;
@@ -421,7 +450,7 @@ void UpdateAngles() {
 // g_mutex held, once a frame.
 //
 // The player held by the game: found by comparing player 1's object (2048 words) standing, in a
-// talk with an NPC in the hub and after it (2026-11-21, the owner's idea: in a cutscene the player
+// talk with an NPC in the hub and after it (2026-11-21, an idea from testing: in a cutscene the player
 // can't move). Only two words differed in the talk alone: +0x750 (00500000 -> 00510000, but see
 // PlayerHeld) and +0x114 (0 -> 7C161A2B, which looks like a name hash: what holds the player).
 uint32_t PlayerObject(uint8_t* base);  // below
@@ -459,7 +488,7 @@ void AutoRelease(uint8_t* base) {
   }
   if (!why && held && !was_held) why = "the game takes the player's controls";
   was_held = held;
-  g_held.store(held);  // and while it lasts the camera can't be turned (the owner's choice)
+  g_held.store(held);  // and while it lasts the camera can't be turned (chosen in testing)
   if (why && (g_free || g_blend > 0)) {
     g_free = false;
     g_blend = 0;
@@ -471,12 +500,100 @@ void AutoRelease(uint8_t* base) {
   }
 }
 
+// The way the player faces, read from the player object. Where the game keeps it isn't known, so
+// it is learned while the player walks straight: of the unit horizontal vectors in the object
+// (+0x100..+0x3FF) that form a rotation with the vector 16 bytes before or after them, the one
+// that points along the walk (or a quarter or half turn from it) in nearly every sample. The
+// third-person camera then turns with the player even on the spot, where the walk tells nothing
+// (turning on the spot is common in play, 2026-11-21). Unlearned if it disagrees with long straight
+// walks. Called with g_mutex held.
+constexpr uint32_t kFacingFirst = 0x100, kFacingEnd = 0x400;
+constexpr int kFacingSlots = int((kFacingEnd - kFacingFirst) / 4) * 4;  // offset x quarter turns
+constexpr int kFacingSamples = 40;
+int g_facing_offset = -1, g_facing_quarter = 0;
+bool g_facing_valid = false;
+float g_facing_heading = 0;
+
+bool FacingAt(uint8_t* base, uint32_t object, uint32_t o, V3& v) {
+  v = {AsFloat(Load32(base, object + o)), AsFloat(Load32(base, object + o + 4)),
+       AsFloat(Load32(base, object + o + 8))};
+  return std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z) &&
+         std::fabs(v.x * v.x + v.y * v.y - 1) < 0.03f && std::fabs(v.z) < 0.05f;
+}
+
+bool MatrixRow(uint8_t* base, uint32_t object, uint32_t o, V3 v) {
+  for (const int d : {-16, 16}) {
+    const int64_t n = int64_t(o) + d;
+    if (n < 0) continue;
+    V3 w{AsFloat(Load32(base, object + uint32_t(n))), AsFloat(Load32(base, object + uint32_t(n) + 4)),
+         AsFloat(Load32(base, object + uint32_t(n) + 8))};
+    if (!std::isfinite(w.x) || !std::isfinite(w.y) || !std::isfinite(w.z)) continue;
+    if (std::fabs(Length(w) - 1) < 0.03f && std::fabs(Dot(v, w)) < 0.05f) return true;
+  }
+  return false;
+}
+
+void TrackFacing(uint8_t* base, bool straight, float walk_heading) {
+  static int hits[kFacingSlots];
+  static int samples = 0, disagree = 0;
+  g_facing_valid = false;
+  const uint32_t object = PlayerObject(base);
+  if (!object) return;
+  if (g_facing_offset >= 0) {
+    V3 v;
+    if (!FacingAt(base, object, uint32_t(g_facing_offset), v)) return;
+    g_facing_heading = std::remainder(std::atan2(v.y, v.x) - g_facing_quarter * kPi / 2, 2 * kPi);
+    g_facing_valid = true;
+    if (straight) {
+      const float off = std::fabs(std::remainder(g_facing_heading - walk_heading, 2 * kPi));
+      disagree = off > kPi / 4 ? disagree + 1 : std::max(0, disagree - 2);
+      if (disagree > 30) {  // a second or so of straight walking the other way: wrong after all
+        REXLOG_WARN("Free camera: the facing at +0x{:X} disagrees with the walk, learning again",
+                    g_facing_offset);
+        g_facing_offset = -1, g_facing_valid = false, samples = 0, disagree = 0;
+        std::fill(std::begin(hits), std::end(hits), 0);
+      }
+    }
+    return;
+  }
+  if (!straight) return;
+  for (uint32_t o = kFacingFirst; o < kFacingEnd; o += 4) {
+    V3 v;
+    if (!FacingAt(base, object, o, v)) continue;
+    const float angle = std::atan2(v.y, v.x);
+    for (int q = 0; q < 4; ++q) {
+      if (std::fabs(std::remainder(angle - q * kPi / 2 - walk_heading, 2 * kPi)) < 0.26f) {
+        ++hits[int((o - kFacingFirst) / 4) * 4 + q];
+      }
+    }
+  }
+  if (++samples < kFacingSamples) return;
+  int best = -1, best_hits = 0;
+  for (int i = 0; i < kFacingSlots; ++i) {
+    if (hits[i] < kFacingSamples * 9 / 10) continue;
+    const uint32_t o = kFacingFirst + uint32_t(i / 4) * 4;
+    V3 v;
+    if (!FacingAt(base, object, o, v) || !MatrixRow(base, object, o, v)) continue;
+    // Ties: rows of the matrix whose last row is the position (+0x22C) first, then the most hits.
+    const bool row = o == 0x1FC || o == 0x20C || o == 0x21C;
+    const int score = hits[i] * 2 + (row ? 1 : 0);
+    if (score > best_hits) best_hits = score, best = i;
+  }
+  samples = 0;
+  std::fill(std::begin(hits), std::end(hits), 0);
+  if (best < 0) return;  // nothing steady: another round
+  g_facing_offset = int(kFacingFirst) + (best / 4) * 4;
+  g_facing_quarter = best % 4;
+  REXLOG_INFO("Free camera: the player's facing is at +0x{:X} (a quarter turn x{})", g_facing_offset,
+              g_facing_quarter);
+}
+
 // Where the player goes (for the third-person camera): the heading of the player's movement on the
 // ground, while it is quick enough to tell. Called with g_mutex held, once a frame.
 void TrackMovement(uint8_t* base, float dt) {
   // Everything over the last kSpeedWindow seconds, not frame by frame: the game moves the player
   // at its own 30 a second whatever the frame rate (every 2nd frame at 60, every 8th at 240), so
-  // a frame's step is 0 or a jump (the speed zoom jittered; the owner's point, 2026-11-21).
+  // a frame's step is 0 or a jump (the speed zoom jittered in testing, 2026-11-21).
   (void)dt;
   static std::deque<std::pair<Clock::time_point, V3>> samples;
   static bool have_last = false;
@@ -523,6 +640,15 @@ void TrackMovement(uint8_t* base, float dt) {
     g_move_valid = true;
     g_move_time = now;
   }
+  // Learning (and checking) the facing: only on new game steps (30 a second) of a quick, straight
+  // walk on the ground, where the facing is the walk's heading.
+  static V3 learn_last{};
+  const V3 step = player - learn_last;
+  const bool new_step = step.x * step.x + step.y * step.y > 1e-6f;
+  learn_last = player;
+  const bool straight = new_step && g_grounded && ground > 4.0f && g_step_valid &&
+                        std::fabs(std::remainder(g_step_heading - g_move_heading, 2 * kPi)) < 0.12f;
+  TrackFacing(base, straight, g_move_heading);
 }
 
 // Turns the stick's input into this frame's g_yaw / g_pitch for a game camera looking along `fwd`.
@@ -558,7 +684,7 @@ void ApplyFreeAngles(uint8_t* base, V3 eye, V3 fwd) {
   auto start_chase = [&] {  // from the game's camera: glides in, behind where the player goes
     g_free = true;
     g_lock_valid = false;
-    g_heading = g_move_valid ? g_move_heading : heading;
+    g_heading = g_facing_valid ? g_facing_heading : g_move_valid ? g_move_heading : heading;
     g_elevation = chase_elevation;
   };
   if (g_reset) {  // the next mode
@@ -570,7 +696,7 @@ void ApplyFreeAngles(uint8_t* base, V3 eye, V3 fwd) {
     if (next == Mode::kChase) {
       g_blend = std::min(g_blend, 0.0f);
       start_chase();
-    } else if (next == Mode::kGame) {  // straight back to the game's camera (the owner's choice)
+    } else if (next == Mode::kGame) {  // straight back to the game's camera (chosen in testing)
       g_free = false;
       g_blend = 0;
     }  // kFree: the third-person camera's direction is kept from here on
@@ -607,16 +733,49 @@ void ApplyFreeAngles(uint8_t* base, V3 eye, V3 fwd) {
     // Behind where the player goes: turns towards it, quicker the further off it is.
     // Not too fast (it spun quickly when turning, 2026-11-21): a share of the angle left per
     // second, at most free_camera_chase_max_turn_speed. Held still while the player is in the
-    // air (steering a landing off a bounce pad with the camera swinging was hard, the owner,
+    // air (steering a landing off a bounce pad with the camera swinging was hard in testing,
     // 2026-11-21); a moment's grace so a bump doesn't hold it.
     const bool airborne = REXCVAR_GET(free_camera_chase_hold_in_air) && !g_grounded &&
                           now - g_airborne_since > std::chrono::milliseconds(150);
-    if (g_move_valid && !airborne) {
-      const float diff = std::remainder(g_move_heading - g_heading, 2 * kPi);
-      const float rate = std::min(1.0f, dt * float(std::clamp(REXCVAR_GET(free_camera_chase_turn_rate), 0.1, 10.0)));
-      const float max_step =
-          dt * float(std::clamp(REXCVAR_GET(free_camera_chase_max_turn_speed), 10.0, 1000.0)) * kPi / 180.0f;
-      g_heading = std::remainder(g_heading + std::clamp(diff * rate, -max_step, max_step), 2 * kPi);
+    // The player's facing when known (it turns on the spot too), else where the player goes.
+    const bool use_facing = g_facing_valid && REXCVAR_GET(free_camera_chase_follow_facing);
+    static Clock::time_point back_since{};
+    static bool running_back = false;
+    static float side = 0;            // the way a big swing goes (+1 / -1), 0 = none
+    static float velocity = 0;        // radians per second, eased
+    if (!(use_facing || g_move_valid) || airborne) {
+      velocity = 0;  // held still in the air; nothing to follow
+    } else {
+      // Followed at once (a short wait before bigger changes was tried and not liked, 2026-11-21).
+      const float target = use_facing ? g_facing_heading : g_move_heading;
+      float diff = std::remainder(target - g_heading, 2 * kPi);
+      // Running back towards the camera: it stays, unless the player keeps going that way.
+      if (std::fabs(diff) > kChaseRunBackAngle) {
+        if (!running_back) running_back = true, back_since = now;
+        if (now - back_since < std::chrono::duration<float>(kChaseRunBackSeconds)) diff = 0;
+      } else {
+        running_back = false;
+      }
+      // A big swing keeps the way it started (no flipping between left and right near 180).
+      if (std::fabs(diff) > kChaseSideKeep && side != 0 && (diff > 0 ? 1.0f : -1.0f) != side) {
+        diff += side * 2 * kPi;
+      }
+      if (std::fabs(diff) > kChaseSideStart && side == 0) side = diff > 0 ? 1.0f : -1.0f;
+      if (std::fabs(diff) < kChaseSideEnd) side = 0;
+      // Quicker the further there is to go: a share of the angle per second, its limit raised
+      // for big turns (up to kChaseBigTurnBoost x at a half turn); eased in and out.
+      const float rate = float(std::clamp(REXCVAR_GET(free_camera_chase_turn_rate), 0.1, 30.0));
+      const float big = std::min(1.0f, std::fabs(diff) / kPi);
+      const float limit = float(std::clamp(REXCVAR_GET(free_camera_chase_max_turn_speed), 10.0, 1000.0)) *
+                          kPi / 180.0f * (1 + (kChaseBigTurnBoost - 1) * big);
+      float wanted = std::clamp(diff * rate * (1 + big), -limit, limit);
+      // Able to stop in time: no faster than the easing can brake from.
+      const float brake = std::sqrt(2 * kChaseTurnAccel * std::fabs(diff));
+      wanted = std::clamp(wanted, -brake, brake);
+      velocity += std::clamp(wanted - velocity, -kChaseTurnAccel * dt, kChaseTurnAccel * dt);
+      float turn = velocity * dt;
+      if (std::fabs(turn) > std::fabs(diff) && turn * diff > 0) turn = diff, velocity = 0;
+      g_heading = std::remainder(g_heading + turn, 2 * kPi);
     }
     g_elevation = chase_elevation;
   }
@@ -686,7 +845,7 @@ bool MakeTurn(uint8_t* base, V3 eye, V3 fwd, V3 right, Turn& turn, float extra_e
     const float zoom = 1.0f + float(std::clamp(REXCVAR_GET(free_camera_bounce_zoom), 0.0, 3.0)) *
                                   (g_rise * g_rise * (3 - 2 * g_rise));
     // The third-person camera aims free_camera_chase_look_above higher (the player lower on the
-    // screen: wings level with the HUD's coins at 15 away and 10 degrees down, the owner's choice).
+    // screen; the default chosen in testing).
     V3 target = (g_follow_valid ? g_follow : player) + g_lock_target;
     if (g_mode == Mode::kChase) target.z += float(std::clamp(REXCVAR_GET(free_camera_chase_look_above), -5.0, 15.0));
     turn.pivot = turn.pivot + (target - turn.pivot) * e;
@@ -695,9 +854,8 @@ bool MakeTurn(uint8_t* base, V3 eye, V3 fwd, V3 right, Turn& turn, float extra_e
   // The camera stays at least free_camera_min_height above the player's feet (below them, past a
   // ledge, the ground's overhanging edge cut through the picture with no wall for the rays to find;
   // and water has no collision at all, every mask bit finds only the sea floor under it: with 1,
-  // wading at the beach, the camera went under the water's surface, 2026-11-21; 1.5 by default, the
-  // owner's choice): its height above
-  // the pivot is distance x sin(elevation).
+  // wading at the beach, the camera went under the water's surface, 2026-11-21; 1.5 by default,
+  // chosen in testing): its height above the pivot is distance x sin(elevation).
   float min_elevation = kMinElevation;
   if (have_player) {
     const float min_height = float(std::clamp(REXCVAR_GET(free_camera_min_height), 0.0, 10.0));
@@ -1114,7 +1272,7 @@ void FreeCameraSceneBuild(PPCContext& ctx, uint8_t* base) {
       float dt = std::chrono::duration<float>(now - last).count();
       last = now;
       if (!(dt > 0) || dt > 0.25f) dt = 0.25f;
-      // Only with the third-person camera (the owner's choice, 2026-11-21).
+      // Only with the third-person camera (chosen in testing, 2026-11-21).
       const bool ours = g_mode == Mode::kChase && g_blend > 0 && !g_held.load();
       const float start = kSpeedFovStart, full = kSpeedFovFull;
       float target = ours ? std::clamp((g_speed - start) / (full - start), 0.0f, 1.0f) : 0.0f;
@@ -1133,11 +1291,11 @@ void FreeCameraSceneBuild(PPCContext& ctx, uint8_t* base) {
         if (g_speed_fov < 0.002f) g_speed_fov = 0;
       }
     }
-    const float widen = 1.0f + float(std::clamp(REXCVAR_GET(free_camera_speed_fov), 0.0, 0.5)) *
+    const float widen = 1.0f + float(std::clamp(REXCVAR_GET(free_camera_speed_fov), 0.0, 1.0)) *
                                    (g_speed_fov * g_speed_fov * (3 - 2 * g_speed_fov));
     const uint32_t old = GuestPointer(ctx.r5.u32) ? Load32(base, address) : 0;
     const bool valid = AsFloat(old) > 1 && AsFloat(old) < 179;
-    // The setting's field of view only with the cameras the mod adds (the owner's choice: the
+    // The setting's field of view only with the cameras the mod adds (chosen in testing: the
     // game's own camera keeps the game's), eased in and out with them.
     const float ours = (g_mode != Mode::kGame && !g_held.load()) ? Smooth(g_blend) : 0.0f;
     if (valid && !g_held.load() && ((fov > 0 && ours > 0) || widen > 1.0001f)) {
@@ -1195,10 +1353,37 @@ void FreeCameraSceneBuild(PPCContext& ctx, uint8_t* base) {
     const float target = Smooth(t) * kFallTilt;
     const float rate = target > g_fall_tilt ? kFallTiltInRate : kFallTiltOutRate;
     g_fall_tilt += std::clamp(target - g_fall_tilt, -dt * rate * kFallTilt, dt * rate * kFallTilt);
+    // Slopes, on the ground: two rays down, ahead of and behind the player along the view.
+    const float amount = float(std::clamp(REXCVAR_GET(free_camera_slope_tilt), 0.0, 1.0));
+    float slope_target = g_slope_tilt;  // in the air: kept (no change mid-bounce)
+    V3 feet;
+    const V3 flat = Normalized(V3{g_view_dir[0], g_view_dir[1], 0});
+    if (g_mode == Mode::kGame || amount <= 0 || Length(flat) < 0.5f) {
+      slope_target = 0;
+    } else if (g_grounded && PlayerPosition(base, feet)) {
+      const uint32_t mask = uint32_t(REXCVAR_GET(free_camera_collision_mask));
+      const uint32_t player = PlayerObject(base);
+      auto height = [&](V3 at, float& z) {
+        const RayHit r = CollisionRay(ctx, base, at + V3{0, 0, 3.0f}, at - V3{0, 0, 4.0f}, player, mask);
+        if (r.hit) z = r.point.z;
+        return r.hit;
+      };
+      float ahead = 0, behind = 0;
+      slope_target = 0;
+      if (height(feet + flat * kSlopeReach, ahead) && height(feet - flat * kSlopeReach, behind)) {
+        float angle = std::atan2(ahead - behind, 2 * kSlopeReach);  // > 0: uphill along the view
+        const float sign = angle < 0 ? -1.0f : 1.0f;
+        angle = std::max(0.0f, std::fabs(angle) - kSlopeDeadband) * sign;
+        slope_target = std::clamp(-angle * amount, -kSlopeMaxTilt, kSlopeMaxTilt);
+      }
+    }
+    g_slope_tilt += std::clamp(slope_target - g_slope_tilt, -dt * kSlopeRate * kSlopeMaxTilt,
+                               dt * kSlopeRate * kSlopeMaxTilt);
   }
+  const float tilt = g_fall_tilt + g_slope_tilt;
   Turn turn;
   g_turn_valid = false;
-  if (!MakeTurn(base, eye, fwd, right, turn, g_fall_tilt)) {
+  if (!MakeTurn(base, eye, fwd, right, turn, tilt)) {
     g_pull = 0;
     g_squeeze_tilt = 0;
     return;
@@ -1220,12 +1405,16 @@ void FreeCameraSceneBuild(PPCContext& ctx, uint8_t* base) {
     const float rate = target > g_squeeze_tilt ? kSqueezeRiseSpeed : kSqueezeFallSpeed;
     g_squeeze_tilt += std::clamp(target - g_squeeze_tilt, -rate * dt, rate * dt);
     Turn tilted;
-    if (g_squeeze_tilt > 0.01f && MakeTurn(base, eye, fwd, right, tilted, g_fall_tilt + g_squeeze_tilt)) {
+    if (g_squeeze_tilt > 0.01f && MakeTurn(base, eye, fwd, right, tilted, tilt + g_squeeze_tilt)) {
       turn = tilted;
       needed = WallPull(ctx, base, eye, turn);
     }
   }
   KeepOutOfWalls(ctx, base, eye, turn, needed);
+  {
+    const V3 v = turn.Apply(fwd);
+    g_view_dir[0] = v.x, g_view_dir[1] = v.y, g_view_dir[2] = v.z;
+  }
   g_turn = turn;
   g_orig_eye[0] = eye.x, g_orig_eye[1] = eye.y, g_orig_eye[2] = eye.z;
   g_orig_fwd[0] = fwd.x, g_orig_fwd[1] = fwd.y, g_orig_fwd[2] = fwd.z;
@@ -1343,7 +1532,7 @@ void FreeCameraPadHook(PPCRegister& r1, PPCRegister& r3) {
     rex::memory::store_and_swap<uint16_t>(base + at + 2, uint16_t(clamp16(x * s + y * c)));
   };
   const auto now = NowTicks();
-  // The right stick aims (bombs): by the player's facing (the owner's choice, 2026-11-21: up =
+  // The right stick aims (bombs): by the player's facing (chosen in testing, 2026-11-21: up =
   // straight ahead of the player, with any camera); while the left trigger turns the camera it is
   // 0 above. Only while the game builds its scene (not in menus or loading screens).
   bool right_done = false;
