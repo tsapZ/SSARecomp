@@ -403,8 +403,10 @@ void MouseLook() {
   float x = dx * k, y = dy * k;
   if (REXCVAR_GET(free_camera_invert_x)) x = -x;
   if (REXCVAR_GET(free_camera_invert_y)) y = -y;
-  g_delta_yaw -= x;    // mouse right: look further right
-  g_delta_pitch += y;  // mouse up (dy < 0): look up
+  // Mouse right: the camera goes round to the right; mouse up (dy < 0): the camera goes down.
+  // The other way round felt inverted in testing (2026-11-21), like the stick.
+  g_delta_yaw += x;
+  g_delta_pitch -= y;
 #endif
 }
 
@@ -438,8 +440,10 @@ void UpdateAngles() {
   if (REXCVAR_GET(free_camera_invert_y)) y = -y;
   const float speed = float(std::clamp(REXCVAR_GET(free_camera_speed), 0.1, 5.0));
   const float step = std::min(dt, 0.1f) * speed;
-  g_delta_yaw -= x * kYawSpeed * step;      // stick right: look further right
-  g_delta_pitch -= y * kPitchSpeed * step;  // stick up: look up
+  // Stick right: the camera goes round the player to the right; stick up: the camera goes up and
+  // looks down. The other way round felt inverted in testing (2026-11-21).
+  g_delta_yaw += x * kYawSpeed * step;
+  g_delta_pitch += y * kPitchSpeed * step;
 }
 
 // Gives the camera back to the game (as a reset does) when the game wants to show something itself:

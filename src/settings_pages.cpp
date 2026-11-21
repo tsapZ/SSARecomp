@@ -395,10 +395,13 @@ SettingsPage GamePage() {
                      "game's own camera keeps the game's.",
                      "Das Sichtfeld der Verfolger- und der gedrehten Kamera (waagerecht). Die "
                      "Kamera des Spiels beh\xC3\xA4lt das des Spiels.",
-                     {{"0", "As in the game", "Wie im Spiel"},
-                      {"90", "90\xC2\xB0", "90\xC2\xB0"},
-                      {"100", "100\xC2\xB0", "100\xC2\xB0"},
-                      {"110", "110\xC2\xB0", "110\xC2\xB0"}}};
+                     {{"0", "As in the game", "Wie im Spiel"}}};
+  // 30 to 150 degrees in steps of 5, stepped through with left / right like a slider (the menu
+  // has no slider row); the hook clamps to the same range.
+  for (int degrees = 30; degrees <= 150; degrees += 5) {
+    const std::string label = std::to_string(degrees) + "\xC2\xB0";
+    camera_fov.options.push_back({std::to_string(degrees), label, label});
+  }
   camera_fov.enabled_by = "free_camera";
   page.settings.push_back(camera_fov);
   Setting camera_distance{"free_camera_chase_distance", "Free camera: distance",
@@ -413,10 +416,16 @@ SettingsPage GamePage() {
   page.settings.push_back(camera_distance);
   Setting camera_invert{"free_camera_invert_y", "Free camera: invert up / down",
                         "Freie Kamera: oben / unten umkehren",
-                        "Up on the right stick (or the mouse) turns the camera down.",
-                        "Oben am rechten Stick (oder der Maus) dreht die Kamera nach unten."};
+                        "Up on the right stick (or the mouse) turns the camera the other way.",
+                        "Oben am rechten Stick (oder der Maus) dreht die Kamera andersherum."};
   camera_invert.enabled_by = "free_camera";
   page.settings.push_back(camera_invert);
+  Setting camera_invert_x{"free_camera_invert_x", "Free camera: invert left / right",
+                          "Freie Kamera: links / rechts umkehren",
+                          "Right on the right stick (or the mouse) turns the camera the other way.",
+                          "Rechts am rechten Stick (oder der Maus) dreht die Kamera andersherum."};
+  camera_invert_x.enabled_by = "free_camera";
+  page.settings.push_back(camera_invert_x);
   // Spiel beenden / neu starten: a controller alone can't press Alt+F4.
   skylanders::AddQuitSettings(page);
   return page;
