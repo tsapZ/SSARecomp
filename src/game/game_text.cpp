@@ -126,7 +126,14 @@ std::optional<std::string> GameText(std::string_view key) {
 }
 
 void InstallGameText(const std::filesystem::path& text_root) {
-  const auto path = text_root / LanguageFolder(REXCVAR_GET(user_language)) / "global.lxb";
+  auto path = text_root / LanguageFolder(REXCVAR_GET(user_language)) / "global.lxb";
+  // The Russian import writes an unshifted table next to the shifted one the guest reads; use it
+  // for our own menus and status lines so Cyrillic is not shown as Latin-1 mojibake.
+  const auto port_path = path.parent_path() / "global.port.lxb";
+  std::error_code ec;
+  if (std::filesystem::is_regular_file(port_path, ec)) {
+    path = port_path;
+  }
   std::ifstream in(path, std::ios::binary);
   std::vector<uint8_t> d((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
   if (d.size() < 0x80) {
