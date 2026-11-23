@@ -830,3 +830,7 @@ above and docs/roadmap.md.
 ## 2026-11-23: shared libraries
 
 - F10's Save to config writes only your own choices; the games' own defaults stay out of the settings file.
+
+## 2026-11-23: shared libraries
+
+- Figure files ending .dmp show up in the portal menu (Core of Light Discussions #79); F4 > Mods lists the mods when Core of Light started the game (Wheels56).
