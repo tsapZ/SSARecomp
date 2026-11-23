@@ -826,3 +826,7 @@ above and docs/roadmap.md.
 ## 2026-11-21: free camera
 
 - An optional free camera (`free_camera`, off by default; docs/free-camera.md): left trigger + right stick click cycles the game's camera, a third-person camera and a turned camera (left trigger + right stick, or the right mouse button). Tested on Windows in the hub and the first levels; the wall, ground and invisible-wall handling, the hand-back in talks, cutscenes and level changes, and the stick turning were checked live.
+
+## 2026-11-23: shared libraries
+
+- F10's Save to config writes only your own choices; the games' own defaults stay out of the settings file.
