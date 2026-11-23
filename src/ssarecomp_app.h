@@ -283,8 +283,13 @@ class SsarecompApp : public rex::ReXApp {
     // with and without (pictures alike); in the hub at scale 3 it gave 74.0 -> 80.2 FPS (+8 %) on top
     // of the native resolves. Swap Force and Trap Team still need all their copies (a white sky,
     // streaks in the hub), so the SDK default stays off. Both only when nothing set them.
+    // Two more since 2026-11-23 (Core of Light #120): the darkness in Crawling Catacombs (Level_023;
+    // the reporter saw it in Cadaverous Crypt too: all dark but a lit circle around the player) needs the copy from a depth
+    // target to the 8-bit colour target (D0x1->C0x1, D1x1->C0x1); without it only a strip at the
+    // right edge went dark on D3D12 (Vulkan has no native surfaces). Found by bisecting the 15
+    // kinds the dark part uses (debug\kit\ssa120_keep.ps1): either one alone fixes it, both kept.
     SetDefaultIfUnset("gpu_native_surfaces", "true");
-    SetDefaultIfUnset("gpu_native_surfaces_keep", "D0x1->C2x1,C2x1->D0x1");
+    SetDefaultIfUnset("gpu_native_surfaces_keep", "D0x1->C2x1,C2x1->D0x1,D0x1->C0x1,D1x1->C0x1");
     // Estimate the EDRAM extent of draws without clipping by running their vertex shader on the
     // CPU (Xenia's default; the SDK defaults to off). In Swap Force, without it, the faster RTV
     // render target path let a full-screen float pass wrap around the EDRAM onto the lit scene and
