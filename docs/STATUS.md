@@ -822,3 +822,7 @@ above and docs/roadmap.md.
 ## 2026-11-23: shared libraries
 
 - Vehicles' elements (CoL #56), Linux arm64 recipe (lib PR #2), the XEX image check at start-up (CoL #118), discs with other code refused (CoL #135), real portals on Linux (CoL #128), Trap Team portal speaker in Automatic (CoL #137).
+
+## 2026-11-21: free camera
+
+- An optional free camera (`free_camera`, off by default; docs/free-camera.md): left trigger + right stick click cycles the game's camera, a third-person camera and a turned camera (left trigger + right stick, or the right mouse button). Tested on Windows in the hub and the first levels; the wall, ground and invisible-wall handling, the hand-back in talks, cutscenes and level changes, and the stick turning were checked live.

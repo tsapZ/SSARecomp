@@ -71,6 +71,7 @@ set(SSARECOMP_SOURCES
     src/hooks/scene_size_hook.cpp
     src/hooks/skip_talks_hook.cpp
     src/hooks/ultrawide_hook.cpp
+    src/hooks/free_camera_hook.cpp
     src/hooks/where_hook.cpp
     src/hooks/anim_race_guard_hook.cpp
 )
