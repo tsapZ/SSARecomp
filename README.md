@@ -32,10 +32,7 @@ comes with this project.
 
 **Is this an emulator?** No. The game's code is recompiled into a Windows program, so it runs natively: higher resolutions, 60 FPS and more, a settings menu, the portal menu. Emulators like Dolphin or Xenia run the original game instead; both are fine ways to play.
 
-**Does it run on Linux, Steam Deck, Mac or Android handhelds?** It's made for Windows (64-bit) and
-tested there. Linux x86-64 and ARM64 are supported; a release's tarball names its architecture.
-ARM64 (a Steam Frame, for example) is the newest path and less tested. Wine / Proton may work but isn't tested much; Mac and Android
-aren't supported.
+**Does it run on Linux, Steam Deck, Mac or Android handhelds?** It's made for Windows (64-bit) and tested there most. Linux x86-64 gets its own tarball with each release; ARM64 Linux (a Steam Frame, for example) builds from source and is less tested. Wine / Proton may work but isn't tested much; Mac and Android aren't supported.
 
 **Is it safe?** All of the source is here on GitHub. The setup isn't signed, so Windows may warn before it runs ([what to click](#getting-started)).
 
