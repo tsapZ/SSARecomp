@@ -818,3 +818,7 @@ above and docs/roadmap.md.
 ## 2026-11-21: shared libraries
 
 - Spyro's Adventure's key gate prompt (Core of Light #112), Series 2 Double Trouble (#117).
+
+## 2026-11-23: shared libraries
+
+- Vehicles' elements (CoL #56), Linux arm64 recipe (lib PR #2), the XEX image check at start-up (CoL #118), discs with other code refused (CoL #135), real portals on Linux (CoL #128), Trap Team portal speaker in Automatic (CoL #137).
