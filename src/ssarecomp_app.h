@@ -311,8 +311,11 @@ class SsarecompApp : public rex::ReXApp {
 #ifdef _WIN32
     font = atlas->AddFontFromFileTTF("C:\\Windows\\Fonts\\segoeui.ttf", font_size);
 #else
-    if (const std::string path = skylanders::menu_draw::FindDefaultUiFontPath(); !path.empty()) {
-      font = atlas->AddFontFromFileTTF(path.c_str(), font_size);
+    ImFontConfig retry;
+    retry.Flags |= ImFontFlags_NoLoadError;
+    for (const std::string& path : skylanders::menu_draw::FindDefaultUiFontPaths()) {
+      font = atlas->AddFontFromFileTTF(path.c_str(), font_size, &retry);
+      if (font) break;
     }
 #endif
     if (font) ImGui::GetIO().FontDefault = font;
