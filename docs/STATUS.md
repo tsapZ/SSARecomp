@@ -834,3 +834,7 @@ above and docs/roadmap.md.
 ## 2026-11-23: shared libraries
 
 - Figure files ending .dmp show up in the portal menu (Core of Light Discussions #79); F4 > Mods lists the mods when Core of Light started the game (Wheels56).
+
+## 2026-11-24: shared libraries
+
+- Automatic reads a newly placed real figure first (SF #42).
