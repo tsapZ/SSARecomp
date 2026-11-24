@@ -819,6 +819,17 @@ above and docs/roadmap.md.
 
 - Spyro's Adventure's key gate prompt (Core of Light #112), Series 2 Double Trouble (#117).
 
+## 2026-11-21: the Russian language on the supported build
+
+- The Russian text, fonts and voices import into the supported 0.0.0.2 data without the 0.0.0.4
+  executable. `tools/add_russian_language.py` shifts the Russian strings to the Latin-1 codepoints
+  the 0.0.0.2 renderer knows and copies the Russian font's 64-glyph Cyrillic block into the
+  Latin-1 slots. The guest reads the shifted `global.lxb`; the port reads the unshifted
+  `global.port.lxb`. Title, autosave notices, a new game into Level_027, the Russian `Skip` prompt
+  and a load from Continue are Russian; the port's status line reads `Расколотый остров`; 0
+  trouble. The 7 Russian-only keys and the Latin-1 accents are the limits
+  (docs/game/russian-language-import.md).
+
 ## 2026-11-23: shared libraries
 
 - Vehicles' elements (CoL #56), Linux arm64 recipe (lib PR #2), the XEX image check at start-up (CoL #118), discs with other code refused (CoL #135), real portals on Linux (CoL #128), Trap Team portal speaker in Automatic (CoL #137).

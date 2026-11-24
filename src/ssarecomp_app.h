@@ -307,12 +307,24 @@ class SsarecompApp : public rex::ReXApp {
     // oversampling applies since we don't override it) and make it the default everywhere,
     // including the SDK's own F3/console/F4/F7 overlays.
     const float font_size = 18.0f * float(REXCVAR_GET(ui_scale));
+    // The import's unshifted table is UTF-8 Cyrillic, which the default Latin-only atlas drops.
+    // These ranges cover it, plus the punctuation the Russian text uses (dashes, ellipses, №).
+    static const ImWchar kRanges[] = {
+        0x0020, 0x00FF,  // Basic Latin + Latin-1 Supplement
+        0x0400, 0x045F,  // Cyrillic
+        0x2010, 0x2027,  // General Punctuation (dashes, quotes, ellipsis)
+        0x2116, 0x2116,  // Numero sign
+        0xFFFD, 0xFFFD,  // ImGui's default replacement character, kept
+        0,
+    };
+    ImFontConfig config;
+    config.GlyphRanges = kRanges;
     ImFont* font = nullptr;
 #ifdef _WIN32
-    font = atlas->AddFontFromFileTTF("C:\\Windows\\Fonts\\segoeui.ttf", font_size);
+    font = atlas->AddFontFromFileTTF("C:\\Windows\\Fonts\\segoeui.ttf", font_size, &config);
 #else
     if (const std::string path = skylanders::menu_draw::FindDefaultUiFontPath(); !path.empty()) {
-      font = atlas->AddFontFromFileTTF(path.c_str(), font_size);
+      font = atlas->AddFontFromFileTTF(path.c_str(), font_size, &config);
     }
 #endif
     if (font) ImGui::GetIO().FontDefault = font;
