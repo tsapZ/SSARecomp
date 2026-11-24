@@ -53,6 +53,7 @@ endif()
 set(SSARECOMP_SOURCES
     src/main.cpp
     src/game/kernel_stubs.cpp
+    src/game/difficulty.cpp
     src/game/game_fonts.cpp
     src/game/game_text.cpp
     src/game/hats.cpp
@@ -62,6 +63,7 @@ set(SSARECOMP_SOURCES
     src/localization.cpp
     src/settings_pages.cpp
     src/hooks/attribute_cheats_hook.cpp
+    src/hooks/difficulty_hook.cpp
     src/hooks/extras.cpp
     src/hooks/intro_skip_hook.cpp
     src/hooks/lua_error_hook.cpp

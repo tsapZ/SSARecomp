@@ -13,6 +13,9 @@ namespace ssarecomp {
 // watches the slot saves under `user_data_root` for Soul Gems (Core of Light #71).
 void InstallWhere(const std::filesystem::path& game_data_root, const std::filesystem::path& user_data_root);
 
+// True while a Battle Mode arena (PvP_Level_*) is loaded: the difficulty leaves those alone.
+bool InBattleLevel(uint8_t* base);
+
 }  // namespace ssarecomp
 
 #if defined(SKYLANDERS_DEVKIT)

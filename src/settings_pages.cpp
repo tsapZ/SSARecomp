@@ -2,6 +2,7 @@
 #include "settings_pages.h"
 
 #include "localization.h"
+#include "game/difficulty.h"
 
 #include <cstdio>
 #include <initializer_list>
@@ -595,6 +596,15 @@ SettingsPage CameraPage() {
 // Cheats (hooks/extras.cpp): while one is on, achievements don't unlock (CheatSetting).
 SettingsPage ExtrasPage() {
   SettingsPage page{"Extras", "Extras", {}};
+  // Difficulty levels (game/difficulty.h): not cheats, so they stay listed with the cheats hidden.
+  page.settings.push_back(ChangeDifficultySetting());
+  page.settings.push_back(Setting{
+      "difficulty_ask_new_game", "Ask for a difficulty on a new game",
+      "Bei neuem Spiel nach dem Schwierigkeitsgrad fragen",
+      "A new game opens the difficulty picker: Easy (enemies x0.6), Adventurer (x1, as on the "
+      "console), Hard (x2) or Nightmare (x3). Off: new games are Adventurer.",
+      "Ein neues Spiel \xC3\xB6" "ffnet die Auswahl: Leicht (Gegner x0,6), Abenteurer (x1, wie auf "
+      "der Konsole), Schwer (x2) oder Albtraum (x3). Aus: neue Spiele sind Abenteurer."});
   // The owner's wish (2026-11-03): every cheat below can be hidden (and is switched off then).
   page.settings.push_back(skylanders::ShowCheatsSetting());
   page.settings.push_back(skylanders::CheatSetting(

@@ -76,6 +76,9 @@ The setup isn't signed, so Windows may say "Windows protected your PC": click **
 - **Your figures keep their progress** (level, gold, hats, upgrades) in files you can back up, and
   each one is backed up before the game first saves over it: the portal menu puts an older version back.
 - **Quick swap:** one button puts the Skylander you played before back on the portal.
+- **Difficulty levels,** as in the later games: a new game asks for *Easy* (enemies x0.6),
+  *Adventurer* (x1, as on the console), *Hard* (x2) or *Nightmare* (x3), kept per save
+  ([more](docs/difficulty.md)).
 - **Skip any movie:** Start ends the movie that is playing (F4 > Game: off, or A instead).
 - **A settings menu** in the game: graphics, frame rate, language, portal, controls, and *Extras*
   (no health loss, full gold, always crit, elemental power everywhere, gold and XP multipliers; off by

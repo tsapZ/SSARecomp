@@ -224,6 +224,34 @@ address = 0x8276219C
 name = "ElementLevelHook"
 registers = ["r29", "r30"]
 
+# Difficulty levels (src/game/difficulty.h). 0x822DD4C4 is the game's only call of XamContentCreateEx
+# (bl 0x829E5C34, in sub_822DD460): r5 the XCONTENT_DATA (the package folder, "Skylanders - Slot 1",
+# at +264), r6 the flags (low four bits: 1 create new, 2 create always, 3 open existing, 4 open
+# always). src/hooks/difficulty_hook.cpp notes which slot save is played and, for a slot save that
+# doesn't exist yet, opens the difficulty picker and holds the save until a level is chosen; the
+# registers are only read.
+[[midasm_hook]]
+address = 0x822DD4C4
+name = "SavePackageHook"
+registers = ["r5", "r6"]
+
+# 0x82761CC8 (lwz r11,396(r1)) in the enemies' damage rule SpyroEnemyDamageRule (sub_82761AF0): f31
+# is an enemy's hit and f0 its element bonus, stored to the hit's result right after (their sum is
+# the damage). 0x827621D4 (lwz r11,268(r31)) in the players' rule SpyroDamageRule (sub_82761F80): f31
+# a Skylander's hit and f30 its element bonus, the same way. Found 2026-11-24 from the rules'
+# code (see the crit hooks above). src/hooks/difficulty_hook.cpp multiplies an enemy's hit by the
+# save's difficulty (x0.6, x1, x2, x3) and divides a Skylander's by it, outside Battle Mode; with
+# Adventurer (x1, every save from before) it changes nothing.
+[[midasm_hook]]
+address = 0x82761CC8
+name = "EnemyHitHook"
+registers = ["f0", "f31"]
+
+[[midasm_hook]]
+address = 0x827621D4
+name = "SkylanderHitHook"
+registers = ["f30", "f31"]
+
 [functions]
 # Function starts the analyzer put one instruction late (SSARecomp #33 / GiantsRecomp #23), found in
 # the whole code (a dump of guest memory with the input script's `save`): right after a `blr`, an

@@ -156,6 +156,11 @@ void InstallWhere(const std::filesystem::path& game_data_root, const std::filesy
   skylanders::WatchSoulGemSaves(&SlotFiles, &GemFinds);
 }
 
+bool InBattleLevel(uint8_t* base) {
+  const auto it = g_names.find(Load32(base, kCurrentLevel));
+  return it != g_names.end() && it->second.starts_with("PvP_");
+}
+
 }  // namespace ssarecomp
 
 extern "C" void __imp__sub_8280A008(PPCContext& __restrict ctx, uint8_t* base);
