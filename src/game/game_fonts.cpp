@@ -52,6 +52,11 @@ constexpr size_t kSpaceField = 0x08;
 constexpr size_t kTableStart = 0x0C;
 constexpr size_t kEntrySize = 8;
 constexpr size_t kLatin1Entry = 33;  // U+00A1 .. U+00FF: entry code + 33
+// add_russian_language.py copies the Russian font's 64-glyph Cyrillic block into the Latin-1
+// slots (U+00C0..U+00FF) and Ё/ё into U+00A8/U+00B8, so those entries hold Cyrillic glyphs in an
+// imported font. The port's own text uses the unshifted UTF-8 table, so those same glyphs are
+// also offered under their Cyrillic codepoints when the import is present.
+constexpr uint32_t kLatin1ToCyrillic = 0x0410 - 0x00C0;
 constexpr uint32_t kFormat8888 = 6;
 
 std::optional<std::vector<uint8_t>> ReadFile(const std::filesystem::path& path) {
@@ -129,7 +134,18 @@ float Ascent(const GameFont& font) {
   return font.size * 0.8f;
 }
 
-std::shared_ptr<const GameFont> ReadFont(const std::filesystem::path& dir, const char* name) {
+// True when the Russian import is in place: the `--apply` marker or the unshifted table the
+// overlay writes (a hand-copied overlay has the latter). The font entries then hold the Cyrillic
+// block under the Latin-1 codepoints.
+bool IsImported(const std::filesystem::path& font_dir) {
+  const auto text_dir = font_dir.parent_path() / "text" / "eng";
+  std::error_code ec;
+  return std::filesystem::is_regular_file(text_dir / ".russian-import", ec) ||
+         std::filesystem::is_regular_file(text_dir / "global.port.lxb", ec);
+}
+
+std::shared_ptr<const GameFont> ReadFont(const std::filesystem::path& dir, const char* name,
+                                         bool cyrillic) {
   const auto fnt = ReadFile(dir / (std::string(name) + ".fnt"));
   const auto apk = ReadFile(dir / (std::string(name) + ".apk"));
   if (!fnt || !apk || fnt->size() < kTableStart) return nullptr;
@@ -159,6 +175,18 @@ std::shared_ptr<const GameFont> ReadFont(const std::filesystem::path& dir, const
     glyph.width = std::min(ink > 0 ? std::min(ink, cell) : cell, p.width - glyph.x);
     glyph.height = std::min(line, p.height - glyph.y);
     font->glyphs.push_back(glyph);
+    // The imported font keeps the speech range (U+0410..U+044F) at U+00C0..U+00FF and Ё/ё at
+    // U+00A8/U+00B8; offer the same cells under the Cyrillic codepoints so the port's unshifted
+    // text draws at all.
+    if (cyrillic && codepoint >= 0xC0 && codepoint <= 0xFF) {
+      GameFontGlyph aliased = glyph;
+      aliased.codepoint = codepoint + kLatin1ToCyrillic;
+      font->glyphs.push_back(aliased);
+    } else if (cyrillic && (codepoint == 0xA8 || codepoint == 0xB8)) {
+      GameFontGlyph aliased = glyph;
+      aliased.codepoint = codepoint == 0xA8 ? 0x0401 : 0x0451;
+      font->glyphs.push_back(aliased);
+    }
   }
   if (font->glyphs.size() < 2 || font->size <= 0) return nullptr;
   font->ascent = Ascent(*font);
@@ -170,8 +198,10 @@ std::shared_ptr<const GameFont> ReadFont(const std::filesystem::path& dir, const
 skylanders::GameFonts LoadGameFonts(const std::filesystem::path& rom_dir) {
   const auto start = std::chrono::steady_clock::now();
   skylanders::GameFonts fonts;
-  fonts.title = ReadFont(rom_dir / kFontDir, kTitleFont);
-  fonts.body = ReadFont(rom_dir / kFontDir, kBodyFont);
+  const auto font_dir = rom_dir / kFontDir;
+  const bool cyrillic = IsImported(font_dir);
+  fonts.title = ReadFont(font_dir, kTitleFont, cyrillic);
+  fonts.body = ReadFont(font_dir, kBodyFont, cyrillic);
   REXLOG_INFO("Game fonts: title {} glyphs, body {} glyphs, in {} ms",
               fonts.title ? fonts.title->glyphs.size() : 0,
               fonts.body ? fonts.body->glyphs.size() : 0,

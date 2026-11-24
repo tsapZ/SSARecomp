@@ -16,6 +16,9 @@ the 0.0.0.4 build because its renderer knows the extra glyphs.
   `default.xex` SHA-256 values before writing anything. The supported hash is
   `e195f5130c1e23fb4654baf7c383ef97d02c89aeb7d4389705ae31235646ef7b`; the Russian one is
   `0598a9638d92ec0070f4fb701323c132427dd76af3cd5a0ebc1d61f211b84041`.
+- Input paths are looked up case-aware: the exact spelling first, then a single entry that
+  differs only in case (`Textures`/`textures`, `Text`/`text`), as a Windows extraction names them.
+  A missing or ambiguous entry stops the tool with the folder and the name it looked for.
 - For every supported `text/eng/*.lxb` with a Russian counterpart, it keeps the supported
   table's keys and order and substitutes the Russian string. Each Cyrillic letter moves to the
   Latin-1 codepoint with the same cp1251 byte (`U+0410..U+044F` -> `U+00C0..U+00FF`; `Ё`/`ё` ->
@@ -28,9 +31,29 @@ the 0.0.0.4 build because its renderer knows the extra glyphs.
   English paths.
 - It writes an unshifted `text/eng/global.port.lxb` for the port's own menus and status lines.
   The guest reads the shifted `global.lxb`; the port reads `global.port.lxb` when it exists.
-- `--apply <copy>` copies the overlay into a copy of the supported data. It refuses a target
-  whose `default.xex` is not the supported hash, removes a destination symlink before writing
-  (so a symlink farm cannot be written through), and leaves a `text/eng/.russian-import` marker.
+- `--apply <copy>` copies the overlay into a copy of the supported data as a transaction. It
+  refuses a target whose `default.xex` is not the supported hash, checks every destination stays
+  inside the copy and is not a symlink (nor reached through one), and reuses an existing folder
+  whose name differs only in case, so it never creates a second `Textures` beside `textures`. The
+  `text/eng/.russian-import` marker is read and written through the same resolver, so it lands in
+  an existing `Text/Eng` rather than a new `text/eng`.
+- An overlay can never carry the tool's own bookkeeping: `.russian-import-backup`,
+  `.russian-import-backup.tmp` and the marker are left out of its inputs, so applying an overlay
+  cannot overwrite the backup it is about to create.
+- Before it writes, `--apply` saves every file it will replace under
+  `.russian-import-backup/files/`, and records in `manifest.json` which destinations did not
+  exist yet, so both replaced and newly added files can be undone. Each file is copied to a
+  sibling temporary and renamed into place, so a destination is never left half-written. If any
+  copy fails or the run is interrupted, the original files are restored from the backup and the
+  newly added ones removed; the backup itself is kept for a later `--restore`.
+- `--restore <copy>` puts the saved originals back, deletes the files the import added, removes
+  the marker and the backup, and leaves the copy as it was before `--apply`. It first validates
+  the whole manifest (every path, its state, and each saved file's SHA-256) and refuses a backup
+  reached through a symlink, so an invalid or linked manifest changes nothing. An interrupted
+  `--apply` (a backup without the marker) is restored automatically the next time `--apply` runs.
+- `--force` restores the old import and applies the overlay again. A marker without a backup is
+  from an earlier, non-transactional run: `--force` is refused when it would overwrite a file
+  that cannot then be restored, and allowed only when it adds files without replacing any.
 
 The guest still runs the supported 0.0.0.2 `default.xex`. No game data is in this repository.
 
@@ -65,6 +88,30 @@ The guest still runs the supported 0.0.0.2 `default.xex`. No game data is in thi
    with the `global.port.lxb` fallback (this PR); without it they read the shifted table and
    show Latin-1 mojibake.
 
+6. To undo the import, put the copy back as it was:
+
+   ```
+   python3 tools/add_russian_language.py --restore /path/to/supported-copy
+   ```
+
+   A copy made with `--apply` keeps its originals in `.russian-import-backup/` until `--restore`
+   runs, so an interrupted or failed run is recoverable, including files the import created.
+
+## The port's own text on screen
+
+The port draws its own menus and status lines with ImGui, and those do not all use the game's
+bitmap fonts:
+
+- The game fonts (`textures/ltnob`, `bleeker`) know the Latin-1 codepoints only. In an imported
+  font the Cyrillic block sits in the Latin-1 slots (U+00C0..U+00FF, Ё/ё at U+00A8/U+00B8), so
+  `src/game/game_fonts.cpp` also offers those `GameFontGlyph`s under their Cyrillic codepoints
+  (U+0410..U+044F, U+0401/U+0451). The aliases are added only when the import is present (the
+  `text/eng/.russian-import` marker or the `global.port.lxb` table), so a stock data folder is
+  unchanged.
+- The device font the menus fall back to (Segoe UI, or `FindDefaultUiFontPath` elsewhere) is
+  loaded in `src/ssarecomp_app.h` with the Basic Latin, Latin-1, Cyrillic and the Russian
+  punctuation ranges, so the UTF-8 `global.port.lxb` text has glyphs there too.
+
 The unit tests need no game data:
 
 ```
@@ -93,7 +140,15 @@ fallback.
 On 2026-11-21, Linux, clang 23, Intel Iris Xe (Vulkan, 1x), hidden window, muted audio, software
 portal, supported 0.0.0.2 `default.xex`:
 
-- The tool's 7 unit tests pass (shift, merge, font layout, remap, other-font layout).
+- The tool's unit tests pass. The run above covered the original 7 (shift, merge, font layout,
+  remap, other-font layout). The transactional apply/restore and case-aware lookup added since
+  are covered by synthetic fixtures only (22 tests in all: apply/restore including absent
+  originals, a failed copy restoring the originals and keeping the backup, the marker in an
+  existing differently-cased parent, reserved bookkeeping left out of an overlay and refused in a
+  manifest, a linked backup refused, a manifest validated before any change, a legacy marker
+  without a backup refused when it would overwrite and allowed when it only adds, reusing an
+  existing folder whose name differs in case, refusing a symlinked folder, and building the
+  overlay from a case-variant disc).
 - The tool generated the overlay from the extracted discs. The tool farm's `level_027.lxb` is
   byte-identical to the earlier manual farm's; the shifted `global.lxb` differs from the manual
   one only in punctuation handling (the tool folds dashes, ellipses, `№` and no-break spaces).
@@ -114,7 +169,10 @@ portal, supported 0.0.0.2 `default.xex`:
 - The font remap overwrites the Latin-1 glyph slots with Cyrillic. English strings that use
   accented Latin-1 letters in the imported table can draw the Cyrillic glyph in that slot; the
   game's English text is otherwise ASCII. The port's own text uses the unshifted
-  `global.port.lxb`, and its menus fall back to a font with Cyrillic for those codepoints.
+  `global.port.lxb`; its menus draw it with the game fonts' Cyrillic aliases and the device
+  font's Cyrillic range above. The glyphs were not checked on a screen here: the DDS/UI paths and
+  the stock (unimported) data folder are unchanged, but the actual menu render was not run in
+  this environment.
 - The imported table is a Russian table: the shared keys are Russian in every language. Use a
   separate copy of the data for each language.
 - This is not the 0.0.0.4 build. It does not add the 0.0.0.4 code hooks or the native Cyrillic
