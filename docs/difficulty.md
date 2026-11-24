@@ -12,8 +12,8 @@ Spyro's Adventure has no difficulty setting; the later games ask for one when a 
 
 ## The picker
 
-Starting a new game in an empty save slot opens the picker as soon as the game creates the save,
-before the game goes on (it waits for the choice). It follows the later games' difficulty screens:
+Starting a new game (in an empty slot or over an old save) opens the picker when the game writes
+the new save, on the main menu before the opening movie; the game waits for the choice. It follows the later games' difficulty screens:
 a title, the four levels side by side from the mildest to the hardest, each with an emblem (one to
 four flames on a shield), its name and its multiplier; the chosen card stands raised with a gold
 frame, its description below. Left / right (stick, d-pad, arrow keys or the mouse) choose, A, Start,
@@ -37,8 +37,7 @@ Skylanders - Slot 1=hard
 Skylanders - Slot 2=easy
 ```
 
-The game's own saves are left as they are; a save deleted in the game and started anew in the same
-slot asks again.
+The game's own saves are left as they are; a new game started in a slot asks again.
 
 ## How it works
 
@@ -47,9 +46,12 @@ picker). Three midasm hooks in `config/default.toml`:
 
 - **The save** (0x822DD4C4): the game's only call of `XamContentCreateEx` (in `sub_822DD460`). The
   package's folder name (`XCONTENT_DATA` +264) says which slot save it is, the flags (low four bits)
-  whether the game may create it. A slot save opened or created becomes the one played; one that may
-  be created and whose folder isn't there yet is a new game, and the hook holds the game's thread
-  there until the picker has its answer (the UI thread keeps drawing the menus meanwhile).
+  whether the game writes it (1, 2, 5) or opens it (3, 4). A new game writes its slot save while the
+  main menu (the FrontEnd level) is loaded, over an old save in that slot too; in play the game saves
+  only inside the levels. So a slot save written from the main menu (once per stay there), or one
+  created that wasn't there, is a new game, and the hook holds the game's thread until the picker has
+  its answer (the UI thread keeps drawing the menus meanwhile). Any slot save opened or written
+  becomes the one played.
 - **An enemy's hit** (0x82761CC8, in `SpyroEnemyDamageRule`, `sub_82761AF0`): the hit's damage (f31)
   and element bonus (f0) right before they are stored to the hit's result are multiplied.
 - **A Skylander's hit** (0x827621D4, in `SpyroDamageRule`, `sub_82761F80`): the damage (f31, with a

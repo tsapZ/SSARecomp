@@ -16,6 +16,9 @@ void InstallWhere(const std::filesystem::path& game_data_root, const std::filesy
 // True while a Battle Mode arena (PvP_Level_*) is loaded: the difficulty leaves those alone.
 bool InBattleLevel(uint8_t* base);
 
+// True while the main menu (the FrontEnd level) is loaded.
+bool InMainMenu(uint8_t* base);
+
 }  // namespace ssarecomp
 
 #if defined(SKYLANDERS_DEVKIT)

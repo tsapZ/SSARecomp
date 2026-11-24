@@ -99,6 +99,7 @@ std::mutex g_mutex;  // the members below
 std::filesystem::path g_user_data;
 std::map<std::string, Difficulty> g_saved;  // slot save folder -> level
 std::string g_active;                       // the slot save played now, "" before any
+std::string g_asked;  // the slot the picker came up for in this stay on the main menu
 std::atomic<float> g_multiplier{1.0f};
 
 bool IsSlotSave(const std::string& name) { return name.find("Slot") != std::string::npos; }
@@ -160,8 +161,8 @@ Difficulty ActiveLocked() {
 }
 
 // With g_mutex held.
-void SetActiveLocked(const std::string& slot) {
-  const bool changed = slot != g_active;
+void SetActiveLocked(const std::string& slot, bool log) {
+  const bool changed = log && slot != g_active;
   g_active = slot;
   const Difficulty d = ActiveLocked();
   g_multiplier.store(LevelOf(d).multiplier);
@@ -539,20 +540,32 @@ void ShutdownDifficulty() {
   ReleaseGame();
 }
 
-void OnSavePackage(const std::string& name, bool create) {
+void OnSavePackage(const std::string& name, uint32_t how, bool on_main_menu) {
   if (!IsSlotSave(name)) return;
+  // 1 create new, 2 create always, 5 truncate: the game writes the save; 3 / 4 open it.
+  const bool write = how == 1 || how == 2 || how == 5;
   bool new_game = false;
   {
     std::lock_guard lock(g_mutex);
     if (g_user_data.empty()) return;
-    new_game = create && !SaveExists(name);
+    const bool exists = SaveExists(name);
+    if (write) {
+      REXLOG_INFO("Difficulty: the game writes {} (flags {}, {}, {})", name, how,
+                  exists ? "over an old one" : "a new one", on_main_menu ? "main menu" : "in a level");
+    }
+    // A new game: a slot save written from the main menu (the game writes it there when a new game
+    // starts, over an old one in that slot too; in play it saves only inside the levels), or one that
+    // may be created and isn't there yet. Once per stay on the main menu.
+    if (write && !on_main_menu) g_asked.clear();
+    new_game = ((write && on_main_menu) || ((write || how == 4) && !exists)) && g_asked != name;
     if (new_game) {
-      // A new game in this slot: whatever an earlier save there had goes; Adventurer until chosen.
+      g_asked = name;
+      // Whatever an earlier save in this slot had goes; Adventurer until chosen.
       g_saved[name] = Difficulty::kAdventurer;
       StoreLocked();
       REXLOG_INFO("Difficulty: new game in {}", name);
     }
-    SetActiveLocked(name);
+    SetActiveLocked(name, write || new_game);
   }
   if (!new_game || !REXCVAR_GET(difficulty_ask_new_game) || !g_app_context || g_shutdown.load()) return;
   // The game waits here, at its first save, until the picker has its answer.

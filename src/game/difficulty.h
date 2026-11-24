@@ -49,10 +49,12 @@ void ShutdownDifficulty();
 // F4 > Extras: "Change this game's difficulty" (opens the picker for the save being played).
 skylanders::Setting ChangeDifficultySetting();
 
-// The game opens or creates a save package (`name` its folder, "Skylanders - Slot 1"); `create`
-// when it may make it. A slot save that didn't exist yet is a new game: the picker opens. Called on
-// the game's thread, before the package is opened (difficulty_hook.cpp).
-void OnSavePackage(const std::string& name, bool create);
+// The game opens or writes a save package (`name` its folder, "Skylanders - Slot 1"; `how` the
+// XamContentCreateEx flags' low four bits; `on_main_menu` while the FrontEnd level is loaded). A slot
+// save written from the main menu, or one created that didn't exist, is a new game: the picker opens
+// and the game waits for it. Called on the game's thread, before the package is opened
+// (difficulty_hook.cpp).
+void OnSavePackage(const std::string& name, uint32_t how, bool on_main_menu);
 
 // The enemies' multiplier for the save being played: 1 before any slot save was opened. Any thread.
 float EnemyMultiplier();

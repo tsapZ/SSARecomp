@@ -4,8 +4,11 @@
 // XamContentCreateEx (0x822DD4C4, bl 0x829E5C34, in the content wrapper sub_822DD460). At that call
 // r5 is the XCONTENT_DATA (its file name, the package's folder "Skylanders - Slot 1", at +264, 42
 // characters) and r6 the flags, whose low four bits say how: 1 create new, 2 create always, 3 open
-// existing, 4 open always, 5 truncate. A slot save the game may create whose folder isn't there yet
-// is a new game; any slot save it opens is the one played from then on. Found 2026-11-24 from the
+// existing, 4 open always, 5 truncate. A new game writes its slot save (2, over an old save in that
+// slot too) while the main menu (FrontEnd) is loaded, before the opening movie; in play the game
+// saves only inside the levels (seen 2026-11-24: Slot 4 written at the main menu, then again as
+// Level_027 loaded). So a slot save written from the main menu is a new game, as is one created that
+// didn't exist; any slot save opened or written is the one played from then on. Found 2026-11-24 from the
 // import table (0x829E5C34 is XamContentCreateEx's thunk, called from this one place only).
 //
 // The hits: Spyro's Adventure works out every hit in a damage rule (attribute_cheats_hook.cpp has
@@ -71,8 +74,7 @@ void SavePackageHook(PPCRegister& r5, PPCRegister& r6) {
   if (r5.u32 == 0) return;
   char name[kContentFileNameSize + 1] = {};
   std::memcpy(name, Base() + r5.u32 + kContentFileName, kContentFileNameSize);
-  const uint32_t how = r6.u32 & 0xF;
-  ssarecomp::OnSavePackage(name, how == 1 || how == 2 || how == 4);
+  ssarecomp::OnSavePackage(name, r6.u32 & 0xF, ssarecomp::InMainMenu(Base()));
 }
 
 // 0x82761CC8 in SpyroEnemyDamageRule: f31 an enemy's hit, f0 its element bonus.
