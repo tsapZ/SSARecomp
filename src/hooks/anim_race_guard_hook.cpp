@@ -35,6 +35,10 @@
 // (FlushProcessWriteBuffers, once per pass and only while a loading screen runs) before it reads the
 // marks: a thread either is marked by then, or its next look at g_want sees it set. (A first version
 // with an atomic add and subtract per call cost about 0.6 % FPS in Level_036.)
+// Where the kernel offers no usable process-wide barrier (a Linux kernel or sandbox without either
+// membarrier command), both sides fence between their own store and their look at the other side
+// instead (anim_race_guard_barrier.h), so the two still cannot miss each other. A pass whose
+// barrier command fails at runtime is skipped rather than run unordered.
 // anim_race_guard = false turns it off. At the end of each loading screen (sub_827F9748 returning)
 // one log line says how often the two met and which functions other threads entered meanwhile.
 
@@ -45,24 +49,25 @@
 #include <string>
 #include <thread>
 
-#ifdef _WIN32
-#include <windows.h>  // Sleep, FlushProcessWriteBuffers (the build defines WIN32_LEAN_AND_MEAN and NOMINMAX)
-#elif defined(__linux__)
-#include <linux/membarrier.h>
-#include <sys/syscall.h>
-#include <unistd.h>
-#endif
-
 #include <rex/cvar.h>
 #include <rex/hook.h>
 #include <rex/logging.h>
 #include <rex/ppc/context.h>
+
+#include "anim_race_guard_barrier.h"
 
 REXCVAR_DEFINE_BOOL(anim_race_guard, true, "Game",
                     "Keep the loading screen's animation update apart from the game's (a rare crash "
                     "at boot otherwise).");
 
 namespace {
+
+using anim_guard::Enter;
+using anim_guard::FlushStoreBuffers;
+using anim_guard::Leave;
+using anim_guard::MySlot;
+using anim_guard::NoneInside;
+using anim_guard::Slot;
 
 constexpr int kWorkerWaitMs = 250;
 constexpr int kMainWaitMs = 50;
@@ -71,68 +76,6 @@ std::atomic<bool> g_want{false};       // the loading thread wants to run its pa
 std::atomic<bool> g_loop_running{false};
 thread_local int t_depth = 0;          // guarded functions nested on this thread
 thread_local bool t_in_pass = false;   // this thread is the loading thread, inside its pass
-
-// One mark per thread that ever entered a guarded function, each in its own cache line. Threads past
-// kSlots (the game has about 20) share the last one with locked adds.
-constexpr int kSlots = 64;
-struct alignas(64) Slot {
-  std::atomic<uint32_t> inside{0};
-};
-Slot g_slots[kSlots];
-std::atomic<int> g_slot_count{0};
-thread_local Slot* t_slot = nullptr;
-
-Slot* MySlot() {
-  if (!t_slot) {
-    const int index = g_slot_count.fetch_add(1);
-    t_slot = &g_slots[index < kSlots - 1 ? index : kSlots - 1];
-  }
-  return t_slot;
-}
-
-bool Shared(const Slot* slot) { return slot == &g_slots[kSlots - 1]; }
-
-void Enter(Slot* slot) {
-  if (Shared(slot)) {
-    slot->inside.fetch_add(1);
-  } else {
-    slot->inside.store(1, std::memory_order_relaxed);
-    std::atomic_signal_fence(std::memory_order_seq_cst);  // the compiler keeps the store before the load
-  }
-}
-
-void Leave(Slot* slot) {
-  if (Shared(slot)) {
-    slot->inside.fetch_sub(1);
-  } else {
-    slot->inside.store(0, std::memory_order_release);
-  }
-}
-
-inline void FlushStoreBuffers() {
-#ifdef _WIN32
-  FlushProcessWriteBuffers();
-#elif defined(__linux__)
-  static const bool registered =
-      syscall(SYS_membarrier, MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED, 0) == 0;
-  if (!registered || syscall(SYS_membarrier, MEMBARRIER_CMD_PRIVATE_EXPEDITED, 0) != 0) {
-    if (syscall(SYS_membarrier, MEMBARRIER_CMD_GLOBAL, 0) != 0) {
-      std::atomic_thread_fence(std::memory_order_seq_cst);
-    }
-  }
-#else
-  std::atomic_thread_fence(std::memory_order_seq_cst);
-#endif
-}
-
-// True when no other thread is marked (the loading thread calls it after FlushStoreBuffers).
-bool NoneInside() {
-  const int used = std::min(g_slot_count.load(), kSlots);
-  for (int i = 0; i < used; ++i) {
-    if (g_slots[i].inside.load(std::memory_order_acquire) != 0) return false;
-  }
-  return g_slots[kSlots - 1].inside.load(std::memory_order_acquire) == 0;
-}
 
 enum Entry { k84878, k84AB0, k82548, k822D8, kEntries };
 constexpr const char* kEntryNames[kEntries] = {"sub_82684878", "sub_82684AB0", "sub_82682548", "sub_826822D8"};
@@ -237,7 +180,13 @@ REX_HOOK_RAW(sub_827F9298) {
     return;
   }
   g_want.store(true);
-  FlushStoreBuffers();
+  if (!FlushStoreBuffers()) {
+    // The kernel refused a command that looked usable, so the other cores were not drained and the
+    // pass could overlap a thread that enters now. Skip it, as when another thread stays inside.
+    g_want.store(false);
+    g_pass_skips.fetch_add(1, std::memory_order_relaxed);
+    return;
+  }
   if (!NoneInside()) {
     const auto start = std::chrono::steady_clock::now();
     int spins = 0;
