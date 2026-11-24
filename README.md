@@ -32,7 +32,7 @@ comes with this project.
 
 **Is this an emulator?** No. The game's code is recompiled into a Windows program, so it runs natively: higher resolutions, 60 FPS and more, a settings menu, the portal menu. Emulators like Dolphin or Xenia run the original game instead; both are fine ways to play.
 
-**Does it run on Linux, Steam Deck, Mac or Android handhelds?** It's made for Windows (64-bit) and tested there. Wine / Proton may work but isn't tested much; Mac, Android and ARM handhelds aren't supported.
+**Does it run on Linux, Steam Deck, Mac or Android handhelds?** It's made for Windows (64-bit) and tested there most. Linux x86-64 gets its own tarball with each release; ARM64 Linux (a Steam Frame, for example) builds from source and is less tested. Wine / Proton may work but isn't tested much; Mac and Android aren't supported.
 
 **Is it safe?** All of the source is here on GitHub. The setup isn't signed, so Windows may warn before it runs ([what to click](#getting-started)).
 
@@ -180,9 +180,10 @@ AI-made projects aren't your thing, that's fair.
 
 ## For developers
 
-The game's Xbox 360 code is recompiled to x86-64 with [ReXGlue](https://github.com/rexglue/rexglue-sdk)
-(no CPU emulation); the graphics go through Xenia's D3D12 path. This repository holds only our own
-code: the recompiled game code is made on your PC from your disc's `default.xex` when you build.
+The game's Xbox 360 code is recompiled to C++ with [ReXGlue](https://github.com/rexglue/rexglue-sdk) and
+built for the host (x86-64 or ARM64; no CPU emulation); on Windows the graphics go through Xenia's
+D3D12 path, on Linux through Vulkan. This repository holds only our own code: the recompiled game
+code is made on your PC from your disc's `default.xex` when you build.
 
 Building needs Windows, Visual Studio 2022 (C++ workload and C++ Clang tools), CMake, Ninja, just,
 Git and Python 3, and the extracted disc in `rom/` ([rom/README.md](rom/README.md)). Steps:

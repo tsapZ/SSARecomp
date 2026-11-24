@@ -28,6 +28,7 @@
 #include "game/portal_prompt_watch.h"
 #include "game/game_fonts.h"
 #include "hooks/ultrawide_hook.h"
+#include "hooks/free_camera_hook.h"
 #include "hooks/where_hook.h"
 #include "game/game_text.h"
 #include "game/hats.h"
@@ -121,12 +122,12 @@ class SsarecompApp : public rex::ReXApp {
     // A wider window with ultrawide_fov: the picture fills it (the camera sees more to the sides)
     // instead of the presenter's black bars, unless present_letterbox was set by hand.
     if (ssarecomp::UltrawideActive() && !rex::cvar::HasNonDefaultValue("present_letterbox")) {
-      rex::cvar::SetFlagByName("present_letterbox", "false");
+      rex::cvar::SetFlagAsProgramDefault("present_letterbox", "false");
     }
     // A 3D scene larger than the 360's needs more EDRAM than it has (#30, scene_size_hook.cpp),
     // unless edram_tile_count was set by hand.
     if (!REXCVAR_GET(scene_size).empty() && !rex::cvar::HasNonDefaultValue("edram_tile_count")) {
-      rex::cvar::SetFlagByName("edram_tile_count", "4096");
+      rex::cvar::SetFlagAsProgramDefault("edram_tile_count", "4096");
     }
     // The Xenos GPU plugin renders the Xbox 360 command stream; without it nothing is drawn.
     if (config.gpu_plugin.empty()) config.gpu_plugin = "xenos";
@@ -211,6 +212,8 @@ class SsarecompApp : public rex::ReXApp {
     skylanders::dev::InstallCrashReport(runtime()->memory());
     // And where the player was: the log's "Where:" lines name the level and player 1's position.
     ssarecomp::InstallWhere(game_data_root_, user_data_root());
+    // The free camera (free_camera, off by default) reads the right stick (free_camera_hook.cpp).
+    ssarecomp::InstallFreeCamera(runtime()->input_system());
     // The achievements list (F7, F4 > Spiel > Erfolge); the kernel's list exists from launch on.
     skylanders::RegisterAchievementsMenu(
         imgui_drawer(), immediate_drawer(), &app_context(), runtime(),
@@ -280,15 +283,20 @@ class SsarecompApp : public rex::ReXApp {
     // with and without (pictures alike); in the hub at scale 3 it gave 74.0 -> 80.2 FPS (+8 %) on top
     // of the native resolves. Swap Force and Trap Team still need all their copies (a white sky,
     // streaks in the hub), so the SDK default stays off. Both only when nothing set them.
+    // Two more since 2026-11-23 (Core of Light #120): the darkness in Crawling Catacombs (Level_023;
+    // the reporter saw it in Cadaverous Crypt too: all dark but a lit circle around the player) needs the copy from a depth
+    // target to the 8-bit colour target (D0x1->C0x1, D1x1->C0x1); without it only a strip at the
+    // right edge went dark on D3D12 (Vulkan has no native surfaces). Found by bisecting the 15
+    // kinds the dark part uses (debug\kit\ssa120_keep.ps1): either one alone fixes it, both kept.
     SetDefaultIfUnset("gpu_native_surfaces", "true");
-    SetDefaultIfUnset("gpu_native_surfaces_keep", "D0x1->C2x1,C2x1->D0x1");
+    SetDefaultIfUnset("gpu_native_surfaces_keep", "D0x1->C2x1,C2x1->D0x1,D0x1->C0x1,D1x1->C0x1");
     // Estimate the EDRAM extent of draws without clipping by running their vertex shader on the
     // CPU (Xenia's default; the SDK defaults to off). In Swap Force, without it, the faster RTV
     // render target path let a full-screen float pass wrap around the EDRAM onto the lit scene and
     // every character composited from it turned black (SwapForceRecomp docs/STATUS.md,
     // 2026-10-17). Kept here as the safe default until this game is checked.
     if (!rex::cvar::HasNonDefaultValue("execute_unclipped_draw_vs_on_cpu") &&
-        !rex::cvar::SetFlagByName("execute_unclipped_draw_vs_on_cpu", "true")) {
+        !rex::cvar::SetFlagAsProgramDefault("execute_unclipped_draw_vs_on_cpu", "true")) {
       REXLOG_WARN("Could not enable execute_unclipped_draw_vs_on_cpu");
     }
   }
@@ -410,7 +418,9 @@ class SsarecompApp : public rex::ReXApp {
  private:
   // Sets a setting's default without overriding what the user put in the settings file.
   static void SetDefault(std::string_view name, std::string_view value) {
-    if (!rex::cvar::HasNonDefaultValue(name) && !rex::cvar::SetFlagByName(name, value)) {
+    // A skip because the settings file or the command line set it (a higher source) is no failure.
+    if (!rex::cvar::HasNonDefaultValue(name) && !rex::cvar::SetFlagAsProgramDefault(name, value) &&
+        rex::cvar::GetFlagSource(name) <= rex::cvar::Source::kProgram) {
       REXLOG_WARN("Could not set {} to {}", name, value);
     }
   }
@@ -419,7 +429,7 @@ class SsarecompApp : public rex::ReXApp {
   // (e.g. no sharpening, "bilinear") stays chosen.
   static void SetDefaultIfUnset(std::string_view name, std::string_view value) {
     if (rex::cvar::GetFlagSource(name) == rex::cvar::Source::kDefault &&
-        !rex::cvar::SetFlagByName(name, value)) {
+        !rex::cvar::SetFlagAsProgramDefault(name, value)) {
       REXLOG_WARN("Could not set {} to {}", name, value);
     }
   }

@@ -3,8 +3,11 @@
 
 #include "localization.h"
 
+#include <cstdio>
+#include <initializer_list>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include <rex/cvar.h>
 
@@ -525,6 +528,70 @@ SettingsPage ControlsPage() {
 
 }  // namespace
 
+// hooks/free_camera_hook.cpp (docs/free-camera.md): the free camera and the settings most worth
+// changing; the rest are in the settings file only. The cvars stay in [Game] of the settings file,
+// where the first versions wrote them.
+SettingsPage CameraPage() {
+  SettingsPage page{"Camera", "Kamera", {}};
+  // A row for a free_camera_* cvar; with `options`, stepped through with left / right.
+  auto add = [&page](const char* cvar, const char* en, const char* de, const char* help_en,
+                     const char* help_de, std::vector<SettingOption> options = {}) {
+    Setting setting{cvar, en, de, help_en, help_de, std::move(options)};
+    if (std::string(cvar) != "free_camera") setting.enabled_by = "free_camera";
+    page.settings.push_back(std::move(setting));
+  };
+  // The values as options, shown with `unit` after them.
+  auto numbers = [](std::initializer_list<double> values, const char* unit) {
+    std::vector<SettingOption> options;
+    for (const double v : values) {
+      char value[32];
+      std::snprintf(value, sizeof(value), "%g", v);
+      const std::string label = std::string(value) + unit;
+      options.push_back({value, label, label});
+    }
+    return options;
+  };
+  add("free_camera", "Free camera", "Freie Kamera",
+      "Two more cameras besides the game's own: a third-person camera behind your Skylander and "
+      "one you turn yourself. LT + R3 switches between the three; LT + right stick (or the right "
+      "mouse button) turns the camera. The game takes its camera back in talks and cutscenes.",
+      "Zwei weitere Kameras neben der des Spiels: eine Verfolgerkamera hinter deinem Skylander und "
+      "eine, die du selbst drehst. LT + R3 wechselt zwischen den dreien; LT + rechter Stick (oder "
+      "die rechte Maustaste) dreht die Kamera. In Gespr\xC3\xA4" "chen und Zwischensequenzen \xC3\xBC" "bernimmt das "
+      "Spiel seine Kamera wieder.");
+  {
+    std::vector<SettingOption> fov{{"0", "As in the game", "Wie im Spiel"}};
+    for (auto& o : numbers({60, 70, 80, 90, 100, 110, 120, 130}, "\xC2\xB0")) fov.push_back(o);
+    add("free_camera_fov", "Field of view", "Sichtfeld",
+        "The field of view of the third-person and turned cameras (horizontal). The game's own "
+        "camera keeps the game's.",
+        "Das Sichtfeld der Verfolger- und der gedrehten Kamera (waagerecht). Die Kamera des Spiels "
+        "beh\xC3\xA4lt das des Spiels.",
+        fov);
+  }
+  add("free_camera_speed", "Turning speed", "Drehgeschwindigkeit",
+      "How fast the right stick turns the camera.", "Wie schnell der rechte Stick die Kamera dreht.",
+      numbers({0.5, 0.75, 1, 1.25, 1.5, 2}, "x"));
+  add("free_camera_invert_x", "Invert left / right", "Links / rechts umkehren",
+      "Right on the right stick (or the mouse) turns the camera the other way.",
+      "Rechts am rechten Stick (oder der Maus) dreht die Kamera andersherum.");
+  add("free_camera_invert_y", "Invert up / down", "Oben / unten umkehren",
+      "Up on the right stick (or the mouse) turns the camera the other way.",
+      "Oben am rechten Stick (oder der Maus) dreht die Kamera andersherum.");
+  add("free_camera_mouse", "Mouse look", "Mit der Maus umsehen",
+      "Holding the right mouse button, the mouse turns the camera.",
+      "Mit gehaltener rechter Maustaste dreht die Maus die Kamera.");
+  add("free_camera_chase_distance", "Third person: distance", "Verfolger: Abstand",
+      "How far the third-person camera stays behind your Skylander.",
+      "Wie weit die Verfolgerkamera hinter deinem Skylander bleibt.",
+      numbers({6, 8, 10, 12, 15, 20}, ""));
+  add("free_camera_chase_elevation", "Third person: angle down", "Verfolger: Blick nach unten",
+      "How far the third-person camera looks down at your Skylander, in degrees.",
+      "Wie steil die Verfolgerkamera auf deinen Skylander herabblickt, in Grad.",
+      numbers({0, 10, 15, 20, 25, 30, 40}, "\xC2\xB0"));
+  return page;
+}
+
 // Cheats (hooks/extras.cpp): while one is on, achievements don't unlock (CheatSetting).
 SettingsPage ExtrasPage() {
   SettingsPage page{"Extras", "Extras", {}};
@@ -552,8 +619,8 @@ SettingsPage ExtrasPage() {
 }
 
 std::vector<SettingsPage> BuildSettingsPages(std::function<void()> open_all_settings) {
-  std::vector<SettingsPage> pages = {GraphicsPage(), FrameRatePage(), GamePage(), PortalPage(),
-                                     ControlsPage(), ExtrasPage(), skylanders::ModsPage("ssa")};
+  std::vector<SettingsPage> pages = {GraphicsPage(), FrameRatePage(), GamePage(), CameraPage(),
+                                     PortalPage(), ControlsPage(), ExtrasPage(), skylanders::ModsPage("ssa")};
   SettingsPage advanced{"Advanced", "Erweitert", {}};
   Setting all;
   all.en = "All settings (developers, keyboard and mouse)";

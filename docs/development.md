@@ -82,16 +82,21 @@ The setup above is the Windows one. On Linux the same checkout builds natively:
 - **clang 19 or newer.** Ubuntu 24.04's clang 18 with libstdc++ 13 hides the `std::expected` that
   the SDK's `src/system/map_parser` uses; `clang-19` from noble-updates works. If `clang` and
   `clang++` on your `PATH` are older, configure once with
-  `cmake --preset linux-amd64-release -DCMAKE_C_COMPILER=clang-19 -DCMAKE_CXX_COMPILER=clang++-19`.
-- **X11-xcb and the runtime libraries' development packages:** `libx11-xcb-dev`,
+  `cmake --preset linux-amd64-release -DCMAKE_C_COMPILER=clang-19 -DCMAKE_CXX_COMPILER=clang++-19`
+  (`linux-arm64-release` on ARM64).
+- **X11-xcb and the runtime libraries' development packages** (Ubuntu names; Arch/SteamOS
+  equivalents on a Steam Frame): `libx11-xcb-dev`,
   `libusb-1.0-0-dev`, `libcurl4-openssl-dev`, `libssl-dev`, `libarchive-dev`, `libgl1-mesa-dev`,
   `libudev-dev`, `pkg-config`, `cmake`, `ninja-build` and `just`.
 - **The disc in place** as in step 4 (`rom/default.xex` next to the rest of the disc), then:
 
   ```
   just build-release
-  just package-linux      # dist/SSARecomp-linux-amd64.tar.gz
+  just package-linux      # dist/SSARecomp-linux-<arch>.tar.gz
   ```
+
+  On ARM64, `just` uses `linux-arm64-release` and names the tarball
+  `dist/SSARecomp-linux-arm64.tar.gz`; on SteamOS, enable developer mode first.
 
 Unpack the tarball and run `./linux-setup.sh <your ISO>` once: it copies the disc into `rom/` and
 writes `ssarecomp.toml`. `./ssarecompiled` starts the game, `--portal_mode=software` runs it
