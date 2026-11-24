@@ -57,7 +57,12 @@ constexpr const char* kStoreFile = "difficulty.txt";
 
 struct Level {
   const char* key;
-  float multiplier;
+  float multiplier;  // enemies' damage and health
+  // From Swap Force's difficulty table (data/systemdata.mua, globalTuningData): food heals this
+  // part of what it would (_difficultyFixedFoodHealthGainScale), and a level-up gives back this
+  // part of the full health (_difficultyLevelUpHealthRecovery; Spyro's Adventure gives it all).
+  float food;
+  float level_up;
   const char* en;
   const char* de;
   const char* blurb_en;
@@ -66,25 +71,26 @@ struct Level {
 };
 
 constexpr std::array<Level, kDifficultyCount> kLevels{{
-    {"easy", 0.6f, "Easy", "Leicht",
+    {"easy", 0.6f, 1.0f, 1.0f, "Easy", "Leicht",
      "Enemies hit softer and go down faster. For new Portal Masters and younger players.",
      "Gegner treffen schw\xC3\xA4" "cher und fallen schneller. F\xC3\xBCr neue Portal-Meister und "
      "j\xC3\xBCngere Spieler.",
      IM_COL32(76, 175, 80, 255)},
-    {"adventurer", 1.0f, "Adventurer", "Abenteurer",
+    {"adventurer", 1.0f, 1.0f, 1.0f, "Adventurer", "Abenteurer",
      "The adventure as it was made: the game as it plays on the console.",
      "Das Abenteuer, wie es gemacht wurde: das Spiel wie auf der Konsole.",
      IM_COL32(46, 134, 222, 255)},
-    {"hard", 2.0f, "Hard", "Schwer",
-     "Enemies hit twice as hard and take twice the hits. For seasoned Portal Masters.",
-     "Gegner treffen doppelt so hart und halten doppelt so viel aus. F\xC3\xBCr erfahrene "
-     "Portal-Meister.",
+    {"hard", 2.0f, 0.75f, 0.2f, "Hard", "Schwer",
+     "Enemies hit twice as hard and take twice the hits, and food heals less. For seasoned Portal "
+     "Masters.",
+     "Gegner treffen doppelt so hart und halten doppelt so viel aus, und Essen heilt weniger. "
+     "F\xC3\xBCr erfahrene Portal-Meister.",
      IM_COL32(240, 140, 30, 255)},
-    {"nightmare", 3.0f, "Nightmare", "Albtraum",
-     "Enemies hit three times as hard and take three times the hits. Only the bravest Skylanders "
-     "make it through.",
-     "Gegner treffen dreimal so hart und halten dreimal so viel aus. Nur die mutigsten Skylander "
-     "kommen durch.",
+    {"nightmare", 4.0f, 0.6f, 0.1f, "Nightmare", "Albtraum",
+     "Enemies hit four times as hard and take four times the hits, and food heals even less. Only "
+     "the bravest Skylanders make it through.",
+     "Gegner treffen viermal so hart und halten viermal so viel aus, und Essen heilt noch weniger. "
+     "Nur die mutigsten Skylander kommen durch.",
      IM_COL32(170, 40, 160, 255)},
 }};
 
@@ -100,7 +106,7 @@ std::filesystem::path g_user_data;
 std::map<std::string, Difficulty> g_saved;  // slot save folder -> level
 std::string g_active;                       // the slot save played now, "" before any
 std::string g_asked;  // the slot the picker came up for in this stay on the main menu
-std::atomic<float> g_multiplier{1.0f};
+std::atomic<int> g_level{int(Difficulty::kAdventurer)};  // the save played now
 
 bool IsSlotSave(const std::string& name) { return name.find("Slot") != std::string::npos; }
 
@@ -146,7 +152,7 @@ void StoreLocked() {
       return;
     }
     out << "# Spyro's Adventure Recompiled: the difficulty each save is played on\n"
-           "# (easy x0.6, adventurer x1, hard x2, nightmare x3). F4 > Extras changes it.\n";
+           "# (easy x0.6, adventurer x1, hard x2, nightmare x4). F4 > Extras changes it.\n";
     for (const auto& [slot, d] : g_saved) out << slot << "=" << LevelOf(d).key << "\n";
   }
   std::error_code ec;
@@ -165,7 +171,7 @@ void SetActiveLocked(const std::string& slot, bool log) {
   const bool changed = log && slot != g_active;
   g_active = slot;
   const Difficulty d = ActiveLocked();
-  g_multiplier.store(LevelOf(d).multiplier);
+  g_level.store(int(d));
   if (changed) {
     REXLOG_INFO("Difficulty: {} is played on {} (enemies x{:.1f})", slot, LevelOf(d).en,
                 LevelOf(d).multiplier);
@@ -189,7 +195,7 @@ void Choose(const std::string& slot, Difficulty d) {
   StoreLocked();
   REXLOG_INFO("Difficulty: {} chosen for {} (enemies x{:.1f})", LevelOf(d).en, slot,
               LevelOf(d).multiplier);
-  if (slot == g_active) g_multiplier.store(LevelOf(d).multiplier);
+  if (slot == g_active) g_level.store(int(d));
 }
 
 // --- The game waiting for a new game's choice -----------------------------------------------------
@@ -549,7 +555,7 @@ void OnSavePackage(const std::string& name, uint32_t how, bool on_main_menu) {
     std::lock_guard lock(g_mutex);
     if (g_user_data.empty()) return;
     const bool exists = SaveExists(name);
-    if (write) {
+    if (write && (on_main_menu || !exists)) {  // in play the game saves often: not logged
       REXLOG_INFO("Difficulty: the game writes {} (flags {}, {}, {})", name, how,
                   exists ? "over an old one" : "a new one", on_main_menu ? "main menu" : "in a level");
     }
@@ -579,17 +585,19 @@ void OnSavePackage(const std::string& name, uint32_t how, bool on_main_menu) {
   REXLOG_INFO("Difficulty: the game goes on");
 }
 
-float EnemyMultiplier() { return g_multiplier.load(); }
+float EnemyMultiplier() { return LevelOf(Difficulty(g_level.load())).multiplier; }
+float FoodHealScale() { return LevelOf(Difficulty(g_level.load())).food; }
+float LevelUpHealPart() { return LevelOf(Difficulty(g_level.load())).level_up; }
 
 skylanders::Setting ChangeDifficultySetting() {
   skylanders::Setting s;
   s.en = "Change this game's difficulty";
   s.de = "Schwierigkeitsgrad dieses Spiels \xC3\xA4ndern";
   s.help_en =
-      "Easy (enemies x0.6), Adventurer (x1, as on the console), Hard (x2) or Nightmare (x3) for the "
+      "Easy (enemies x0.6), Adventurer (x1, as on the console), Hard (x2) or Nightmare (x4) for the "
       "save you are playing. A new game asks for one by itself.";
   s.help_de =
-      "Leicht (Gegner x0,6), Abenteurer (x1, wie auf der Konsole), Schwer (x2) oder Albtraum (x3) "
+      "Leicht (Gegner x0,6), Abenteurer (x1, wie auf der Konsole), Schwer (x2) oder Albtraum (x4) "
       "f\xC3\xBCr den Spielstand, den du spielst. Ein neues Spiel fragt von selbst danach.";
   s.action = [] {
     std::string slot;

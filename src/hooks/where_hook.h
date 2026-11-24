@@ -19,6 +19,9 @@ bool InBattleLevel(uint8_t* base);
 // True while the main menu (the FrontEnd level) is loaded.
 bool InMainMenu(uint8_t* base);
 
+// True while the game plays (its state 2: not loading a level).
+bool Playing(uint8_t* base);
+
 }  // namespace ssarecomp
 
 #if defined(SKYLANDERS_DEVKIT)

@@ -1,4 +1,4 @@
-// Difficulty levels (game/difficulty.h): which save is played, and the enemies' hits and toughness.
+// Difficulty levels (game/difficulty.h): which save is played, and the damage, food and level-up heal.
 //
 // The save: the game opens and creates its saves through one function, the only call of
 // XamContentCreateEx (0x822DD4C4, bl 0x829E5C34, in the content wrapper sub_822DD460). At that call
@@ -8,22 +8,34 @@
 // slot too) while the main menu (FrontEnd) is loaded, before the opening movie; in play the game
 // saves only inside the levels (seen 2026-11-24: Slot 4 written at the main menu, then again as
 // Level_027 loaded). So a slot save written from the main menu is a new game, as is one created that
-// didn't exist; any slot save opened or written is the one played from then on. Found 2026-11-24 from the
-// import table (0x829E5C34 is XamContentCreateEx's thunk, called from this one place only).
+// didn't exist; any slot save opened or written is the one played from then on. Found 2026-11-24 from
+// the import table (0x829E5C34 is XamContentCreateEx's thunk, called from this one place only).
 //
-// The hits: Spyro's Adventure works out every hit in a damage rule (attribute_cheats_hook.cpp has
-// how they were found). Both end the same way: the hit's damage in f31 and its element bonus in f30
-// (players) / f0 (enemies) are stored to the hit's result, and their sum is the damage done.
+// Health: every health component (the one extras.cpp reads: current health at +688, full health
+// +484 * +476) has its health set by sub_82826C20 (clamps to 0 .. full, stores +688, works out the
+// bar's part). Its 38 callers (2026-11-24) are full refills (spawns, respawns, checkpoints), heals,
+// the loading of a figure's health, and one subtraction: sub_828279A0, the component's take-damage
+// (r3 the component, f1 the damage, r5 the hit). Every hit of the damage rules (SpyroDamageRule,
+// SpyroEnemyDamageRule) and every other hurt ends there; in play it reaches
 //
-//   SpyroEnemyDamageRule, sub_82761AF0, an enemy hits: 0x82761CC8 (lwz r11,396(r1); then
-//   stfs f31 / stfs f0 / stfs f13 = f0 + f31). A blocked hit arrives with f31 = f0 = 0.
-//   SpyroDamageRule, sub_82761F80, a Skylander hits: 0x827621D4 (lwz r11,268(r31); then
-//   fadds f0,f30,f31, stfs f31 / stfs f30 / stfs f0). A blocked hit arrives with f31 = f30 = 0.
+//   0x82827D80  lfs f0,688(r29); fsubs f1,f0,f29; bl sub_82826C20   (r29 the component, f29 the damage)
 //
-// An enemy's hit is multiplied by the difficulty's multiplier, a Skylander's divided by it, both
-// rounded to whole points as the game's own are (a hit that did damage does at least 1). Battle Mode
-// arenas (PvP_Level_*), where Skylanders fight each other, stay as they are. Nothing is written to the
-// game's memory; the registers are only stored to the hit's result after this.
+// and below 1 health (+148 of the constants) the component is set to 0 and dies. (The way before it,
+// through +865 / +868, is Battle Mode's arena health.) So the damage is scaled there, once for all:
+// a player's Skylander takes it times the multiplier, anything else (enemies, bosses, their minions)
+// divided by it, which is the same as its health times the multiplier, the bar included. The game's
+// own direct settings (refills, scripted deaths at 0) are left alone.
+//
+//   0x8273B44C  bl sub_82826C20 in the pickup handler sub_8273B3D8: food. f0 the current health,
+//               f1 that plus the food's value (+452 of the pickup); the gain is scaled by FoodHealScale.
+//   0x8275DDD4  bl sub_82826C20 in sub_8275DBC8, which sets the Skylander's XP (total_exp, 0xAF511216)
+//               and its level and then refills the health: the level-up. f1 the full health, r3 the
+//               component; the refill becomes LevelUpHealPart of the full health on top of what is
+//               left, only in play with the Skylander hurt (0 < health < full), so a Skylander coming
+//               into a level still starts full.
+//
+// Battle Mode arenas (PvP_Level_*), where Skylanders fight each other, stay as they are, and so does
+// Adventurer. Nothing is written to the game's memory; the registers are what the game goes on with.
 
 #include <algorithm>
 #include <atomic>
@@ -39,32 +51,30 @@
 #include <rex/system/kernel_state.h>
 
 #include "game/difficulty.h"
+#include "hooks/extras.h"
 #include "hooks/where_hook.h"
 
 namespace {
 
 constexpr uint32_t kContentFileName = 264;  // XCONTENT_DATA: device id, type, display name (128 wchar)
 constexpr uint32_t kContentFileNameSize = 42;
+constexpr uint32_t kHealth = 688;
 
 uint8_t* Base() { return rex::system::kernel_state()->memory()->virtual_membase(); }
 
-// The damage scaled, rounded to whole points; a hit that did damage keeps at least 1.
-double Scaled(double damage, double factor) {
-  if (!(damage > 0.0)) return damage;
-  return std::max(1.0, std::round(damage * factor));
+float LoadFloat(uint8_t* base, uint32_t address) {
+  const uint32_t bits = rex::memory::load_and_swap<uint32_t>(base + address);
+  float f;
+  std::memcpy(&f, &bits, sizeof(f));
+  return f;
 }
 
-// 0 for Battle Mode and Adventurer, else the multiplier.
-float ActiveMultiplier() {
-  const float m = ssarecomp::EnemyMultiplier();
-  if (m == 1.0f || !(m > 0.0f)) return 0.0f;
-  if (ssarecomp::InBattleLevel(Base())) return 0.0f;
-  return m;
-}
+// False in Battle Mode: the difficulty stays out of the arenas.
+bool Applies(uint8_t* base) { return !ssarecomp::InBattleLevel(base); }
 
-void LogOnce(std::atomic<bool>& logged, const char* who, double before, double after, float m) {
-  if (logged.exchange(true)) return;
-  REXLOG_INFO("Difficulty: x{:.1f} scaled {} hit ({:.0f} -> {:.0f})", m, who, before, after);
+void LogFirst(std::atomic<int>& logged, const char* what, double before, double after, float m) {
+  if (logged.fetch_add(1) >= 3) return;
+  REXLOG_INFO("Difficulty: x{:.1f} {} ({:.1f} -> {:.1f})", m, what, before, after);
 }
 
 }  // namespace
@@ -72,29 +82,49 @@ void LogOnce(std::atomic<bool>& logged, const char* who, double before, double a
 // 0x822DD4C4 (bl XamContentCreateEx): r5 the XCONTENT_DATA, r6 the flags.
 void SavePackageHook(PPCRegister& r5, PPCRegister& r6) {
   if (r5.u32 == 0) return;
+  uint8_t* base = Base();
   char name[kContentFileNameSize + 1] = {};
-  std::memcpy(name, Base() + r5.u32 + kContentFileName, kContentFileNameSize);
-  ssarecomp::OnSavePackage(name, r6.u32 & 0xF, ssarecomp::InMainMenu(Base()));
+  std::memcpy(name, base + r5.u32 + kContentFileName, kContentFileNameSize);
+  ssarecomp::OnSavePackage(name, r6.u32 & 0xF, ssarecomp::InMainMenu(base));
 }
 
-// 0x82761CC8 in SpyroEnemyDamageRule: f31 an enemy's hit, f0 its element bonus.
-void EnemyHitHook(PPCRegister& f0, PPCRegister& f31) {
-  const float m = ActiveMultiplier();
-  if (m == 0.0f) return;
-  static std::atomic<bool> logged{false};
-  const double before = f31.f64 + f0.f64;
-  f31.f64 = Scaled(f31.f64, m);
-  f0.f64 = Scaled(f0.f64, m);
-  if (before > 0.0) LogOnce(logged, "an enemy's", before, f31.f64 + f0.f64, m);
+// 0x82827D80 in sub_828279A0 (take damage): r29 the health component, f29 the damage.
+void TakeDamageHook(PPCRegister& r29, PPCRegister& f29) {
+  const float m = ssarecomp::EnemyMultiplier();
+  if (m == 1.0f || !(m > 0.0f) || !(f29.f64 > 0.0)) return;
+  uint8_t* base = Base();
+  if (!Applies(base)) return;
+  const double before = f29.f64;
+  if (ssarecomp::IsPlayerHealth(base, r29.u32)) {
+    f29.f64 = before * m;
+    static std::atomic<int> logged{0};
+    LogFirst(logged, "damage to a Skylander", before, f29.f64, m);
+  } else {
+    f29.f64 = before / m;
+    static std::atomic<int> logged{0};
+    LogFirst(logged, "health of an enemy (damage to it)", before, f29.f64, m);
+  }
 }
 
-// 0x827621D4 in SpyroDamageRule: f31 a Skylander's hit, f30 its element bonus.
-void SkylanderHitHook(PPCRegister& f30, PPCRegister& f31) {
-  const float m = ActiveMultiplier();
-  if (m == 0.0f) return;
-  static std::atomic<bool> logged{false};
-  const double before = f31.f64 + f30.f64;
-  f31.f64 = Scaled(f31.f64, 1.0 / m);
-  f30.f64 = Scaled(f30.f64, 1.0 / m);
-  if (before > 0.0) LogOnce(logged, "a Skylander's", before, f31.f64 + f30.f64, m);
+// 0x8273B44C in the pickup handler: f0 the health now, f1 the health with the food.
+void FoodHealHook(PPCRegister& f0, PPCRegister& f1) {
+  const float scale = ssarecomp::FoodHealScale();
+  if (scale == 1.0f || !(f1.f64 > f0.f64) || !Applies(Base())) return;
+  const double before = f1.f64 - f0.f64;
+  f1.f64 = f0.f64 + before * scale;
+  static std::atomic<int> logged{0};
+  LogFirst(logged, "food heal", before, before * scale, scale);
+}
+
+// 0x8275DDD4 in the level-up: r3 the health component, f1 its full health.
+void LevelUpHealHook(PPCRegister& r3, PPCRegister& f1) {
+  const float part = ssarecomp::LevelUpHealPart();
+  if (part >= 1.0f || r3.u32 == 0) return;
+  uint8_t* base = Base();
+  if (!ssarecomp::Playing(base) || ssarecomp::InMainMenu(base) || !Applies(base)) return;
+  const double full = f1.f64, now = LoadFloat(base, r3.u32 + kHealth);
+  if (!(now > 0.0 && now < full && full < 100000.0)) return;
+  f1.f64 = std::min(full, now + full * part);
+  static std::atomic<int> logged{0};
+  LogFirst(logged, "level-up heal", full - now, f1.f64 - now, part);
 }

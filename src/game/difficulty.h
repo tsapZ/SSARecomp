@@ -5,7 +5,7 @@
 //   Easy        enemies x0.6
 //   Adventurer  enemies x1.0 (the game as it is; saves from before this have it)
 //   Hard        enemies x2.0
-//   Nightmare   enemies x3.0
+//   Nightmare   enemies x4.0
 //
 // The multiplier makes the enemies stronger and tougher alike: the damage an enemy's hit does is
 // multiplied by it, the damage a Skylander's hit does to an enemy divided by it (so an enemy takes
@@ -35,7 +35,7 @@ namespace ssarecomp {
 enum class Difficulty : int { kEasy = 0, kAdventurer = 1, kHard = 2, kNightmare = 3 };
 constexpr int kDifficultyCount = 4;
 
-// x0.6, x1, x2, x3.
+// x0.6, x1, x2, x4.
 float DifficultyMultiplier(Difficulty difficulty);
 // "easy", "adventurer", "hard", "nightmare" (difficulty.txt's words).
 const char* DifficultyKey(Difficulty difficulty);
@@ -58,5 +58,9 @@ void OnSavePackage(const std::string& name, uint32_t how, bool on_main_menu);
 
 // The enemies' multiplier for the save being played: 1 before any slot save was opened. Any thread.
 float EnemyMultiplier();
+// What food heals, as a part of what it would (1, 1, 0.75, 0.6; Swap Force's table).
+float FoodHealScale();
+// What a level-up gives back, as a part of the full health (1, 1, 0.2, 0.1; Swap Force's table).
+float LevelUpHealPart();
 
 }  // namespace ssarecomp

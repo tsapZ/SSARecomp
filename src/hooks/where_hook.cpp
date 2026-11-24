@@ -161,6 +161,8 @@ bool InBattleLevel(uint8_t* base) {
   return it != g_names.end() && it->second.starts_with("PvP_");
 }
 
+bool Playing(uint8_t* base) { return Load32(base, kGameState) == 2; }
+
 bool InMainMenu(uint8_t* base) {
   static const uint32_t kFrontEnd = Crc32("FrontEnd");
   return Load32(base, kCurrentLevel) == kFrontEnd;

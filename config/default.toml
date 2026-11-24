@@ -235,22 +235,30 @@ address = 0x822DD4C4
 name = "SavePackageHook"
 registers = ["r5", "r6"]
 
-# 0x82761CC8 (lwz r11,396(r1)) in the enemies' damage rule SpyroEnemyDamageRule (sub_82761AF0): f31
-# is an enemy's hit and f0 its element bonus, stored to the hit's result right after (their sum is
-# the damage). 0x827621D4 (lwz r11,268(r31)) in the players' rule SpyroDamageRule (sub_82761F80): f31
-# a Skylander's hit and f30 its element bonus, the same way. Found 2026-11-24 from the rules'
-# code (see the crit hooks above). src/hooks/difficulty_hook.cpp multiplies an enemy's hit by the
-# save's difficulty (x0.6, x1, x2, x3) and divides a Skylander's by it, outside Battle Mode; with
-# Adventurer (x1, every save from before) it changes nothing.
+# Difficulty: damage, food and the level-up heal (src/hooks/difficulty_hook.cpp has how they were
+# found, 2026-11-24). Every health component's health is set by sub_82826C20; its only subtraction is
+# in sub_828279A0, the component's take-damage, which in play reaches 0x82827D80 (lfs f0,688(r29);
+# fsubs f1,f0,f29) with r29 the component and f29 the damage: a player's Skylander takes it times the
+# save's multiplier (x0.6, x1, x2, x4), anything else divided by it (its health times it). 0x8273B44C
+# is the pickup handler's (sub_8273B3D8) bl sub_82826C20 for food, f0 the health and f1 the health
+# with the food: the gain is scaled (1, 1, 0.75, 0.6). 0x8275DDD4 is the bl sub_82826C20 that refills
+# a Skylander's health at a level-up (sub_8275DBC8, after its XP and level), f1 the full health and r3
+# the component: a hurt Skylander in play gets back a part of it (1, 1, 0.2, 0.1). The last two come
+# from Swap Force's difficulty table. Battle Mode and Adventurer stay as they are.
 [[midasm_hook]]
-address = 0x82761CC8
-name = "EnemyHitHook"
-registers = ["f0", "f31"]
+address = 0x82827D80
+name = "TakeDamageHook"
+registers = ["r29", "f29"]
 
 [[midasm_hook]]
-address = 0x827621D4
-name = "SkylanderHitHook"
-registers = ["f30", "f31"]
+address = 0x8273B44C
+name = "FoodHealHook"
+registers = ["f0", "f1"]
+
+[[midasm_hook]]
+address = 0x8275DDD4
+name = "LevelUpHealHook"
+registers = ["r3", "f1"]
 
 [functions]
 # Function starts the analyzer put one instruction late (SSARecomp #33 / GiantsRecomp #23), found in
