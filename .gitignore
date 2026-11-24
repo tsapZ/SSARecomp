@@ -33,4 +33,4 @@ CMakeUserPresets.json
 # Compiler profile counts (profile-guided build tries)
 *.profraw
 *.profdata
-/config/active.toml
+/generated/russian/

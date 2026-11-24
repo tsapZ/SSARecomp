@@ -54,10 +54,10 @@ elseif(REXGLUE_RECOMP_DEBUG_INFO STREQUAL "line-tables-only")
 endif()
 
 # Include entrypoint generated code if codegen has been run.
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/generated/default/sources.cmake")
-    include(generated/default/sources.cmake)
+if(EXISTS "${SSARECOMP_CODEGEN_OUTPUT}/sources.cmake")
+    include("${SSARECOMP_CODEGEN_OUTPUT}/sources.cmake")
     set(REXGLUE_ENTRYPOINT_GENERATED_SOURCES ${GENERATED_SOURCES})
-    set(REXGLUE_ENTRYPOINT_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/generated/default")
+    set(REXGLUE_ENTRYPOINT_INCLUDE_DIR "${SSARECOMP_CODEGEN_OUTPUT}")
 
     # Carried on the sources so they hold for whichever target compiles them.
     set_source_files_properties(${REXGLUE_ENTRYPOINT_GENERATED_SOURCES}
@@ -115,18 +115,19 @@ endmacro()
 # library rexglue_setup_target() builds. The stamp comes first: the DEPFILE
 # names it.
 add_custom_command(
-    OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/generated/default/codegen.build.stamp"
+    OUTPUT "${SSARECOMP_CODEGEN_OUTPUT}/codegen.build.stamp"
            ${REXGLUE_ENTRYPOINT_GENERATED_SOURCES}
-    COMMAND $<TARGET_FILE:rex::rexglue> codegen ${CMAKE_CURRENT_SOURCE_DIR}/ssarecomp_manifest.toml
-    DEPFILE "${CMAKE_CURRENT_SOURCE_DIR}/generated/default/codegen.d"
+    COMMAND $<TARGET_FILE:rex::rexglue> codegen "${SSARECOMP_CODEGEN_MANIFEST}"
+    DEPENDS "${SSARECOMP_CODEGEN_MANIFEST}"
+    DEPFILE "${SSARECOMP_CODEGEN_OUTPUT}/codegen.d"
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     COMMENT "Generating recompiled code for ssarecomp"
     VERBATIM
 )
 add_custom_target(ssarecomp_codegen
-    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/generated/default/codegen.build.stamp")
+    DEPENDS "${SSARECOMP_CODEGEN_OUTPUT}/codegen.build.stamp")
 
 # Include DLL module shared library targets if codegen has generated them
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/generated/default/dll_targets.cmake")
-    include(generated/default/dll_targets.cmake)
+if(EXISTS "${SSARECOMP_CODEGEN_OUTPUT}/dll_targets.cmake")
+    include("${SSARECOMP_CODEGEN_OUTPUT}/dll_targets.cmake")
 endif()

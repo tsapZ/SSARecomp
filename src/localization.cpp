@@ -80,10 +80,12 @@ std::string SystemLanguage() {
       return "danish";
     case LANG_FINNISH:
       return "finnish";
+#if defined(SKYLANDERS_XEX_RUSSIAN)
     case LANG_POLISH:
       return "polish";
     case LANG_RUSSIAN:
       return "russian";
+#endif
     default:
       break;
   }
@@ -92,8 +94,10 @@ std::string SystemLanguage() {
   // The shared locale mapping has no Russian or Polish (the supported disc has neither); read the
   // locale here for the Russian 0.0.0.4 disc, whose languages are these two.
   const skylanders::SystemLocale locale = skylanders::CurrentPosixLocale();
+#if defined(SKYLANDERS_XEX_RUSSIAN)
   if (locale.language == "ru") return "russian";
   if (locale.language == "pl") return "polish";
+#endif
   const std::string lang = skylanders::LanguageFromLocale(locale);
   if (lang == "german" || lang == "french" || lang == "spanish" || lang == "italian" ||
       CountryLanguages().count(lang) != 0) {
@@ -130,7 +134,9 @@ void ApplyLanguageSetting() {
   // console's country (CountryLanguages above).
   static const std::unordered_map<std::string, uint32_t> kNames = {
       {"english", 1}, {"german", 3}, {"french", 4}, {"spanish", 5}, {"italian", 6},
+#if defined(SKYLANDERS_XEX_RUSSIAN)
       {"polish", 11}, {"russian", 12},
+#endif
   };
 
   std::string setting = Lower(REXCVAR_GET(language));
@@ -164,6 +170,13 @@ void ApplyLanguageSetting() {
   uint32_t numeric_id = 0;
   auto [ptr, ec] = std::from_chars(setting.data(), setting.data() + setting.size(), numeric_id);
   if (ec == std::errc() && ptr == setting.data() + setting.size()) {
+#if !defined(SKYLANDERS_XEX_RUSSIAN)
+    if (numeric_id == 11 || numeric_id == 12) {
+      REXLOG_WARN("Language: the supported disc has no Polish or Russian text");
+      REXCVAR_SET(user_language, 1u);
+      return;
+    }
+#endif
     REXCVAR_SET(user_language, numeric_id);
     REXLOG_INFO("Language: raw id {}", numeric_id);
     return;

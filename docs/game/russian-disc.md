@@ -86,8 +86,8 @@ was hit in the runs above.
 1. Put the extracted Russian disc in `rom/` (`rom/default.xex` must be the 0.0.0.4 file).
 2. Configure and build as usual (`cmake --preset linux-amd64-release`, then
    `cmake --build ... --target ssarecomp_codegen`, configure again and build). CMake prints
-   "the Russian 0.0.0.4 disc; the 0.0.0.2 hooks are off" and copies `config/russian.toml` to
-   `config/active.toml`.
+   the chosen disc build. The Russian build uses its own manifest and generates into
+   `generated/russian/`. The stock manifest still generates into `generated/default/`.
 3. Start it with `--language=russian` (or `polish`); `auto` follows a Russian Windows/Linux
    locale after the language names were added, but an English system needs the flag.
 

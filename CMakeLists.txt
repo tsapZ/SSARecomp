@@ -30,6 +30,22 @@ add_compile_options("$<$<COMPILE_LANGUAGE:C,CXX>:-ffile-prefix-map=${CMAKE_SOURC
 # build); before the SDK, so its targets get it too.
 include(thirdparty/skylanders-portal/cmake/pgo.cmake)
 
+# Choose a stable manifest and output directory for this disc build.
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/rom/default.xex")
+set(SSARECOMP_RUSSIAN_DISC OFF)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/rom/default.xex")
+    file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/rom/default.xex" SSARECOMP_XEX_SHA256)
+    if(SSARECOMP_XEX_SHA256 STREQUAL "0598a9638d92ec0070f4fb701323c132427dd76af3cd5a0ebc1d61f211b84041")
+        set(SSARECOMP_RUSSIAN_DISC ON)
+    endif()
+endif()
+set(SSARECOMP_CODEGEN_MANIFEST "${CMAKE_CURRENT_SOURCE_DIR}/ssarecomp_manifest.toml")
+set(SSARECOMP_CODEGEN_OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/generated/default")
+if(SSARECOMP_RUSSIAN_DISC)
+    message(STATUS "Skylanders: Spyro's Adventure: building the Russian 0.0.0.4 disc")
+    set(SSARECOMP_CODEGEN_MANIFEST "${CMAKE_CURRENT_SOURCE_DIR}/ssarecomp_russian_manifest.toml")
+    set(SSARECOMP_CODEGEN_OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/generated/russian")
+endif()
 include(generated/rexglue.cmake)
 
 # Portal of Power support (thirdparty/skylanders-portal, shared with other Skylanders recomps).
@@ -39,33 +55,14 @@ endif()
 add_subdirectory(thirdparty/skylanders-portal)
 
 # Recompiled code is generated from the user's own default.xex and is not in the repository.
-if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/generated/default/sources.cmake")
+if(NOT EXISTS "${SSARECOMP_CODEGEN_OUTPUT}/sources.cmake")
     message(WARNING
-        "No recompiled code yet (generated/default/sources.cmake is missing).\n"
+        "No recompiled code yet (the selected sources.cmake is missing).\n"
         "  1. Put your extracted game disc in rom/ (rom/default.xex must exist).\n"
         "  2. Run:  cmake --build --preset <preset> --target ssarecomp_codegen\n"
         "  3. Re-run:  cmake --preset <preset>\n"
         "  4. Build:  cmake --build --preset <preset>\n"
         "See README.md.")
-endif()
-
-# The Russian disc is a different build (0.0.0.4): the 0.0.0.2 codegen hooks and the sources that
-# call its addresses don't apply to it. Codegen reads one config; the chosen one is copied to
-# config/active.toml (git-ignored) so a checkout can build either disc without touching the other.
-# A disc added or swapped after the first configure must pick its config before codegen runs.
-set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/rom/default.xex")
-set(SSARECOMP_RUSSIAN_DISC OFF)
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/rom/default.xex")
-    file(SHA256 "${CMAKE_CURRENT_SOURCE_DIR}/rom/default.xex" SSARECOMP_XEX_SHA256)
-    if(SSARECOMP_XEX_SHA256 STREQUAL "0598a9638d92ec0070f4fb701323c132427dd76af3cd5a0ebc1d61f211b84041")
-        set(SSARECOMP_RUSSIAN_DISC ON)
-    endif()
-endif()
-if(SSARECOMP_RUSSIAN_DISC)
-    message(STATUS "Skylanders: Spyro's Adventure: the Russian 0.0.0.4 disc; the 0.0.0.2 hooks are off")
-    configure_file(config/russian.toml "${CMAKE_CURRENT_SOURCE_DIR}/config/active.toml" COPYONLY)
-else()
-    configure_file(config/default.toml "${CMAKE_CURRENT_SOURCE_DIR}/config/active.toml" COPYONLY)
 endif()
 
 # Sources
@@ -83,7 +80,6 @@ set(SSARECOMP_SOURCES
     src/hooks/attribute_cheats_hook.cpp
     src/hooks/extras.cpp
     src/hooks/intro_skip_hook.cpp
-    src/hooks/lua_error_hook.cpp
     src/hooks/multiplier_cheats_hook.cpp
     src/hooks/object_list_guard_hook.cpp
     src/hooks/post_effects_hook.cpp
@@ -97,6 +93,7 @@ set(SSARECOMP_SOURCES
 if(NOT SSARECOMP_RUSSIAN_DISC)
     list(APPEND SSARECOMP_SOURCES
         src/hooks/anim_race_guard_hook.cpp
+        src/hooks/lua_error_hook.cpp
         src/hooks/skip_talks_hook.cpp)
 endif()
 
