@@ -56,6 +56,7 @@
 #include <rex/logging.h>
 
 #include "hats.h"
+#include "portal_rex/png_file.h"
 #include "portal_rex/portal_menu.h"
 #include "alchemy/xenos_dxt.h"
 
@@ -356,6 +357,24 @@ void Load(std::filesystem::path archive) {
   if (buttons && *buttons < 2) REXLOG_WARN("UI images: the A / B buttons not in {}", pause.string());
 }
 
+// A PNG file as a picture ("file:<path>", UTF-8), read once and kept (a missing one is not retried):
+// the difficulty picker's portraits from the data folder (game/difficulty.cpp).
+std::shared_ptr<const skylanders::FigureImage> FilePicture(const std::string& path) {
+  static std::mutex mutex;
+  static std::map<std::string, std::shared_ptr<const skylanders::FigureImage>> cache;
+  std::lock_guard lock(mutex);
+  if (const auto it = cache.find(path); it != cache.end()) return it->second;
+  auto image = std::make_shared<skylanders::FigureImage>();
+  std::shared_ptr<const skylanders::FigureImage> result;
+  if (skylanders::ReadPng(std::filesystem::u8path(path), image->width, image->height, image->rgba)) {
+    result = std::move(image);
+  } else {
+    REXLOG_WARN("UI images: could not read {}", path);
+  }
+  cache[path] = result;
+  return result;
+}
+
 // The single pictures' prefix, the strips' name up to "upgrades" ("eruptor_upgradesa" -> "eruptor_",
 // "stealthelf_upgradespook" -> "stealthelf_").
 std::string PosePrefix(const Paths& paths) {
@@ -559,6 +578,8 @@ void InstallUiImages(const std::filesystem::path& archive) {
     if (key == "ui:button_b") return Picture(kButtonBPicture);
     if (key == kControllerArtKey) return ControllerPicture();
     // "picture:toy_gillgrunt_hud" -> that picture as it is (the difficulty picker's portraits).
+    constexpr std::string_view kFile = "file:";
+    if (key.starts_with(kFile)) return FilePicture(key.substr(kFile.size()));
     constexpr std::string_view kPicture = "picture:";
     if (key.starts_with(kPicture)) return Picture(key.substr(kPicture.size()));
     return std::shared_ptr<const skylanders::FigureImage>();

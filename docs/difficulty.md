@@ -62,6 +62,12 @@ description in a red banner with a gold frame: who it is for, what it changes, a
 ("+50% Rewards"). Blue Accept and Back buttons sit below. Left / right (stick, d-pad, arrow keys)
 or pointing with the mouse choose, A, Start, Enter or a click accepts. English and German.
 
+**Portraits of your own:** PNG files named `easy.png`, `adventurer.png`, `hard.png` and
+`nightmare.png` in a `difficulty` folder of the data folder (`Documents\Skylanders\Spyro's
+Adventure\difficulty`, or the folder Core of Light uses) replace the game's portraits in the circles:
+square, transparent around the character, about 512x512 (the circle shows them cut round). They are
+read at start; any that is missing keeps the game's own. None come with the port.
+
 - **F4 > Extras > Change this game's difficulty** opens the picker for the save being played (B goes
   back without changing it).
 - **F4 > Extras > Ask for a difficulty on a new game** (`difficulty_ask_new_game`, on): off, new

@@ -73,7 +73,9 @@ struct Level {
   const char* de;
   const char* tagline_en;
   const char* tagline_de;
-  const char* portrait;  // the game's picture for its circle (ui_images.cpp, "picture:<name>")
+  // The game's own picture for its circle (ui_images.cpp, "picture:<name>"), used when the data
+  // folder has no portrait of the player's own for it (difficulty\<key>.png, see g_portraits).
+  const char* portrait;
   ImU32 colour;          // the circle's colour, from calm to fierce
 };
 
@@ -280,7 +282,13 @@ void DrawBackdrop(ImDrawList* dl, float W, float H, float t) {
 }
 
 // A portrait in its gold-ringed circle; `focus` from 0 (resting) to 1 (chosen).
-void DrawPortrait(ImDrawList* dl, ImVec2 c, float r, const Level& level, float focus) {
+// The art key each circle shows: "file:<data folder>\difficulty\<key>.png" when that file is there
+// (pictures the player adds: square, transparent around the character; docs/difficulty.md), else the
+// game's own portrait. Set at install.
+std::array<std::string, kDifficultyCount> g_portraits;
+
+void DrawPortrait(ImDrawList* dl, ImVec2 c, float r, const Level& level, const std::string& art,
+                  float focus) {
   // The glow behind the chosen one.
   for (int k = 6; k >= 1; --k) {
     dl->AddCircleFilled(c, r + S(k * 5.0f) * focus, Rgba(255, 220, 120, int(14 * focus)), 64);
@@ -289,7 +297,9 @@ void DrawPortrait(ImDrawList* dl, ImVec2 c, float r, const Level& level, float f
   // A lighter centre, as a lit disc.
   dl->AddCircleFilled({c.x - r * 0.15f, c.y - r * 0.2f}, r * 0.62f,
                       Scaled(level.colour, 0.85f + 0.4f * focus, int(110 + 60 * focus)), 48);
-  if (ImTextureID tex = GameArtTexture(level.portrait)) {
+  ImTextureID tex = GameArtTexture(art);
+  if (!tex && art != level.portrait) tex = GameArtTexture(level.portrait);
+  if (tex) {
     const float inner = r * 0.9f;
     const ImU32 tint = Scaled(IM_COL32(255, 255, 255, 255), 0.55f + 0.45f * focus);
     dl->AddImageRounded(tex, {c.x - inner, c.y - inner}, {c.x + inner, c.y + inner}, {0, 0}, {1, 1},
@@ -487,7 +497,7 @@ class DifficultyDialog final : public rex::ui::ImGuiDialog {
       const float r = S(112) + S(38) * focus_[i];
       const float dx = mouse.x - c.x, dy = mouse.y - c.y;
       if (dx * dx + dy * dy <= r * r) hovered_ = i;
-      DrawPortrait(dl, c, r, kLevels[i], focus_[i]);
+      DrawPortrait(dl, c, r, kLevels[i], g_portraits[i], focus_[i]);
     }
   }
 
@@ -640,6 +650,19 @@ void InstallDifficulty(rex::ui::ImGuiDrawer* drawer, rex::ui::WindowedAppContext
   g_app_context = app_context;
   std::lock_guard lock(g_mutex);
   g_user_data = user_data_root;
+  int own = 0;
+  for (int i = 0; i < kDifficultyCount; ++i) {
+    std::error_code ec;
+    const auto file = user_data_root / "difficulty" / (std::string(kLevels[i].key) + ".png");
+    if (std::filesystem::is_regular_file(file, ec)) {
+      g_portraits[i] = "file:" + rex::path_to_utf8(file);
+      ++own;
+    } else {
+      g_portraits[i] = kLevels[i].portrait;
+    }
+  }
+  REXLOG_INFO("Difficulty: {} of {} portraits from {}", own, kDifficultyCount,
+              rex::path_to_utf8(user_data_root / "difficulty"));
   LoadLocked();
   REXLOG_INFO("Difficulty: {} save(s) with a chosen difficulty", g_saved.size());
 }
