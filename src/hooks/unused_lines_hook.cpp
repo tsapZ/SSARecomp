@@ -16,7 +16,11 @@
 // With the option on, the loader runs as it is and then a start state that names the loop's animation gets its own
 // start animation instead; the loop states keep theirs. The dev kit's first try swapped the name wherever it was asked
 // for, so both hose states played the start clip: it played, both sounds came (once per state), the spray looked the
-// same (runs\kit\ssa138_remap). Safe: only these two states of Gill Grunt change, to an animation of his own set; a
+// same (runs\kit\ssa138_remap). With this hook (2026-11-26, dev kit route ssa138_option, Gill held X standing and
+// while moving): both start states were swapped at load, the standing start asked AttackHoseInIdle, then the loop
+// asked AttackHoseIdle, and valve_open and effort_heavy came once per start; the spray matched a run with the option
+// off (water only in the first moments, then the held hose). The moving start state wasn't entered in that run (the
+// game used the standing pair). Safe: only these two states of Gill Grunt change, to an animation of his own set; a
 // state whose data names anything else is left alone. Read when a Skylander's states load, so the option takes
 // effect from the next level on.
 
