@@ -81,11 +81,11 @@ constexpr std::array<Level, kDifficultyCount> kLevels{{
     {"easy", 0.4f, 0.6f, 1.0f, 1.0f, 1.0f, "Easy", "Leicht",
      "For new Portal Masters and younger players!",
      "F\xC3\xBCr neue Portal-Meister und j\xC3\xBCngere Spieler!",
-     "picture:toy_gillgrunt_hud", IM_COL32(64, 170, 40, 255)},
+     "picture:toy_gillgrunt_hud", IM_COL32(40, 110, 210, 255)},
     {"adventurer", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, "Adventurer", "Abenteurer",
      "The adventure as it was made, just like on the console!",
      "Das Abenteuer, wie es gemacht wurde, genau wie auf der Konsole!",
-     "picture:toy_stealthelf_hud", IM_COL32(40, 110, 210, 255)},
+     "picture:toy_stealthelf_hud", IM_COL32(64, 170, 40, 255)},
     {"hard", 2.1f, 1.35f, 0.75f, 0.2f, 1.25f, "Hard", "Schwer",
      "For experienced Portal Masters!",
      "F\xC3\xBCr erfahrene Portal-Meister!",
@@ -316,9 +316,17 @@ float PillButton(ImDrawList* dl, ImVec2 pos, const char* glyph, const char* labe
                hover ? Rgba(26, 84, 200) : Rgba(18, 70, 180), S(12));
   dl->AddRect(pos, p1, Rgba(150, 200, 255, 120), S(12), 0, S(2));
   const ImVec2 gc{pos.x + S(26) + glyph_r, pos.y + h / 2};
-  dl->AddCircleFilled(gc, glyph_r, kWhite, 32);
-  const ImVec2 gs = TextSize(BoldFont(), S(24), glyph);
-  Label(dl, BoldFont(), S(24), {gc.x - gs.x / 2, CapCentredY(gc.y, S(24))}, Rgba(30, 50, 110), glyph);
+  // The game's own button picture (ui_images.cpp: its HUD's a_button / b_button); a drawn one until
+  // it is loaded.
+  const std::string art = glyph[0] == 'B' ? "ui:button_b" : "ui:button_a";
+  if (ImTextureID tex = GameArtTexture(art)) {
+    const float g = glyph_r * 1.3f;
+    dl->AddImage(tex, {gc.x - g, gc.y - g}, {gc.x + g, gc.y + g});
+  } else {
+    dl->AddCircleFilled(gc, glyph_r, glyph[0] == 'B' ? kBackRed : kAcceptGreen, 32);
+    const ImVec2 gs = TextSize(BoldFont(), S(24), glyph);
+    Label(dl, BoldFont(), S(24), {gc.x - gs.x / 2, CapCentredY(gc.y, S(24))}, kWhite, glyph);
+  }
   OutlinedLabel(dl, BoldFont(), S(30), {gc.x + glyph_r + S(14), CapCentredY(gc.y, S(30))}, kGold, label,
                 S(1.5f));
   if (clicked) *clicked = hover && ImGui::IsMouseClicked(ImGuiMouseButton_Left);
@@ -380,6 +388,7 @@ class DifficultyDialog final : public rex::ui::ImGuiDialog {
     const float W = io.DisplaySize.x, H = io.DisplaySize.y;
     const float t = std::chrono::duration<float>(Clock::now() - open_time_).count();
     DrawBackdrop(dl, W, H, t);
+    DrawVignette(dl, W, H);
 
     // Title, as the later games' "CHOOSE YOUR DIFFICULTY".
     const char* title = Tr("CHOOSE YOUR DIFFICULTY", "W\xC3\x84HLE DEINEN SCHWIERIGKEITSGRAD");
@@ -552,6 +561,33 @@ class DifficultyDialog final : public rex::ui::ImGuiDialog {
   bool clicked_accept_ = false, clicked_back_ = false;
   int hovered_ = -1;
   float focus_[kDifficultyCount] = {};
+  float vignette_[4] = {};  // the vignette's colour, easing to the chosen one's (r, g, b, strength)
+
+  // The screen's edges fade into the chosen difficulty's colour, a coloured vignette, which eases to
+  // the next colour when the choice changes.
+  void DrawVignette(ImDrawList* dl, float W, float H) {
+    const ImU32 c = kLevels[chosen_].colour;
+    const float target[4] = {float(c >> IM_COL32_R_SHIFT & 0xFF), float(c >> IM_COL32_G_SHIFT & 0xFF),
+                             float(c >> IM_COL32_B_SHIFT & 0xFF), 1.0f};
+    if (vignette_[3] == 0.0f) std::copy(target, target + 3, vignette_);  // the first colour at once
+    const float k = std::min(1.0f, ImGui::GetIO().DeltaTime * 8.0f);
+    for (int i = 0; i < 4; ++i) vignette_[i] += (target[i] - vignette_[i]) * k;
+    const auto col = [&](float a) {
+      return IM_COL32(int(vignette_[0]), int(vignette_[1]), int(vignette_[2]),
+                      int(std::clamp(a * vignette_[3], 0.0f, 1.0f) * 255));
+    };
+    // Each edge a band whose colour fades to nothing inwards; layered for a soft, rounder falloff.
+    const float bands[] = {0.32f, 0.2f, 0.1f};
+    const float alphas[] = {0.35f, 0.35f, 0.35f};
+    for (int b = 0; b < 3; ++b) {
+      const float dx = W * bands[b], dy = H * bands[b];
+      const ImU32 edge = col(alphas[b]), none = col(0.0f);
+      dl->AddRectFilledMultiColor({0, 0}, {dx, H}, edge, none, none, edge);
+      dl->AddRectFilledMultiColor({W - dx, 0}, {W, H}, none, edge, edge, none);
+      dl->AddRectFilledMultiColor({0, 0}, {W, dy}, edge, edge, none, none);
+      dl->AddRectFilledMultiColor({0, H - dy}, {W, H}, none, none, edge, edge);
+    }
+  }
   Clock::time_point open_time_ = Clock::now();
   std::unordered_map<uint64_t, PadState> pads_;
 };
