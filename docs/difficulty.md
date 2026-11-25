@@ -59,7 +59,8 @@ portraits in gold rings, from the mildest to the hardest (Gill Grunt for Easy, S
 Adventurer, Spyro for Hard, Kaos for Nightmare; the game's own HUD portraits and Kaos's dialogue
 picture). The chosen one grows and glows, and only its name is shown, under the portraits, with its
 description in a red banner with a gold frame: who it is for, what it changes, and the rewards
-("+50% Rewards"). Blue Accept and Back buttons sit below. Left / right (stick, d-pad, arrow keys)
+("+50% Rewards"). A blue Accept button sits below, with the game's own A picture (and a Back button, B, when the
+picker is opened from F4 > Extras; a new game waits for a choice, so it has none). Left / right (stick, d-pad, arrow keys)
 or pointing with the mouse choose, A, Start, Enter or a click accepts. English and German.
 
 **Portraits of your own:** PNG files named `easy.png`, `adventurer.png`, `hard.png` and
