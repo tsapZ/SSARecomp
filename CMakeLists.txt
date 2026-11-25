@@ -70,6 +70,7 @@ set(SSARECOMP_SOURCES
     src/hooks/post_effects_hook.cpp
     src/hooks/scene_size_hook.cpp
     src/hooks/skip_talks_hook.cpp
+    src/hooks/unused_lines_hook.cpp
     src/hooks/ultrawide_hook.cpp
     src/hooks/free_camera_hook.cpp
     src/hooks/where_hook.cpp

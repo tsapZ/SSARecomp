@@ -615,6 +615,13 @@ SettingsPage ExtrasPage() {
   // CoL #48: src/hooks/multiplier_cheats_hook.cpp, the gold and XP gain functions.
   page.settings.push_back(skylanders::GoldMultiplierCheatSetting());
   page.settings.push_back(skylanders::XpMultiplierCheatSetting());
+  // CoL #138: src/hooks/unused_lines_hook.cpp, Gill Grunt's hose start states. Not a cheat (achievements stay on).
+  page.settings.push_back({"unused_voice_lines", "Unused voice lines", "Ungenutzte Sprachzeilen",
+                           "Gill Grunt's hose starts with the animation, valve sound and voice line his files have "
+                           "for it, which the game never plays. From the next level on.",
+                           "Gill Grunts Wasserschlauch startet mit der Animation, dem Ventil und der Sprachzeile, "
+                           "die seine Dateien daf\xC3\xBCr haben, die das Spiel aber nie abspielt. Ab dem "
+                           "n\xC3\xA4" "chsten Level."});
   return page;
 }
 
