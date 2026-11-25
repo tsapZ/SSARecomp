@@ -588,7 +588,7 @@ class DifficultyDialog final : public rex::ui::ImGuiDialog {
     };
     // Each edge a band whose colour fades to nothing inwards; layered for a soft, rounder falloff.
     const float bands[] = {0.32f, 0.2f, 0.1f};
-    const float alphas[] = {0.35f, 0.35f, 0.35f};
+    const float alphas[] = {0.175f, 0.175f, 0.175f};
     for (int b = 0; b < 3; ++b) {
       const float dx = W * bands[b], dy = H * bands[b];
       const ImU32 edge = col(alphas[b]), none = col(0.0f);
