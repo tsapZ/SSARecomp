@@ -56,6 +56,7 @@
 #include <rex/logging.h>
 
 #include "hats.h"
+#include "portal_rex/png_file.h"
 #include "portal_rex/portal_menu.h"
 #include "alchemy/xenos_dxt.h"
 
@@ -173,6 +174,10 @@ bool IsStandIn(uint16_t id) { return id == 201 || id == 204 || id == 207 || (id 
 
 // The HUD's coin (the menu's gold symbol), in the HUD's own archive ui/eng/hudmenu.str (64x64).
 constexpr char kGoldPicture[] = "c:\\spyro\\assets\\ui\\textures\\hud\\gold.dds";
+// The game's own A and B button prompts (the pause menu's archive keeps the HUD's), for the difficulty
+// picker's Accept and Back (game/difficulty.cpp).
+constexpr char kButtonAPicture[] = "c:\\spyro\\assets\\ui\\textures\\hud\\a_button.dds";
+constexpr char kButtonBPicture[] = "c:\\spyro\\assets\\ui\\textures\\hud\\b_button.dds";
 
 // The controls page's pad (see the top), in ui/eng/startmenu.str, and the part of it with the pad.
 constexpr char kControllerPicture[] = "c:\\spyro\\assets\\ui\\textures\\startmenu\\360_controller.dds";
@@ -230,6 +235,9 @@ constexpr const char* kBonusPictures[] = {"elementalstrength", "armor", "critica
 
 bool Wanted(std::string_view name) {
   if (name.starts_with("toy_") && name.ends_with("_hud")) return true;
+  // Kaos's portrait (256x256, the dialogue's), for the difficulty picker's Nightmare
+  // (game/difficulty.cpp).
+  if (name == "kaos_icon") return true;
   if (name.starts_with("ico_element_")) return true;
   // The Soul Gems' pictures, "upgrade<toy id>" (upgrades.cpp).
   if (name.size() == 10 && name.starts_with("upgrade")) return true;
@@ -338,10 +346,33 @@ void Load(std::filesystem::path archive) {
   const auto coin = LoadArchive(hud, [](std::string_view name) { return name == kGoldPicture; });
   const auto start = archive.parent_path() / "ui" / "eng" / "startmenu.str";
   const auto pad = LoadArchive(start, [](std::string_view name) { return name == kControllerPicture; });
+  const auto pause = archive.parent_path() / "ui" / "eng" / "pausemenu.str";
+  const auto buttons = LoadArchive(pause, [](std::string_view name) {
+    return name == kButtonAPicture || name == kButtonBPicture;
+  });
   g_loaded.store(true);
   if (kept) REXLOG_INFO("UI images: {} pictures from {}", *kept, archive.filename().string());
   if (coin && *coin == 0) REXLOG_WARN("UI images: no coin in {}", hud.string());
   if (pad && *pad == 0) REXLOG_WARN("UI images: no controller picture in {}", start.string());
+  if (buttons && *buttons < 2) REXLOG_WARN("UI images: the A / B buttons not in {}", pause.string());
+}
+
+// A PNG file as a picture ("file:<path>", UTF-8), read once and kept (a missing one is not retried):
+// the difficulty picker's portraits from the data folder (game/difficulty.cpp).
+std::shared_ptr<const skylanders::FigureImage> FilePicture(const std::string& path) {
+  static std::mutex mutex;
+  static std::map<std::string, std::shared_ptr<const skylanders::FigureImage>> cache;
+  std::lock_guard lock(mutex);
+  if (const auto it = cache.find(path); it != cache.end()) return it->second;
+  auto image = std::make_shared<skylanders::FigureImage>();
+  std::shared_ptr<const skylanders::FigureImage> result;
+  if (skylanders::ReadPng(std::filesystem::u8path(path), image->width, image->height, image->rgba)) {
+    result = std::move(image);
+  } else {
+    REXLOG_WARN("UI images: could not read {}", path);
+  }
+  cache[path] = result;
+  return result;
 }
 
 // The single pictures' prefix, the strips' name up to "upgrades" ("eruptor_upgradesa" -> "eruptor_",
@@ -543,7 +574,14 @@ void InstallUiImages(const std::filesystem::path& archive) {
     if (key.starts_with("pose:")) return PosePicture(key);
     // The menu's gold symbol: the HUD's coin.
     if (key == "ui:gold") return Picture(kGoldPicture);
+    if (key == "ui:button_a") return Picture(kButtonAPicture);
+    if (key == "ui:button_b") return Picture(kButtonBPicture);
     if (key == kControllerArtKey) return ControllerPicture();
+    // "picture:toy_gillgrunt_hud" -> that picture as it is (the difficulty picker's portraits).
+    constexpr std::string_view kFile = "file:";
+    if (key.starts_with(kFile)) return FilePicture(key.substr(kFile.size()));
+    constexpr std::string_view kPicture = "picture:";
+    if (key.starts_with(kPicture)) return Picture(key.substr(kPicture.size()));
     return std::shared_ptr<const skylanders::FigureImage>();
   });
 }

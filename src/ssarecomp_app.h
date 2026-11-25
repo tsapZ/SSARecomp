@@ -25,6 +25,7 @@
 
 #include "dev/input_script.h"
 #include "dev/write_watch.h"
+#include "game/difficulty.h"
 #include "game/portal_prompt_watch.h"
 #include "game/game_fonts.h"
 #include "hooks/ultrawide_hook.h"
@@ -104,6 +105,7 @@ class SsarecompApp : public rex::ReXApp {
     skylanders::ShutdownPortalMenu();
     skylanders::ShutdownPlayerMenu();
     skylanders::ShutdownSettingsMenu();
+    ssarecomp::ShutdownDifficulty();
   }
 
   // The title screen's music: the Wwise stream the game reads from its streaming package there,
@@ -361,6 +363,9 @@ class SsarecompApp : public rex::ReXApp {
     // The controls page shows the menu buttons on the game's own controller picture.
     skylanders::SetControllerPicture(ssarecomp::ControllerPictureLayout());
     skylanders::RegisterPortalOverlay(drawer);
+    // A new game asks for a difficulty (Easy, Adventurer, Hard, Nightmare), kept per save
+    // (game/difficulty.h).
+    ssarecomp::InstallDifficulty(drawer, &app_context(), user_data_root());
   }
 
   void OnConfigurePaths(rex::PathConfig& paths) override {

@@ -94,6 +94,17 @@ void KeepHealthFull(uint8_t* base) {
 
 namespace ssarecomp {
 
+bool IsPlayerHealth(uint8_t* base, uint32_t component) {
+  if (!HeapPointer(component)) return false;
+  uint32_t node = Load32(base, kPlayers + 4);
+  for (int i = 0; i < 4 && node != kPlayers && HeapPointer(node); ++i, node = Load32(base, node + 4)) {
+    const uint32_t object = Load32(base, node + 8), counts = Load32(base, node + 12);
+    if (!HeapPointer(object) || !HeapPointer(counts) || Load32(base, counts + 4) == 0) continue;
+    if (HealthComponent(base, object) == component) return true;
+  }
+  return false;
+}
+
 void ApplyExtras(uint8_t* base) {
   if (REXCVAR_GET(cheat_no_health_loss)) KeepHealthFull(base);
 }

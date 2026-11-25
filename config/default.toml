@@ -190,7 +190,8 @@ return_on_true = true
 # `mr r31,r4`, r4 the amount. Found 2026-11-06 with the developer kit: a write watch on the gold
 # property while Chop Chop picked up coins (sub_8220CAA8 <- sub_829555B8 <- sub_8275A440); the XP
 # function is its twin. src/hooks/multiplier_cheats_hook.cpp scales r4 by cheat_gold_multiplier /
-# cheat_xp_multiplier (1, off, by default); r4 is only copied to r31 here.
+# cheat_xp_multiplier (1, off, by default) and by the save's difficulty (x1.25 on Hard, x1.5 on
+# Nightmare, Imaginators' rewards); r4 is only copied to r31 here.
 [[midasm_hook]]
 address = 0x8275A454
 name = "GoldGainHook"
@@ -223,6 +224,54 @@ registers = ["r27", "r29"]
 address = 0x8276219C
 name = "ElementLevelHook"
 registers = ["r29", "r30"]
+
+# Difficulty levels (src/game/difficulty.h). 0x822DD4C4 is the game's only call of XamContentCreateEx
+# (bl 0x829E5C34, in sub_822DD460): r5 the XCONTENT_DATA (the package folder, "Skylanders - Slot 1",
+# at +264), r6 the flags (low four bits: 1 create new, 2 create always, 3 open existing, 4 open
+# always). src/hooks/difficulty_hook.cpp notes which slot save is played and, for a slot save that
+# doesn't exist yet, opens the difficulty picker and holds the save until a level is chosen; the
+# registers are only read.
+[[midasm_hook]]
+address = 0x822DD4C4
+name = "SavePackageHook"
+registers = ["r5", "r6"]
+
+# Difficulty: damage, food and the level-up heal (src/hooks/difficulty_hook.cpp has how they were
+# found, 2026-11-24). Every health component's health is set by sub_82826C20; its only subtraction is
+# in sub_828279A0, the component's take-damage, which in play reaches 0x82827D80 (lfs f0,688(r29);
+# fsubs f1,f0,f29) with r29 the component and f29 the damage: a player's Skylander takes it times the
+# save's damage multiplier (x0.4, x1, x2.1, x5); anything else has its full and current health (+476,
+# +688) raised by the health multiplier (x0.6, x1, x1.35, x2.5; Swap Force's table) the first time
+# it is hurt, and the damage stays as it is. 0x8273B44C
+# is the pickup handler's (sub_8273B3D8) bl sub_82826C20 for food, f0 the health and f1 the health
+# with the food: the gain is scaled (1, 1, 0.75, 0.6). 0x8275DDD4 is the bl sub_82826C20 that refills
+# a Skylander's health at a level-up (sub_8275DBC8, after its XP and level), f1 the full health and r3
+# the component: a hurt Skylander in play gets back a part of it (1, 1, 0.2, 0.1). The last two come
+# from Swap Force's difficulty table. Battle Mode and Adventurer stay as they are.
+[[midasm_hook]]
+address = 0x82827D80
+name = "TakeDamageHook"
+registers = ["r29", "f29"]
+
+# 0x827B7CEC is the fcmpu in sub_827B7C70, a HealthTrigger's check (a boss's phases; the lux class's
+# vtable 820ACC00, found from its RTTI .?AVHealthTrigger@lux@@, 2026-11-25): f0 the target's health
+# (+688 of its health component, r8), f13 the next phase's threshold, an amount of health from the
+# level's data. src/hooks/difficulty_hook.cpp divides f0 by the scale the difficulty raised that
+# enemy's health by, so the phase comes at the same part of its full health; f0 is read only here.
+[[midasm_hook]]
+address = 0x827B7CEC
+name = "HealthTriggerHook"
+registers = ["r8", "f0"]
+
+[[midasm_hook]]
+address = 0x8273B44C
+name = "FoodHealHook"
+registers = ["f0", "f1"]
+
+[[midasm_hook]]
+address = 0x8275DDD4
+name = "LevelUpHealHook"
+registers = ["r3", "f1"]
 
 [functions]
 # Function starts the analyzer put one instruction late (SSARecomp #33 / GiantsRecomp #23), found in

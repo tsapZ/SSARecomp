@@ -10,6 +10,7 @@ Pages, roughly in reading order:
 | [portal.md](portal.md) | The Portal of Power here: modes, the figure folder, the menu at the game's own portal screens, the portal check |
 | [menus.md](menus.md) | Menus and keys: portal menu, player menu, settings menu |
 | [free-camera.md](free-camera.md) | The optional free camera: third-person and turned cameras, settings |
+| [difficulty.md](difficulty.md) | Difficulty levels: Easy, Adventurer, Hard, Nightmare, chosen for each new game |
 | [development.md](development.md) | Building from source on Windows, scripted test runs |
 | [build.md](build.md) | Codegen fixes (`config/default.toml`), kernel stubs, the fix loop, testing |
 | [reverse-engineering.md](reverse-engineering.md) | Headless Ghidra: identify and name functions |
