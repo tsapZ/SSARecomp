@@ -838,3 +838,7 @@ above and docs/roadmap.md.
 ## 2026-11-24: shared libraries
 
 - Automatic reads a newly placed real figure first (SF #42).
+
+## 2026-11-25: shared libraries
+
+- Stereo by default, Linux start crash (/dev/shm) fixed, Linux reports private, portal driver hint, HID speaker test switch, CAS/FSR 1 on Linux.
