@@ -21,10 +21,25 @@
 //   0x82827D80  lfs f0,688(r29); fsubs f1,f0,f29; bl sub_82826C20   (r29 the component, f29 the damage)
 //
 // and below 1 health (+148 of the constants) the component is set to 0 and dies. (The way before it,
-// through +865 / +868, is Battle Mode's arena health.) So the damage is scaled there, once for all:
-// a player's Skylander takes it times DamageTakenScale, anything else (enemies, bosses, minions)
-// divided by EnemyHealthScale, the same as its health times that, the bar included. The game's
-// own direct settings (refills, scripted deaths at 0) are left alone.
+// through +865 / +868, is Battle Mode's arena health.) There, once for all:
+//   - a player's Skylander takes the damage times DamageTakenScale;
+//   - anything else (enemies, bosses, minions) gets its health raised, not the player's hits
+//     lowered: the first time it is hurt, its health multiplier (+476, full health = +484 * +476)
+//     and its current health (+688) are both multiplied by EnemyHealthScale, so its full health is
+//     that much more while its bar stays where it was, and the damage goes on as it is. The scaled
+//     multiplier is remembered per component (g_scaled): a component the game made anew in the same
+//     memory has its own multiplier again and is scaled again.
+//
+// Boss phases: a boss's HealthTrigger (lux class, vtable 820ACC00 from its RTTI .?AVHealthTrigger@lux@@;
+// its level data's HealthTrigBlock list, healthDecrease and the trigger to send) is checked in
+// sub_827B7C70, which fires the next block when the target's health is below the block's threshold,
+// an amount of health:
+//
+//   0x827B7CEC  fcmpu cr6,f0,f13   (f0 the target's health, +688 of its component in r8; f13 the threshold)
+//
+// For a scaled component f0 is divided by its scale there, so the phase comes at the same part of its
+// (raised) full health as the game meant, 40 % of 5000 rather than 400 of it. Found 2026-11-25; used in
+// the levels' mission.str (level_006, 008, 010b, 018, 021).
 //
 //   0x8273B44C  bl sub_82826C20 in the pickup handler sub_8273B3D8: food. f0 the current health,
 //               f1 that plus the food's value (+452 of the pickup); the gain is scaled by FoodHealScale.
@@ -35,14 +50,17 @@
 //               into a level still starts full.
 //
 // Battle Mode arenas (PvP_Level_*), where Skylanders fight each other, stay as they are, and so does
-// Adventurer. Nothing is written to the game's memory; the registers are what the game goes on with.
+// Adventurer. The only writes to the game's memory are the two health fields of a hurt enemy;
+// everything else is in the registers the game goes on with.
 
 #include <algorithm>
 #include <atomic>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <mutex>
 #include <string>
+#include <unordered_map>
 
 #include <rex/logging.h>
 #include <rex/memory.h>
@@ -59,6 +77,8 @@ namespace {
 constexpr uint32_t kContentFileName = 264;  // XCONTENT_DATA: device id, type, display name (128 wchar)
 constexpr uint32_t kContentFileNameSize = 42;
 constexpr uint32_t kHealth = 688;
+constexpr uint32_t kLevelHealth = 484;
+constexpr uint32_t kHealthFactor = 476;
 
 uint8_t* Base() { return rex::system::kernel_state()->memory()->virtual_membase(); }
 
@@ -67,6 +87,53 @@ float LoadFloat(uint8_t* base, uint32_t address) {
   float f;
   std::memcpy(&f, &bits, sizeof(f));
   return f;
+}
+void StoreFloat(uint8_t* base, uint32_t address, float f) {
+  uint32_t bits;
+  std::memcpy(&bits, &f, sizeof(bits));
+  rex::memory::store_and_swap<uint32_t>(base + address, bits);
+}
+
+// The enemies whose health was raised: component -> the multiplier (+476) it was given and the scale.
+struct Scaled {
+  float factor;
+  float scale;
+};
+std::mutex g_scaled_mutex;
+std::unordered_map<uint32_t, Scaled> g_scaled;
+
+// The scale a component's health was raised by, 0 if it wasn't (or the game made it anew since).
+float ScaleOf(uint8_t* base, uint32_t component) {
+  std::lock_guard lock(g_scaled_mutex);
+  const auto it = g_scaled.find(component);
+  if (it == g_scaled.end() || LoadFloat(base, component + kHealthFactor) != it->second.factor) return 0.0f;
+  return it->second.scale;
+}
+
+// Raises an enemy's full and current health by `scale` the first time it is hurt (keeping its bar).
+void RaiseHealth(uint8_t* base, uint32_t component, float scale) {
+  if (ScaleOf(base, component) != 0.0f) return;
+  const float factor = LoadFloat(base, component + kHealthFactor);
+  const float level = LoadFloat(base, component + kLevelHealth);
+  const float now = LoadFloat(base, component + kHealth);
+  const float full = level * factor;
+  // Only plausible components (set up, not dead); the game's own numbers otherwise.
+  if (!(factor > 0.0f && full > 0.0f && full < 100000.0f && now > 0.0f)) return;
+  const float raised = factor * scale;
+  StoreFloat(base, component + kHealthFactor, raised);
+  // The current health goes up with it, so the bar keeps its place, unless it already is above the
+  // unscaled full health (the game set the multiplier back on a component that was raised before).
+  if (now <= full * 1.001f) StoreFloat(base, component + kHealth, now * scale);
+  {
+    std::lock_guard lock(g_scaled_mutex);
+    // Components come and go with the levels; the list is kept small.
+    if (g_scaled.size() > 4096) g_scaled.clear();
+    g_scaled[component] = {raised, scale};
+  }
+  static std::atomic<int> logged{0};
+  if (logged.exchange(1) == 0) {
+    REXLOG_INFO("Difficulty: x{} enemy health ({:.0f} -> {:.0f})", scale, full, full * scale);
+  }
 }
 
 // False in Battle Mode: the difficulty stays out of the arenas.
@@ -101,11 +168,19 @@ void TakeDamageHook(PPCRegister& r29, PPCRegister& f29) {
     static std::atomic<int> logged{0};
     LogOnce(logged, "damage to a Skylander", before, f29.f64, damage);
   } else {
+    // The player's hit stays as it is; the enemy's health is raised instead.
     if (!(health > 0.0f) || health == 1.0f) return;
-    f29.f64 = before / health;
-    static std::atomic<int> logged{0};
-    LogOnce(logged, "enemy health (damage to it)", before, f29.f64, health);
+    RaiseHealth(base, r29.u32, health);
   }
+}
+
+// 0x827B7CEC in sub_827B7C70 (a HealthTrigger's check, a boss's phases): r8 the target's health
+// component, f0 its health, compared with the next phase's threshold. A raised component's health is
+// counted at the game's own scale, so the phase comes at the same part of its full health.
+void HealthTriggerHook(PPCRegister& r8, PPCRegister& f0) {
+  if (r8.u32 == 0) return;
+  const float scale = ScaleOf(Base(), r8.u32);
+  if (scale > 0.0f) f0.f64 /= scale;
 }
 
 // 0x8273B44C in the pickup handler: f0 the health now, f1 the health with the food.

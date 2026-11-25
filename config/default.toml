@@ -240,8 +240,9 @@ registers = ["r5", "r6"]
 # found, 2026-11-24). Every health component's health is set by sub_82826C20; its only subtraction is
 # in sub_828279A0, the component's take-damage, which in play reaches 0x82827D80 (lfs f0,688(r29);
 # fsubs f1,f0,f29) with r29 the component and f29 the damage: a player's Skylander takes it times the
-# save's damage multiplier (x0.4, x1, x2.1, x5), anything else divided by its health multiplier (x0.6,
-# x1, x1.35, x2.5; Swap Force's table). 0x8273B44C
+# save's damage multiplier (x0.4, x1, x2.1, x5); anything else has its full and current health (+476,
+# +688) raised by the health multiplier (x0.6, x1, x1.35, x2.5; Swap Force's table) the first time
+# it is hurt, and the damage stays as it is. 0x8273B44C
 # is the pickup handler's (sub_8273B3D8) bl sub_82826C20 for food, f0 the health and f1 the health
 # with the food: the gain is scaled (1, 1, 0.75, 0.6). 0x8275DDD4 is the bl sub_82826C20 that refills
 # a Skylander's health at a level-up (sub_8275DBC8, after its XP and level), f1 the full health and r3
@@ -251,6 +252,16 @@ registers = ["r5", "r6"]
 address = 0x82827D80
 name = "TakeDamageHook"
 registers = ["r29", "f29"]
+
+# 0x827B7CEC is the fcmpu in sub_827B7C70, a HealthTrigger's check (a boss's phases; the lux class's
+# vtable 820ACC00, found from its RTTI .?AVHealthTrigger@lux@@, 2026-11-25): f0 the target's health
+# (+688 of its health component, r8), f13 the next phase's threshold, an amount of health from the
+# level's data. src/hooks/difficulty_hook.cpp divides f0 by the scale the difficulty raised that
+# enemy's health by, so the phase comes at the same part of its full health; f0 is read only here.
+[[midasm_hook]]
+address = 0x827B7CEC
+name = "HealthTriggerHook"
+registers = ["r8", "f0"]
 
 [[midasm_hook]]
 address = 0x8273B44C

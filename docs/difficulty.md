@@ -14,9 +14,12 @@ Adventurer is the game as it plays on the console.
 
 - **Damage you take:** everything that hurts your Skylander goes through one place in the game (enemy
   hits, projectiles, hazards, bosses), and that place multiplies it.
-- **Enemy and boss health:** damage to anything that isn't a player's Skylander is divided by the
-  health multiplier, so enemies, bosses and their minions take that many times the hits; a boss's
-  health bar goes down that much slower. The game's own scripted deaths still kill at once.
+- **Enemy and boss health:** your hits stay as they are; an enemy's, boss's or minion's health is
+  raised instead. The first time one is hurt, its full health and its current health are both
+  multiplied (its health bar stays where it was), then the hit lands as usual. The game's own scripted
+  deaths still kill at once.
+- **Boss phases** go by the part of the boss's health that is left, as the game meant them: a phase
+  set for 400 of a 1000-health boss comes at 40 % of its raised health (2000 of 5000), not at 400.
 - **XP and gold:** every XP award and gold pickup, on top of the XP and gold multiplier cheats.
 - **Battle Mode** arenas are left alone.
 - **Achievements** unlock on every difficulty: the difficulty is not a cheat. (Only the cheats on F4 >
@@ -107,13 +110,21 @@ The game's own saves are left as they are; a new game started in a slot asks aga
   component's health is set by `sub_82826C20`, and this is its only subtraction, where every hit of
   the damage rules and every other hurt ends. r29 is the component, f29 the damage: times the damage
   multiplier when the component is a player's Skylander's (found through the player list, as the
-  no-health-loss cheat does), divided by the health multiplier otherwise.
+  no-health-loss cheat does). Anything else has its health multiplier (+476; full health is +484 *
+  +476) and its current health (+688) raised by the health multiplier the first time it is hurt,
+  remembered per component, and the damage stays as it is.
+- **Boss phases** (0x827B7CEC, in `sub_827B7C70`): a boss's phases are a `HealthTrigger` (a lux class,
+  found from its RTTI `.?AVHealthTrigger@lux@@`) with a list of `HealthTrigBlock`s from the level's
+  data, each a health threshold and the trigger it sends; the check fires the next one when the
+  target's health is below its threshold, an amount. For a raised enemy the health is divided by its
+  raise there, so the phase comes at the same part of its full health. Used in level_006, 008, 010b,
+  018 and 021.
 - **Food** (0x8273B44C, the pickup handler `sub_8273B3D8`): the health gain is scaled.
 - **Level-up heal** (0x8275DDD4, in `sub_8275DBC8`, which sets the XP and level and then refills the
   health): a hurt Skylander in play gets back part of its full health instead of all of it.
 - **XP and gold** (0x8275A564 and 0x8275A454, the XP and gold gain functions the multiplier cheats
   hook): the award is scaled.
 
-Nothing is written to the game's memory. The log says what happens: `Difficulty: Skylanders - Slot 1
+The only writes to the game's memory are a hurt enemy's two health fields. The log says what happens: `Difficulty: Skylanders - Slot 1
 is played on Hard (damage taken x2.1, enemy health x1.35, rewards x1.25)`, the choice, a new game,
 and the first scaled hit each way, food, level-up and award (once each).
