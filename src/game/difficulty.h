@@ -1,16 +1,15 @@
 // Difficulty levels for Spyro's Adventure, which has none of its own (the later games ask for one on
-// a new game: Giants, Swap Force and Trap Team). A new save asks for one of four, and the save keeps
-// it:
+// a new game). A new save asks for one of four, and the save keeps it. The values are the later
+// games' own (docs/difficulty.md has where each comes from):
 //
-//   Easy        enemies x0.6
-//   Adventurer  enemies x1.0 (the game as it is; saves from before this have it)
-//   Hard        enemies x2.0
-//   Nightmare   enemies x4.0
+//                damage taken  enemy health  food heals  level-up heals  XP and gold
+//   Easy         x0.4          x0.6          100 %       to full         x1
+//   Adventurer   x1            x1            100 %       to full         x1     (the game as it is)
+//   Hard         x2.1          x1.35         75 %        20 %            x1.25
+//   Nightmare    x5            x2.5          60 %        10 %            x1.5
 //
-// The multiplier makes the enemies stronger and tougher alike: the damage an enemy's hit does is
-// multiplied by it, the damage a Skylander's hit does to an enemy divided by it (so an enemy takes
-// that many times the hits). The hooks are in hooks/difficulty_hook.cpp, the picker in
-// game/difficulty.cpp.
+// Saves from before this are Adventurer. The hooks are in hooks/difficulty_hook.cpp (damage, food,
+// level-up) and hooks/multiplier_cheats_hook.cpp (XP and gold), the picker in game/difficulty.cpp.
 //
 // Where the choice is kept: difficulty.txt in the user data folder, a line per slot save
 // ("Skylanders - Slot 1=hard"). The game's own saves stay as they are.
@@ -35,8 +34,6 @@ namespace ssarecomp {
 enum class Difficulty : int { kEasy = 0, kAdventurer = 1, kHard = 2, kNightmare = 3 };
 constexpr int kDifficultyCount = 4;
 
-// x0.6, x1, x2, x4.
-float DifficultyMultiplier(Difficulty difficulty);
 // "easy", "adventurer", "hard", "nightmare" (difficulty.txt's words).
 const char* DifficultyKey(Difficulty difficulty);
 
@@ -56,11 +53,11 @@ skylanders::Setting ChangeDifficultySetting();
 // (difficulty_hook.cpp).
 void OnSavePackage(const std::string& name, uint32_t how, bool on_main_menu);
 
-// The enemies' multiplier for the save being played: 1 before any slot save was opened. Any thread.
-float EnemyMultiplier();
-// What food heals, as a part of what it would (1, 1, 0.75, 0.6; Swap Force's table).
-float FoodHealScale();
-// What a level-up gives back, as a part of the full health (1, 1, 0.2, 0.1; Swap Force's table).
-float LevelUpHealPart();
+// For the save being played (Adventurer, all 1, before any slot save was opened). Any thread.
+float DamageTakenScale();  // the damage a player's Skylander takes
+float EnemyHealthScale();  // the health of everything else (enemies, bosses)
+float RewardScale();       // XP and gold
+float FoodHealScale();     // the part of a food pickup's heal that is given
+float LevelUpHealPart();   // the part of the full health a level-up gives back
 
 }  // namespace ssarecomp

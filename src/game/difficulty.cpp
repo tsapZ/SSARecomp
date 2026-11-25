@@ -55,43 +55,45 @@ constexpr const char* kTitleFolder = "415608AB";
 constexpr const char* kSavedGameFolder = "00000001";
 constexpr const char* kStoreFile = "difficulty.txt";
 
+// The values come from the later games' own difficulty tables, read from their data (2026-11-25;
+// docs/difficulty.md): Swap Force's data/systemdata.mua (globalTuningData) for the enemies' damage
+// (_difficultyFixedEnemyDamageScale), their health (_difficultyFixedEnemyHealthScale), food
+// (_difficultyFixedFoodHealthGainScale) and the level-up heal (_difficultyLevelUpHealthRecovery;
+// Adventurer keeps Spyro's Adventure's full heal), and Imaginators' systemData.igz for the rewards
+// (_xpScalar* and _moneyScalar*: x1, x1, x1.25, x1.5, the "+50% Rewards" of its Nightmare). Trap
+// Team works its multipliers out in its visual scripts, which couldn't be read.
 struct Level {
   const char* key;
-  float multiplier;  // enemies' damage and health
-  // From Swap Force's difficulty table (data/systemdata.mua, globalTuningData): food heals this
-  // part of what it would (_difficultyFixedFoodHealthGainScale), and a level-up gives back this
-  // part of the full health (_difficultyLevelUpHealthRecovery; Spyro's Adventure gives it all).
-  float food;
-  float level_up;
+  float damage;    // the damage a player's Skylander takes
+  float health;    // the health of everything else (enemies, bosses)
+  float food;      // the part of its health a food pickup gives
+  float level_up;  // the part of the full health a level-up gives back
+  float reward;    // XP and gold
   const char* en;
   const char* de;
-  const char* blurb_en;
-  const char* blurb_de;
-  ImU32 colour;  // the card's colour, from calm to fierce
+  const char* tagline_en;
+  const char* tagline_de;
+  const char* portrait;  // the game's picture for its circle (ui_images.cpp, "picture:<name>")
+  ImU32 colour;          // the circle's colour, from calm to fierce
 };
 
 constexpr std::array<Level, kDifficultyCount> kLevels{{
-    {"easy", 0.6f, 1.0f, 1.0f, "Easy", "Leicht",
-     "Enemies hit softer and go down faster. For new Portal Masters and younger players.",
-     "Gegner treffen schw\xC3\xA4" "cher und fallen schneller. F\xC3\xBCr neue Portal-Meister und "
-     "j\xC3\xBCngere Spieler.",
-     IM_COL32(76, 175, 80, 255)},
-    {"adventurer", 1.0f, 1.0f, 1.0f, "Adventurer", "Abenteurer",
-     "The adventure as it was made: the game as it plays on the console.",
-     "Das Abenteuer, wie es gemacht wurde: das Spiel wie auf der Konsole.",
-     IM_COL32(46, 134, 222, 255)},
-    {"hard", 2.0f, 0.75f, 0.2f, "Hard", "Schwer",
-     "Enemies hit twice as hard and take twice the hits, and food heals less. For seasoned Portal "
-     "Masters.",
-     "Gegner treffen doppelt so hart und halten doppelt so viel aus, und Essen heilt weniger. "
-     "F\xC3\xBCr erfahrene Portal-Meister.",
-     IM_COL32(240, 140, 30, 255)},
-    {"nightmare", 4.0f, 0.6f, 0.1f, "Nightmare", "Albtraum",
-     "Enemies hit four times as hard and take four times the hits, and food heals even less. Only "
-     "the bravest Skylanders make it through.",
-     "Gegner treffen viermal so hart und halten viermal so viel aus, und Essen heilt noch weniger. "
-     "Nur die mutigsten Skylander kommen durch.",
-     IM_COL32(170, 40, 160, 255)},
+    {"easy", 0.4f, 0.6f, 1.0f, 1.0f, 1.0f, "Easy", "Leicht",
+     "For new Portal Masters and younger players!",
+     "F\xC3\xBCr neue Portal-Meister und j\xC3\xBCngere Spieler!",
+     "picture:toy_gillgrunt_hud", IM_COL32(64, 170, 40, 255)},
+    {"adventurer", 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, "Adventurer", "Abenteurer",
+     "The adventure as it was made, just like on the console!",
+     "Das Abenteuer, wie es gemacht wurde, genau wie auf der Konsole!",
+     "picture:toy_stealthelf_hud", IM_COL32(40, 110, 210, 255)},
+    {"hard", 2.1f, 1.35f, 0.75f, 0.2f, 1.25f, "Hard", "Schwer",
+     "For experienced Portal Masters!",
+     "F\xC3\xBCr erfahrene Portal-Meister!",
+     "picture:toy_spyrojr_hud", IM_COL32(120, 50, 190, 255)},
+    {"nightmare", 5.0f, 2.5f, 0.6f, 0.1f, 1.5f, "Nightmare", "Albtraum",
+     "For advanced players with a vast army of Skylanders!",
+     "F\xC3\xBCr Profis mit einer riesigen Armee von Skylandern!",
+     "picture:kaos_icon", IM_COL32(200, 40, 30, 255)},
 }};
 
 const Level& LevelOf(Difficulty d) { return kLevels[std::clamp(int(d), 0, kDifficultyCount - 1)]; }
@@ -152,7 +154,7 @@ void StoreLocked() {
       return;
     }
     out << "# Spyro's Adventure Recompiled: the difficulty each save is played on\n"
-           "# (easy x0.6, adventurer x1, hard x2, nightmare x4). F4 > Extras changes it.\n";
+           "# (easy, adventurer, hard, nightmare). F4 > Extras changes it.\n";
     for (const auto& [slot, d] : g_saved) out << slot << "=" << LevelOf(d).key << "\n";
   }
   std::error_code ec;
@@ -173,8 +175,8 @@ void SetActiveLocked(const std::string& slot, bool log) {
   const Difficulty d = ActiveLocked();
   g_level.store(int(d));
   if (changed) {
-    REXLOG_INFO("Difficulty: {} is played on {} (enemies x{:.1f})", slot, LevelOf(d).en,
-                LevelOf(d).multiplier);
+    REXLOG_INFO("Difficulty: {} is played on {} (damage taken x{}, enemy health x{}, rewards x{})", slot,
+                LevelOf(d).en, LevelOf(d).damage, LevelOf(d).health, LevelOf(d).reward);
   }
 }
 
@@ -193,8 +195,8 @@ void Choose(const std::string& slot, Difficulty d) {
   std::lock_guard lock(g_mutex);
   g_saved[slot] = d;
   StoreLocked();
-  REXLOG_INFO("Difficulty: {} chosen for {} (enemies x{:.1f})", LevelOf(d).en, slot,
-              LevelOf(d).multiplier);
+  REXLOG_INFO("Difficulty: {} chosen for {} (damage taken x{}, enemy health x{}, rewards x{})",
+              LevelOf(d).en, slot, LevelOf(d).damage, LevelOf(d).health, LevelOf(d).reward);
   if (slot == g_active) g_level.store(int(d));
 }
 
@@ -246,31 +248,81 @@ class PadState {
   bool prev_left_ = false, prev_right_ = false;
 };
 
-// The level's emblem: a shield with one to four flames, more of them the harder it is.
-void DrawEmblem(ImDrawList* dl, ImVec2 c, float size, int level, ImU32 colour, bool chosen) {
-  const float w = size * 0.5f, h = size * 0.6f;
-  // Shield: a rounded top and a point at the bottom.
-  const ImVec2 pts[] = {{c.x - w, c.y - h * 0.75f}, {c.x + w, c.y - h * 0.75f},
-                        {c.x + w, c.y + h * 0.05f}, {c.x, c.y + h},
-                        {c.x - w, c.y + h * 0.05f}};
-  const ImU32 fill = chosen ? colour : IM_COL32((colour >> IM_COL32_R_SHIFT & 0xFF) / 2,
-                                                (colour >> IM_COL32_G_SHIFT & 0xFF) / 2,
-                                                (colour >> IM_COL32_B_SHIFT & 0xFF) / 2, 255);
-  dl->AddConvexPolyFilled(pts, 5, fill);
-  dl->AddPolyline(pts, 5, chosen ? kGold : kGoldDark, ImDrawFlags_Closed, S(chosen ? 4.0f : 2.5f));
-  // Flames: teardrops pointing up, side by side.
-  const int n = level + 1;
-  const float fw = w * (n <= 2 ? 0.42f : 0.34f);
-  const float gap = fw * 0.25f;
-  const float total = n * fw * 2 + (n - 1) * gap;
-  for (int i = 0; i < n; ++i) {
-    const float x = c.x - total / 2 + fw + i * (fw * 2 + gap);
-    const float y = c.y - h * 0.05f;
-    const ImU32 flame = chosen ? kWhite : kDim;
-    dl->AddCircleFilled({x, y + fw * 0.35f}, fw, flame, 20);
-    dl->AddTriangleFilled({x - fw * 0.97f, y + fw * 0.15f}, {x + fw * 0.97f, y + fw * 0.15f},
-                          {x, y - fw * 1.9f}, flame);
+ImU32 Scaled(ImU32 colour, float k, int alpha = 255) {
+  const auto c = [&](int shift) { return std::min(255, int(float(colour >> shift & 0xFF) * k)); };
+  return IM_COL32(c(IM_COL32_R_SHIFT), c(IM_COL32_G_SHIFT), c(IM_COL32_B_SHIFT), alpha);
+}
+
+// A text line centred on `cx`.
+void Centred(ImDrawList* dl, ImFont* font, float size, float cx, float y, ImU32 col, const char* text) {
+  const ImVec2 ts = TextSize(font, size, text);
+  Label(dl, font, size, {cx - ts.x / 2, y}, col, text);
+}
+
+// The starry blue backdrop of the later games' menus: a deep blue gradient, a brighter band where the
+// portraits stand, and soft stars that twinkle.
+void DrawBackdrop(ImDrawList* dl, float W, float H, float t) {
+  GradientRect(dl, {0, 0}, {W, H}, Rgba(8, 22, 70, 248), Rgba(4, 10, 40, 248), 0.0f);
+  const float band = H * 0.45f;
+  for (int k = 0; k < 12; ++k) {
+    const float r = H * (0.42f - k * 0.03f);
+    dl->AddCircleFilled({W * 0.5f, band}, r, Rgba(40, 90, 200, 10), 64);
   }
+  // Fixed stars (a small hash of their number), each twinkling at its own pace.
+  for (int i = 0; i < 90; ++i) {
+    const uint32_t h = uint32_t(i) * 2654435761u;
+    const float x = float(h % 1000) / 1000.0f * W, y = float((h >> 10) % 1000) / 1000.0f * H;
+    const float tw = 0.5f + 0.5f * std::sin(t * (1.0f + (h >> 20) % 5) + float(i));
+    const float s = S(1.0f + float((h >> 24) % 3));
+    dl->AddCircleFilled({x, y}, s * 2.5f, Rgba(120, 170, 255, int(18 * tw)), 12);
+    dl->AddCircleFilled({x, y}, s * 0.8f, Rgba(200, 225, 255, int(60 + 120 * tw)), 8);
+  }
+}
+
+// A portrait in its gold-ringed circle; `focus` from 0 (resting) to 1 (chosen).
+void DrawPortrait(ImDrawList* dl, ImVec2 c, float r, const Level& level, float focus) {
+  // The glow behind the chosen one.
+  for (int k = 6; k >= 1; --k) {
+    dl->AddCircleFilled(c, r + S(k * 5.0f) * focus, Rgba(255, 220, 120, int(14 * focus)), 64);
+  }
+  dl->AddCircleFilled(c, r, Scaled(level.colour, 0.55f + 0.45f * focus), 64);
+  // A lighter centre, as a lit disc.
+  dl->AddCircleFilled({c.x - r * 0.15f, c.y - r * 0.2f}, r * 0.62f,
+                      Scaled(level.colour, 0.85f + 0.4f * focus, int(110 + 60 * focus)), 48);
+  if (ImTextureID tex = GameArtTexture(level.portrait)) {
+    const float inner = r * 0.9f;
+    const ImU32 tint = Scaled(IM_COL32(255, 255, 255, 255), 0.55f + 0.45f * focus);
+    dl->AddImageRounded(tex, {c.x - inner, c.y - inner}, {c.x + inner, c.y + inner}, {0, 0}, {1, 1},
+                        tint, inner);
+  }
+  // The gold rings: dark outside, bright inside.
+  dl->AddCircle(c, r + S(2), kGoldDark, 64, S(7));
+  dl->AddCircle(c, r, focus > 0.5f ? kGold : Scaled(kGold, 0.75f), 64, S(4.5f));
+}
+
+float PillWidth(const char* label) {
+  return S(26) + S(17) * 2 + S(14) + TextSize(BoldFont(), S(30), label).x + S(30);
+}
+
+// A blue pill button with a round face-button glyph, as under the later games' menus. Returns its
+// width.
+float PillButton(ImDrawList* dl, ImVec2 pos, const char* glyph, const char* label, bool* clicked) {
+  const float h = S(58), glyph_r = S(17);
+  const float w = PillWidth(label);
+  const ImVec2 p1{pos.x + w, pos.y + h};
+  const ImVec2 mouse = ImGui::GetIO().MousePos;
+  const bool hover = mouse.x >= pos.x && mouse.x < p1.x && mouse.y >= pos.y && mouse.y < p1.y;
+  GradientRect(dl, pos, p1, hover ? Rgba(70, 150, 255) : Rgba(46, 124, 232),
+               hover ? Rgba(26, 84, 200) : Rgba(18, 70, 180), S(12));
+  dl->AddRect(pos, p1, Rgba(150, 200, 255, 120), S(12), 0, S(2));
+  const ImVec2 gc{pos.x + S(26) + glyph_r, pos.y + h / 2};
+  dl->AddCircleFilled(gc, glyph_r, kWhite, 32);
+  const ImVec2 gs = TextSize(BoldFont(), S(24), glyph);
+  Label(dl, BoldFont(), S(24), {gc.x - gs.x / 2, CapCentredY(gc.y, S(24))}, Rgba(30, 50, 110), glyph);
+  OutlinedLabel(dl, BoldFont(), S(30), {gc.x + glyph_r + S(14), CapCentredY(gc.y, S(30))}, kGold, label,
+                S(1.5f));
+  if (clicked) *clicked = hover && ImGui::IsMouseClicked(ImGuiMouseButton_Left);
+  return w;
 }
 
 class DifficultyDialog final : public rex::ui::ImGuiDialog {
@@ -326,35 +378,34 @@ class DifficultyDialog final : public rex::ui::ImGuiDialog {
     ImDrawList* dl = ImGui::GetWindowDrawList();
     const int first_vertex = dl->VtxBuffer.Size;
     const float W = io.DisplaySize.x, H = io.DisplaySize.y;
-    dl->AddRectFilled({0, 0}, {W, H}, Rgba(6, 10, 30, new_game_ ? 200 : 150));
-    const float pw = std::min(W - S(60), S(1560));
-    const ImVec2 p0{(W - pw) / 2, H * 0.12f}, p1{(W + pw) / 2, H * 0.88f};
-    DrawPanel(dl, p0, p1);
+    const float t = std::chrono::duration<float>(Clock::now() - open_time_).count();
+    DrawBackdrop(dl, W, H, t);
 
-    // Title, centred, as in the later games' "Select difficulty".
+    // Title, as the later games' "CHOOSE YOUR DIFFICULTY".
     const char* title = Tr("CHOOSE YOUR DIFFICULTY", "W\xC3\x84HLE DEINEN SCHWIERIGKEITSGRAD");
-    const ImVec2 ts = TextSize(TitleFont(), S(50), title);
-    OutlinedLabel(dl, TitleFont(), S(50), {(p0.x + p1.x - ts.x) / 2, p0.y + S(22)}, kGold, title,
-                  S(2.5f));
-    const char* sub = new_game_
-                          ? Tr("How tough should Kaos' minions be in this adventure?",
-                               "Wie stark sollen Kaos' Schergen in diesem Abenteuer sein?")
-                          : Tr("Change how tough the enemies are in this adventure.",
-                               "\xC3\x84ndere, wie stark die Gegner in diesem Abenteuer sind.");
-    const ImVec2 ss = TextSize(BoldFont(), S(22), sub);
-    Label(dl, BoldFont(), S(22), {(p0.x + p1.x - ss.x) / 2, p0.y + S(86)}, kDim, sub);
+    const float title_size = std::min(S(78), W * 0.9f / std::max(1.0f, TextSize(TitleFont(), 1.0f, title).x));
+    const ImVec2 ts = TextSize(TitleFont(), title_size, title);
+    OutlinedLabel(dl, TitleFont(), title_size, {(W - ts.x) / 2, H * 0.11f}, kGold, title, S(3.5f));
 
-    DrawCards(dl, {p0.x + S(40), p0.y + S(140)}, {p1.x - S(40), p0.y + S(140) + S(400)});
-    DrawDescription(dl, {p0.x + S(60), p0.y + S(570)}, {p1.x - S(60), p1.y - S(80)});
+    DrawPortraits(dl, W, H * 0.41f);
+    DrawDescription(dl, W, H);
 
-    float x = p0.x + S(40);
-    const float y = p1.y - S(54);
-    x += Hint(dl, {x, y}, "< / >", kHintGrey, Tr("Choose", "W\xC3\xA4hlen"), false);
-    x += Hint(dl, {x, y}, "A", kAcceptGreen, new_game_ ? Tr("Start", "Los geht's") : Tr("Select", "W\xC3\xA4hlen"),
-              true, "Enter");
-    if (!new_game_) Hint(dl, {x, y}, "B", kBackRed, Tr("Back", "Zur\xC3\xBC" "ck"), true, "Esc");
-    FadeVertices(dl, first_vertex,
-                 std::min(1.0f, std::chrono::duration<float>(Clock::now() - open_time_).count() / 0.2f));
+    // The buttons, centred under the banner.
+    const char* accept = Tr("Accept", "Annehmen");
+    const char* back = Tr("Back", "Zur\xC3\xBC" "ck");
+    const float aw = PillWidth(accept);
+    const float bw = new_game_ ? 0.0f : PillWidth(back);
+    const float gap = new_game_ ? 0.0f : S(28);
+    float x = (W - aw - bw - gap) / 2;
+    const float y = H * 0.85f;
+    bool accept_clicked = false, back_clicked = false;
+    x += PillButton(dl, {x, y}, "A", accept, &accept_clicked) + gap;
+    if (!new_game_) PillButton(dl, {x, y}, "B", back, &back_clicked);
+    if (!waiting_for_release_) {
+      if (accept_clicked) clicked_accept_ = true;
+      if (back_clicked) clicked_back_ = true;
+    }
+    FadeVertices(dl, first_vertex, std::min(1.0f, t / 0.25f));
     ImGui::End();
   }
 
@@ -388,12 +439,16 @@ class DifficultyDialog final : public rex::ui::ImGuiDialog {
     accept |= ImGui::IsKeyPressed(ImGuiKey_Enter, false) || ImGui::IsKeyPressed(ImGuiKey_Space, false);
     back |= ImGui::IsKeyPressed(ImGuiKey_Escape, false);
     if (delta) Move(delta > 0 ? 1 : -1);
-    // The mouse: pointing at a card picks it, a click starts.
-    if (hovered_ >= 0 && ImGui::GetIO().MouseDelta.x != 0.0f) chosen_ = hovered_;
+    // The mouse: pointing at a portrait picks it, a click on it or on Accept starts.
+    const ImVec2 md = ImGui::GetIO().MouseDelta;
+    if (hovered_ >= 0 && (md.x != 0.0f || md.y != 0.0f)) chosen_ = hovered_;
     if (hovered_ >= 0 && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
       chosen_ = hovered_;
       accept = true;
     }
+    accept |= clicked_accept_;
+    back |= clicked_back_;
+    clicked_accept_ = clicked_back_ = false;
     if (accept) {
       Finish(Difficulty(chosen_));
     } else if (back && !new_game_) {
@@ -401,78 +456,90 @@ class DifficultyDialog final : public rex::ui::ImGuiDialog {
     }
   }
 
-  void DrawCards(ImDrawList* dl, ImVec2 a, ImVec2 b) {
-    const float gap = S(26);
-    const float card_w = (b.x - a.x - gap * (kDifficultyCount - 1)) / kDifficultyCount;
+  // The four portraits in a row; the chosen one grows (eased) and glows, the others rest smaller.
+  void DrawPortraits(ImDrawList* dl, float W, float cy) {
     hovered_ = -1;
     const ImVec2 mouse = ImGui::GetIO().MousePos;
+    const float dt = std::min(0.1f, ImGui::GetIO().DeltaTime);
+    const float spacing = std::min(S(330), W / (kDifficultyCount + 0.6f));
+    const float x0 = W / 2 - spacing * (kDifficultyCount - 1) / 2;
+    // The resting ones first, the chosen one last, so it is drawn over its neighbours.
+    int order[kDifficultyCount];
+    for (int i = 0, n = 0; i < kDifficultyCount; ++i) {
+      if (i != chosen_) order[n++] = i;
+    }
+    order[kDifficultyCount - 1] = chosen_;
     for (int i = 0; i < kDifficultyCount; ++i) {
-      const Level& level = kLevels[i];
-      const bool chosen = i == chosen_;
-      // The chosen card stands a little taller, as in the later games.
-      const float lift = chosen ? S(16) : 0.0f;
-      const ImVec2 c0{a.x + i * (card_w + gap), a.y + S(20) - lift}, c1{c0.x + card_w, b.y - S(20) + lift};
-      if (mouse.x >= c0.x && mouse.x < c1.x && mouse.y >= c0.y && mouse.y < c1.y) hovered_ = i;
-      const ImU32 r = level.colour >> IM_COL32_R_SHIFT & 0xFF, g = level.colour >> IM_COL32_G_SHIFT & 0xFF,
-                  bl = level.colour >> IM_COL32_B_SHIFT & 0xFF;
-      GradientRect(dl, c0, c1, chosen ? IM_COL32(r * 3 / 5, g * 3 / 5, bl * 3 / 5, 245) : Rgba(44, 52, 104, 220),
-                   chosen ? IM_COL32(r / 5, g / 5, bl / 5, 245) : Rgba(22, 26, 62, 220), S(20));
-      if (chosen) {
-        // A glow around the chosen card.
-        for (int k = 1; k <= 4; ++k) {
-          dl->AddRect({c0.x - S(k * 2.0f), c0.y - S(k * 2.0f)}, {c1.x + S(k * 2.0f), c1.y + S(k * 2.0f)},
-                      IM_COL32(244, 196, 84, 70 - k * 15), S(20 + k * 2.0f), 0, S(2));
-        }
-      }
-      dl->AddRect(c0, c1, chosen ? kGold : Rgba(255, 255, 255, 50), S(20), 0, chosen ? S(4) : S(1.5f));
-      // Colour band at the top.
-      dl->AddRectFilled(c0, {c1.x, c0.y + S(12)}, chosen ? level.colour : IM_COL32(r / 2, g / 2, bl / 2, 255),
-                        S(20), ImDrawFlags_RoundCornersTop);
-
-      const float cx = (c0.x + c1.x) / 2;
-      DrawEmblem(dl, {cx, c0.y + S(120)}, S(chosen ? 150 : 128), i, level.colour, chosen);
-
-      const char* name = Tr(level.en, level.de);
-      const float name_size = S(chosen ? 40 : 34);
-      const ImVec2 ns = TextSize(TitleFont(), name_size, name);
-      OutlinedLabel(dl, TitleFont(), name_size, {cx - ns.x / 2, c0.y + S(220)}, chosen ? kWhite : kDim,
-                    name, S(2));
-
-      char strength[48];
-      std::snprintf(strength, sizeof(strength), "%s x%.1f", Tr("Enemies", "Gegner"), level.multiplier);
-      const ImVec2 ms = TextSize(BoldFont(), S(24), strength);
-      Label(dl, BoldFont(), S(24), {cx - ms.x / 2, c0.y + S(276)}, chosen ? kGold : kDim, strength);
-
-      if (Difficulty(i) == Difficulty::kAdventurer) {
-        const char* tag = Tr("As on the console", "Wie auf der Konsole");
-        const ImVec2 tsz = TextSize(BoldFont(), S(18), tag);
-        const ImVec2 t0{cx - tsz.x / 2 - S(12), c1.y - S(52)}, t1{cx + tsz.x / 2 + S(12), c1.y - S(20)};
-        dl->AddRectFilled(t0, t1, Rgba(255, 255, 255, chosen ? 40 : 22), S(16));
-        Label(dl, BoldFont(), S(18), {t0.x + S(12), CapCentredY((t0.y + t1.y) / 2, S(18))}, kWhite, tag);
-      }
+      const float target = i == chosen_ ? 1.0f : 0.0f;
+      focus_[i] += (target - focus_[i]) * std::min(1.0f, dt * 12.0f);
+    }
+    for (const int i : order) {
+      const ImVec2 c{x0 + spacing * float(i), cy};
+      const float r = S(112) + S(38) * focus_[i];
+      const float dx = mouse.x - c.x, dy = mouse.y - c.y;
+      if (dx * dx + dy * dy <= r * r) hovered_ = i;
+      DrawPortrait(dl, c, r, kLevels[i], focus_[i]);
     }
   }
 
-  void DrawDescription(ImDrawList* dl, ImVec2 a, ImVec2 b) {
+  // The chosen difficulty's name, and its description in a red banner with a double gold frame.
+  void DrawDescription(ImDrawList* dl, float W, float H) {
     const Level& level = kLevels[chosen_];
-    dl->AddRectFilled(a, b, Rgba(255, 255, 255, 14), S(16));
-    const float wrap = b.x - a.x - S(48);
-    Label(dl, BoldFont(), S(26), {a.x + S(24), a.y + S(18)}, kWhite, Tr(level.blurb_en, level.blurb_de), wrap);
-    char detail[160];
-    if (level.multiplier == 1.0f) {
-      std::snprintf(detail, sizeof(detail), "%s",
-                    Tr("Enemy damage and toughness as in the game.",
-                       "Schaden und Ausdauer der Gegner wie im Spiel."));
+    const float cx = W / 2;
+    const char* name = Tr(level.en, level.de);
+    std::string upper(name);
+    for (auto& ch : upper) ch = char(std::toupper(static_cast<unsigned char>(ch)));
+    const ImVec2 ns = TextSize(TitleFont(), S(64), upper);
+    OutlinedLabel(dl, TitleFont(), S(64), {cx - ns.x / 2, H * 0.585f}, kGold, upper, S(3));
+
+    // The lines: who it is for, what it changes, and the rewards.
+    char change[200];
+    if (Difficulty(chosen_) == Difficulty::kAdventurer) {
+      std::snprintf(change, sizeof(change), "%s",
+                    Tr("Enemies and healing as in the game.", "Gegner und Heilung wie im Spiel."));
+    } else if (level.food >= 1.0f) {
+      std::snprintf(change, sizeof(change),
+                    Tr("Enemies deal %d%% damage and have %d%% health.",
+                       "Gegner machen %d%% Schaden und haben %d%% Lebenspunkte."),
+                    int(std::lround(level.damage * 100)), int(std::lround(level.health * 100)));
     } else {
-      std::snprintf(detail, sizeof(detail), Tr("Enemy damage x%.1f  \xC2\xB7  Enemy toughness x%.1f",
-                                               "Schaden der Gegner x%.1f  \xC2\xB7  Ausdauer der Gegner x%.1f"),
-                    level.multiplier, level.multiplier);
+      std::snprintf(change, sizeof(change),
+                    Tr("Enemies deal %d%% damage and have %d%% health. Food heals %d%%.",
+                       "Gegner machen %d%% Schaden und haben %d%% Lebenspunkte. Essen heilt %d%%."),
+                    int(std::lround(level.damage * 100)), int(std::lround(level.health * 100)),
+                    int(std::lround(level.food * 100)));
     }
-    Label(dl, BoldFont(), S(21), {a.x + S(24), b.y - S(76)}, level.colour == kLevels[1].colour ? kDim : kGold,
-          detail);
-    Label(dl, BoldFont(), S(18), {a.x + S(24), b.y - S(40)}, Rgba(205, 214, 238, 150),
-          Tr("The save keeps it. F4 > Extras changes it later.",
-             "Der Spielstand beh\xC3\xA4lt ihn. F4 > Extras \xC3\xA4ndert ihn sp\xC3\xA4ter."));
+    char rewards[64] = "";
+    if (level.reward > 1.0f) {
+      std::snprintf(rewards, sizeof(rewards), Tr("+%d%% Rewards", "+%d%% Belohnungen"),
+                    int(std::lround((level.reward - 1.0f) * 100)));
+    }
+    const char* lines[3] = {Tr(level.tagline_en, level.tagline_de), change, rewards};
+    const int count = rewards[0] ? 3 : 2;
+    const float line_h = S(44), text_size = S(31);
+    float text_w = 0.0f;
+    for (int i = 0; i < count; ++i) text_w = std::max(text_w, TextSize(BoldFont(), text_size, lines[i]).x);
+    const float bw = std::min(W - S(60), std::max(S(1000), text_w + S(120)));
+    const ImVec2 b0{cx - bw / 2, H * 0.655f}, b1{cx + bw / 2, H * 0.655f + S(36) + line_h * float(count)};
+    // Gold outer frame, a dark line, gold inner frame, then the red field.
+    dl->AddRectFilled({b0.x - S(9), b0.y - S(9)}, {b1.x + S(9), b1.y + S(9)}, kGold, S(40));
+    dl->AddRectFilled({b0.x - S(5), b0.y - S(5)}, {b1.x + S(5), b1.y + S(5)}, kGoldDark, S(36));
+    dl->AddRectFilled({b0.x - S(3), b0.y - S(3)}, {b1.x + S(3), b1.y + S(3)}, Rgba(255, 214, 120), S(34));
+    GradientRect(dl, b0, b1, Rgba(190, 40, 30), Rgba(130, 20, 18), S(32));
+    // The curls at the banner's ends.
+    for (const float side : {-1.0f, 1.0f}) {
+      const ImVec2 c{side < 0 ? b0.x + S(30) : b1.x - S(30), b0.y + S(24)};
+      dl->PathArcTo(c, S(13), 0.0f, 4.7f, 16);
+      dl->PathStroke(kGold, 0, S(3.5f));
+      const ImVec2 d{side < 0 ? b0.x + S(30) : b1.x - S(30), b1.y - S(24)};
+      dl->PathArcTo(d, S(13), 3.14f, 7.9f, 16);
+      dl->PathStroke(kGold, 0, S(3.5f));
+    }
+    for (int i = 0; i < count; ++i) {
+      const ImVec2 ls = TextSize(BoldFont(), text_size, lines[i]);
+      OutlinedLabel(dl, BoldFont(), text_size, {cx - ls.x / 2, b0.y + S(18) + line_h * float(i)},
+                    i == 0 ? kWhite : Rgba(255, 236, 170), lines[i], S(1.5f));
+    }
   }
 
   std::string slot_;
@@ -482,7 +549,9 @@ class DifficultyDialog final : public rex::ui::ImGuiDialog {
   bool done_ = false;
   bool first_frame_ = true;
   bool waiting_for_release_ = true;
+  bool clicked_accept_ = false, clicked_back_ = false;
   int hovered_ = -1;
+  float focus_[kDifficultyCount] = {};
   Clock::time_point open_time_ = Clock::now();
   std::unordered_map<uint64_t, PadState> pads_;
 };
@@ -527,7 +596,6 @@ void OpenPicker(std::string slot, bool new_game) {
 
 }  // namespace
 
-float DifficultyMultiplier(Difficulty difficulty) { return LevelOf(difficulty).multiplier; }
 const char* DifficultyKey(Difficulty difficulty) { return LevelOf(difficulty).key; }
 
 void InstallDifficulty(rex::ui::ImGuiDrawer* drawer, rex::ui::WindowedAppContext* app_context,
@@ -585,7 +653,9 @@ void OnSavePackage(const std::string& name, uint32_t how, bool on_main_menu) {
   REXLOG_INFO("Difficulty: the game goes on");
 }
 
-float EnemyMultiplier() { return LevelOf(Difficulty(g_level.load())).multiplier; }
+float DamageTakenScale() { return LevelOf(Difficulty(g_level.load())).damage; }
+float EnemyHealthScale() { return LevelOf(Difficulty(g_level.load())).health; }
+float RewardScale() { return LevelOf(Difficulty(g_level.load())).reward; }
 float FoodHealScale() { return LevelOf(Difficulty(g_level.load())).food; }
 float LevelUpHealPart() { return LevelOf(Difficulty(g_level.load())).level_up; }
 
@@ -594,11 +664,12 @@ skylanders::Setting ChangeDifficultySetting() {
   s.en = "Change this game's difficulty";
   s.de = "Schwierigkeitsgrad dieses Spiels \xC3\xA4ndern";
   s.help_en =
-      "Easy (enemies x0.6), Adventurer (x1, as on the console), Hard (x2) or Nightmare (x4) for the "
-      "save you are playing. A new game asks for one by itself.";
+      "Easy, Adventurer (as on the console), Hard or Nightmare for the save you are playing: enemy "
+      "damage and health, food, and more XP and gold on Hard and Nightmare. A new game asks by itself.";
   s.help_de =
-      "Leicht (Gegner x0,6), Abenteurer (x1, wie auf der Konsole), Schwer (x2) oder Albtraum (x4) "
-      "f\xC3\xBCr den Spielstand, den du spielst. Ein neues Spiel fragt von selbst danach.";
+      "Leicht, Abenteurer (wie auf der Konsole), Schwer oder Albtraum f\xC3\xBCr den Spielstand, den du "
+      "spielst: Schaden und Lebenspunkte der Gegner, Essen, und mehr EP und Gold auf Schwer und "
+      "Albtraum. Ein neues Spiel fragt von selbst danach.";
   s.action = [] {
     std::string slot;
     {

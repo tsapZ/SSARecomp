@@ -1,60 +1,66 @@
 # Difficulty levels
 
-Spyro's Adventure has no difficulty setting; the later games ask for one when a new game starts
-(Giants, Swap Force, Trap Team and on). The port adds four, chosen for each save:
+Spyro's Adventure has no difficulty setting; the later games ask for one when a new game starts. The
+port adds four, chosen for each save, with the later games' own values:
 
-| Level | Damage you take | Enemy and boss health | Food heals | A level-up heals |
-|---|---|---|---|---|
-| Easy | x0.6 | x0.6 | all of it | to full |
-| Adventurer | x1 | x1 | all of it | to full |
-| Hard | x2 | x2 | 75 % | 20 % of full health |
-| Nightmare | x4 | x4 | 60 % | 10 % of full health |
+| Level | Damage you take | Enemy and boss health | Food heals | A level-up heals | XP and gold |
+|---|---|---|---|---|---|
+| Easy | x0.4 | x0.6 | all of it | to full | x1 |
+| Adventurer | x1 | x1 | all of it | to full | x1 |
+| Hard | x2.1 | x1.35 | 75 % | 20 % of full health | x1.25 |
+| Nightmare | x5 | x2.5 | 60 % | 10 % of full health | x1.5 |
 
 Adventurer is the game as it plays on the console.
 
 - **Damage you take:** everything that hurts your Skylander goes through one place in the game (enemy
   hits, projectiles, hazards, bosses), and that place multiplies it.
 - **Enemy and boss health:** damage to anything that isn't a player's Skylander is divided by the
-  multiplier, so enemies, bosses and their minions take that many times the hits; a boss's health bar
-  goes down that much slower. The game's own scripted deaths still kill at once.
-- **Food and level-ups** follow Swap Force's difficulty table (below).
+  health multiplier, so enemies, bosses and their minions take that many times the hits; a boss's
+  health bar goes down that much slower. The game's own scripted deaths still kill at once.
+- **XP and gold:** every XP award and gold pickup, on top of the XP and gold multiplier cheats.
 - **Battle Mode** arenas are left alone.
 - **Achievements** unlock on every difficulty: the difficulty is not a cheat. (Only the cheats on F4 >
   Extras hold achievements back while they are on.)
 
-## What the other games change
+## Where the values come from
 
-Read from the games' own data (the decrypted executables' type and field names, and Swap Force's
-`data/systemdata.mua`, `globalTuningData`, from its `.pak` archives):
+Read from the games' own data on this PC (their decrypted executables name every field; the values
+are in their system data, unpacked from the IGA archives):
 
-| Swap Force | Easy | Medium | Hard | Nightmare |
+| | Easy | Medium | Hard | Nightmare |
 |---|---|---|---|---|
+| **Swap Force** (`data/systemdata.mua`, `globalTuningData`) | | | | |
 | `_difficultyFixedEnemyDamageScale` | 0.4 | 1 | 2.1 | 5 |
 | `_difficultyFixedEnemyHealthScale` | 0.6 | 1 | 1.35 | 2.5 |
 | `_difficultyFixedFoodHealthGainScale` | 1 | 1 | 0.75 | 0.6 |
 | `_difficultyLevelUpHealthRecovery` | 1 | 0.6 | 0.2 | 0.1 |
+| **Imaginators** (`LooseData/systemData.igz`) | | | | |
+| `_difficultyFixedEnemyDamageScale` | 0.4 | 1 | 1.8 | 3.5 |
+| `_difficultyFixedEnemyHealthScale` | 0.5 | 1 | 1.5 | 2.5 |
+| `_difficultyFoodHealthGainPercentage` | 100 | 75 | 50 | 33 |
+| `_difficultyShieldRepairGainPercentage` | 100 | 75 | 50 | 40 |
+| `_difficultyEnemyAttackCooldownMultiplier` | 1.2 | 1 | 0.83 | 0.78 |
+| `_xpScalar*`, `_moneyScalar*` | 1 | 1 | 1.25 | 1.5 |
 
-- Giants and Trap Team: a difficulty per save (`_gamerDifficulty`), and achievements for finishing
-  the story on any difficulty and on Nightmare.
-- SuperChargers and Imaginators add enemy stat bonuses on Nightmare (`_nightmarePower`,
-  `_nightmareArmor`, ...), more XP and gold on Nightmare (`_xpScalarNightmare`,
-  `_moneyScalarNightmare`), a respawn damage (`_difficultyRespawnDamage`) and, in Imaginators, a
-  smaller food heal (`_difficultyFoodHealthGainPercentage`). Their data is binary (IGZ), so the values
-  weren't read.
-
-The damage and health multipliers here are the ones asked for (x0.6, x1, x2, x4, the same for damage
-and health); the food heal and the level-up heal are Swap Force's, except that Adventurer keeps
-Spyro's Adventure's full level-up heal.
+The port uses Swap Force's damage, health, food and level-up values (Adventurer keeps Spyro's
+Adventure's full level-up heal) and Imaginators' XP and gold scalars, the "+50% Rewards" of its
+Nightmare. Trap Team works its multipliers out in its visual scripts ("Difficulty - Boss HP Mult",
+"Difficulty - CriminalEnemy Damage Mult", "Difficulty - Hazard Damage Mult", "Difficulty XP
+Multiplier" in its `level.bld`): the names are there, the values are inside the script graphs and
+couldn't be read. Giants and Trap Team also have achievements for finishing the story on Nightmare;
+Spyro's Adventure's achievement list is the game's own.
 
 ## The picker
 
 Starting a new game (in an empty slot or over an old save) opens the picker when the game writes the
 new save, on the main menu before the opening movie; the game waits for the choice. It follows the
-later games' difficulty screens: a title, the four levels side by side from the mildest to the
-hardest, each with an emblem (one to four flames on a shield), its name and its multiplier; the
-chosen card stands raised with a gold frame, its description below. Left / right (stick, d-pad, arrow
-keys or the mouse) choose, A, Start, Enter or a click starts. The menus' look
-(`portal_rex/menu_draw.h`), in English and German.
+later games' "CHOOSE YOUR DIFFICULTY" screen: a starry blue backdrop, the title in gold, four round
+portraits in gold rings, from the mildest to the hardest (Gill Grunt for Easy, Stealth Elf for
+Adventurer, Spyro for Hard, Kaos for Nightmare; the game's own HUD portraits and Kaos's dialogue
+picture). The chosen one grows and glows, and only its name is shown, under the portraits, with its
+description in a red banner with a gold frame: who it is for, what it changes, and the rewards
+("+50% Rewards"). Blue Accept and Back buttons sit below. Left / right (stick, d-pad, arrow keys)
+or pointing with the mouse choose, A, Start, Enter or a click accepts. English and German.
 
 - **F4 > Extras > Change this game's difficulty** opens the picker for the save being played (B goes
   back without changing it).
@@ -78,8 +84,9 @@ The game's own saves are left as they are; a new game started in a slot asks aga
 
 ## How it works
 
-`src/hooks/difficulty_hook.cpp` (the hooks, with how they were found) and `src/game/difficulty.cpp`
-(the choice and the picker). Four midasm hooks in `config/default.toml`:
+`src/hooks/difficulty_hook.cpp` (the hooks, with how they were found), `src/hooks/multiplier_cheats_hook.cpp`
+(XP and gold) and `src/game/difficulty.cpp` (the choice and the picker). Midasm hooks in
+`config/default.toml`:
 
 - **The save** (0x822DD4C4): the game's only call of `XamContentCreateEx` (in `sub_822DD460`). The
   package's folder name (`XCONTENT_DATA` +264) says which slot save it is, the flags (low four bits)
@@ -91,13 +98,15 @@ The game's own saves are left as they are; a new game started in a slot asks aga
   becomes the one played.
 - **Damage** (0x82827D80, in `sub_828279A0`, a health component's take-damage): every health
   component's health is set by `sub_82826C20`, and this is its only subtraction, where every hit of
-  the damage rules and every other hurt ends. r29 is the component, f29 the damage: times the
+  the damage rules and every other hurt ends. r29 is the component, f29 the damage: times the damage
   multiplier when the component is a player's Skylander's (found through the player list, as the
-  no-health-loss cheat does), divided by it otherwise.
+  no-health-loss cheat does), divided by the health multiplier otherwise.
 - **Food** (0x8273B44C, the pickup handler `sub_8273B3D8`): the health gain is scaled.
 - **Level-up heal** (0x8275DDD4, in `sub_8275DBC8`, which sets the XP and level and then refills the
   health): a hurt Skylander in play gets back part of its full health instead of all of it.
+- **XP and gold** (0x8275A564 and 0x8275A454, the XP and gold gain functions the multiplier cheats
+  hook): the award is scaled.
 
 Nothing is written to the game's memory. The log says what happens: `Difficulty: Skylanders - Slot 1
-is played on Hard (enemies x2.0)`, the choice, and the first few scaled hits, food and level-ups
-(`Difficulty: x2.0 damage to a Skylander (20.0 -> 40.0)`).
+is played on Hard (damage taken x2.1, enemy health x1.35, rewards x1.25)`, the choice, and the first
+few scaled hits, food, level-ups and awards.

@@ -230,6 +230,9 @@ constexpr const char* kBonusPictures[] = {"elementalstrength", "armor", "critica
 
 bool Wanted(std::string_view name) {
   if (name.starts_with("toy_") && name.ends_with("_hud")) return true;
+  // Kaos's portrait (256x256, the dialogue's), for the difficulty picker's Nightmare
+  // (game/difficulty.cpp).
+  if (name == "kaos_icon") return true;
   if (name.starts_with("ico_element_")) return true;
   // The Soul Gems' pictures, "upgrade<toy id>" (upgrades.cpp).
   if (name.size() == 10 && name.starts_with("upgrade")) return true;
@@ -544,6 +547,9 @@ void InstallUiImages(const std::filesystem::path& archive) {
     // The menu's gold symbol: the HUD's coin.
     if (key == "ui:gold") return Picture(kGoldPicture);
     if (key == kControllerArtKey) return ControllerPicture();
+    // "picture:toy_gillgrunt_hud" -> that picture as it is (the difficulty picker's portraits).
+    constexpr std::string_view kPicture = "picture:";
+    if (key.starts_with(kPicture)) return Picture(key.substr(kPicture.size()));
     return std::shared_ptr<const skylanders::FigureImage>();
   });
 }

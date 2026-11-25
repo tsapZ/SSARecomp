@@ -22,8 +22,8 @@
 //
 // and below 1 health (+148 of the constants) the component is set to 0 and dies. (The way before it,
 // through +865 / +868, is Battle Mode's arena health.) So the damage is scaled there, once for all:
-// a player's Skylander takes it times the multiplier, anything else (enemies, bosses, their minions)
-// divided by it, which is the same as its health times the multiplier, the bar included. The game's
+// a player's Skylander takes it times DamageTakenScale, anything else (enemies, bosses, minions)
+// divided by EnemyHealthScale, the same as its health times that, the bar included. The game's
 // own direct settings (refills, scripted deaths at 0) are left alone.
 //
 //   0x8273B44C  bl sub_82826C20 in the pickup handler sub_8273B3D8: food. f0 the current health,
@@ -90,19 +90,21 @@ void SavePackageHook(PPCRegister& r5, PPCRegister& r6) {
 
 // 0x82827D80 in sub_828279A0 (take damage): r29 the health component, f29 the damage.
 void TakeDamageHook(PPCRegister& r29, PPCRegister& f29) {
-  const float m = ssarecomp::EnemyMultiplier();
-  if (m == 1.0f || !(m > 0.0f) || !(f29.f64 > 0.0)) return;
+  const float damage = ssarecomp::DamageTakenScale(), health = ssarecomp::EnemyHealthScale();
+  if ((damage == 1.0f && health == 1.0f) || !(f29.f64 > 0.0)) return;
   uint8_t* base = Base();
   if (!Applies(base)) return;
   const double before = f29.f64;
   if (ssarecomp::IsPlayerHealth(base, r29.u32)) {
-    f29.f64 = before * m;
+    if (!(damage > 0.0f) || damage == 1.0f) return;
+    f29.f64 = before * damage;
     static std::atomic<int> logged{0};
-    LogFirst(logged, "damage to a Skylander", before, f29.f64, m);
+    LogFirst(logged, "damage to a Skylander", before, f29.f64, damage);
   } else {
-    f29.f64 = before / m;
+    if (!(health > 0.0f) || health == 1.0f) return;
+    f29.f64 = before / health;
     static std::atomic<int> logged{0};
-    LogFirst(logged, "health of an enemy (damage to it)", before, f29.f64, m);
+    LogFirst(logged, "enemy health (damage to it)", before, f29.f64, health);
   }
 }
 
