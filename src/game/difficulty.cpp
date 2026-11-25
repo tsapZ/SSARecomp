@@ -355,7 +355,6 @@ class DifficultyDialog final : public rex::ui::ImGuiDialog {
         on_done_(std::move(on_done)) {
     g_german = GermanText();
     skylanders::menu_input::SetMenuOpen(true);
-    REXLOG_INFO("Difficulty: the picker opened for {}{}", slot_, new_game_ ? " (new game)" : "");
   }
 
   ~DifficultyDialog() override {
@@ -661,10 +660,9 @@ void InstallDifficulty(rex::ui::ImGuiDrawer* drawer, rex::ui::WindowedAppContext
       g_portraits[i] = kLevels[i].portrait;
     }
   }
-  REXLOG_INFO("Difficulty: {} of {} portraits from {}", own, kDifficultyCount,
+  if (own) REXLOG_INFO("Difficulty: {} of {} portraits from {}", own, kDifficultyCount,
               rex::path_to_utf8(user_data_root / "difficulty"));
   LoadLocked();
-  REXLOG_INFO("Difficulty: {} save(s) with a chosen difficulty", g_saved.size());
 }
 
 void ShutdownDifficulty() {
@@ -682,10 +680,6 @@ void OnSavePackage(const std::string& name, uint32_t how, bool on_main_menu) {
     std::lock_guard lock(g_mutex);
     if (g_user_data.empty()) return;
     const bool exists = SaveExists(name);
-    if (write && (on_main_menu || !exists)) {  // in play the game saves often: not logged
-      REXLOG_INFO("Difficulty: the game writes {} (flags {}, {}, {})", name, how,
-                  exists ? "over an old one" : "a new one", on_main_menu ? "main menu" : "in a level");
-    }
     // A new game: a slot save written from the main menu (the game writes it there when a new game
     // starts, over an old one in that slot too; in play it saves only inside the levels), or one that
     // may be created and isn't there yet. Once per stay on the main menu.
@@ -709,7 +703,6 @@ void OnSavePackage(const std::string& name, uint32_t how, bool on_main_menu) {
   g_app_context->CallInUIThread([name] { OpenPicker(name, true); });
   std::unique_lock lock(g_wait_mutex);
   g_wait_cv.wait(lock, [] { return !g_waiting || g_shutdown.load(); });
-  REXLOG_INFO("Difficulty: the game goes on");
 }
 
 float DamageTakenScale() { return LevelOf(Difficulty(g_level.load())).damage; }

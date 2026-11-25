@@ -52,10 +52,10 @@ void Scale(PPCRegister& amount, int k, uint32_t cap, const char* what) {
   uint64_t after = uint64_t(std::llround(double(before) * factor));
   if (factor > 1.0 && after <= before) after = before + 1;
   amount.u64 = std::min<uint64_t>(after, cap);
-  static int gold_logged = 0, xp_logged = 0;
-  int& logged = what[0] == 'g' ? gold_logged : xp_logged;
-  if (logged >= 3) return;
-  ++logged;
+  static bool gold_logged = false, xp_logged = false;
+  bool& logged = what[0] == 'g' ? gold_logged : xp_logged;
+  if (logged) return;
+  logged = true;
   REXLOG_INFO("Extras: the {} multiplier scaled an award by x{:.2f} ({} -> {})", what, factor, before,
               amount.u64);
 }

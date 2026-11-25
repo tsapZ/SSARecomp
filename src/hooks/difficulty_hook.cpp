@@ -72,8 +72,8 @@ float LoadFloat(uint8_t* base, uint32_t address) {
 // False in Battle Mode: the difficulty stays out of the arenas.
 bool Applies(uint8_t* base) { return !ssarecomp::InBattleLevel(base); }
 
-void LogFirst(std::atomic<int>& logged, const char* what, double before, double after, float m) {
-  if (logged.fetch_add(1) >= 3) return;
+void LogOnce(std::atomic<int>& logged, const char* what, double before, double after, float m) {
+  if (logged.exchange(1) != 0) return;
   REXLOG_INFO("Difficulty: x{:.1f} {} ({:.1f} -> {:.1f})", m, what, before, after);
 }
 
@@ -99,12 +99,12 @@ void TakeDamageHook(PPCRegister& r29, PPCRegister& f29) {
     if (!(damage > 0.0f) || damage == 1.0f) return;
     f29.f64 = before * damage;
     static std::atomic<int> logged{0};
-    LogFirst(logged, "damage to a Skylander", before, f29.f64, damage);
+    LogOnce(logged, "damage to a Skylander", before, f29.f64, damage);
   } else {
     if (!(health > 0.0f) || health == 1.0f) return;
     f29.f64 = before / health;
     static std::atomic<int> logged{0};
-    LogFirst(logged, "enemy health (damage to it)", before, f29.f64, health);
+    LogOnce(logged, "enemy health (damage to it)", before, f29.f64, health);
   }
 }
 
@@ -115,7 +115,7 @@ void FoodHealHook(PPCRegister& f0, PPCRegister& f1) {
   const double before = f1.f64 - f0.f64;
   f1.f64 = f0.f64 + before * scale;
   static std::atomic<int> logged{0};
-  LogFirst(logged, "food heal", before, before * scale, scale);
+  LogOnce(logged, "food heal", before, before * scale, scale);
 }
 
 // 0x8275DDD4 in the level-up: r3 the health component, f1 its full health.
@@ -128,5 +128,5 @@ void LevelUpHealHook(PPCRegister& r3, PPCRegister& f1) {
   if (!(now > 0.0 && now < full && full < 100000.0)) return;
   f1.f64 = std::min(full, now + full * part);
   static std::atomic<int> logged{0};
-  LogFirst(logged, "level-up heal", full - now, f1.f64 - now, part);
+  LogOnce(logged, "level-up heal", full - now, f1.f64 - now, part);
 }

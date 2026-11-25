@@ -115,5 +115,5 @@ The game's own saves are left as they are; a new game started in a slot asks aga
   hook): the award is scaled.
 
 Nothing is written to the game's memory. The log says what happens: `Difficulty: Skylanders - Slot 1
-is played on Hard (damage taken x2.1, enemy health x1.35, rewards x1.25)`, the choice, and the first
-few scaled hits, food, level-ups and awards.
+is played on Hard (damage taken x2.1, enemy health x1.35, rewards x1.25)`, the choice, a new game,
+and the first scaled hit each way, food, level-up and award (once each).
