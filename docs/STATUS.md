@@ -842,3 +842,7 @@ above and docs/roadmap.md.
 ## 2026-11-25: shared libraries
 
 - Stereo by default, Linux start crash (/dev/shm) fixed, Linux reports private, portal driver hint, HID speaker test switch, CAS/FSR 1 on Linux.
+
+## 2026-11-26: shared libraries
+
+- Real portal lights during reads, off on closing, light log lines; Linux waits on time; swapper half from the menu.
