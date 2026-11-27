@@ -850,3 +850,7 @@ above and docs/roadmap.md.
 ## 2026-11-27: shared libraries
 
 - The fast graphics card on laptops with two; Traptanium speaker on Windows' HID driver splits its packets by itself.
+
+## 2026-11-28: shared libraries
+
+- The portal menu next to a real swapper half; the trap light's log; Vulkan's card pick by kind.
