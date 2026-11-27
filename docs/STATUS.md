@@ -846,3 +846,7 @@ above and docs/roadmap.md.
 ## 2026-11-26: shared libraries
 
 - Real portal lights during reads, off on closing, light log lines; Linux waits on time; swapper half from the menu.
+
+## 2026-11-27: shared libraries
+
+- The fast graphics card on laptops with two; Traptanium speaker on Windows' HID driver splits its packets by itself.
