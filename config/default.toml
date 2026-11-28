@@ -86,6 +86,21 @@ address = 0x827F5794
 name = "UltrawideAspectHook"
 registers = ["f13"]
 
+# 0x82682998 is stb r30,987(r11) in sub_826828C0, the UI's draw, after it has set up the
+# renderer's state (r11) for the HUD pass: an orthographic camera with the half width at +996 and
+# the view rect at +924..+936, which the render thread turns into a scissor when it isn't -1..1
+# (sub_82630B78). With ultrawide_hud on a wider window, src/hooks/ultrawide_hook.cpp widens the
+# half width and narrows the view rect by 16:9 over the window's aspect: the HUD in the middle of
+# the window in its own proportions, what the game parks beyond the 16:9 screen cut; only while
+# a level plays (not the title's FrontEnd, not loading), those draw no 3D picture behind it. It
+# changes only these three floats of this one pass, before the view is made from them
+# (sub_82255B88).
+# Found 2026-11-28 by changing them there and comparing shots in a 2560x1080 window.
+[[midasm_hook]]
+address = 0x82682998
+name = "UltrawideHudHook"
+registers = ["r11"]
+
 # 0x829EDEB8 is the start of BinkClose (the Bink SDK's: it stops the movie's sound and frees its
 # buffers); its only caller is the game's movie player's close (sub_82852AA8), which clears the
 # player's handle at 0x82BB460C right after. With ultrawide active, src/hooks/ultrawide_hook.cpp

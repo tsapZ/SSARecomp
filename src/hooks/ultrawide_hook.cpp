@@ -16,20 +16,27 @@
 // presenter stretches it across the wider window, which the wider aspect makes up for. The HUD is
 // drawn into the same 16:9 frame and would be stretched.
 //
-// The HUD (ultrawide_hud): the same function keeps the screen's size for the UI next to the
-// aspect, the width at 0x82BB45DC, the height at 0x82BB45E0 and their halves at 0x82BB45E4 /
-// 0x82BB45E8 (1280, 720, 640, 360). The UI lays itself out with them (the 0x8267xxxx-0x8268xxxx
-// UI code reads the half width, two screen-position helpers the width) and the renderer's aspect
-// is taken from width / height again (sub_827F5A10); none of them sizes a render target. With
-// the width at the window's width for the UI's height (720 x 2560 / 1080 = 1707) the UI is laid
-// out for that wide a screen: the HUD keeps its proportions, the parts the game anchors to the
-// centre (the figure's portrait, 480 left of it) stay where they are in 16:9, the ones anchored
-// to an edge go to the window's edge. Found 2026-10-21 by poking both values in Chapter 1 in a
-// 2560x1080 window: the stretched HUD came out in its own proportions on the next frame.
-// Off by default: checked by script with the hook, the dialogue box, the figure's name banner and
-// the pause menu keep their proportions, but two notices the game parks left of the 16:9 screen
-// (a red "+!" and a small figure head, on the figure's arrival) come into view at the left edge,
-// and the pause menu's full-screen dimming is drawn 0 .. 1280 wide and leaves the sides light.
+// The HUD (ultrawide_hud): the UI is drawn by sub_826828C0 into a view of its own: at 0x82682998
+// it has set up the renderer's state (the object at 0x82BB4F44, r11 there) for the HUD pass, an
+// orthographic camera (+836 = 0) with the half width at +996 (426.67 for the 1280-wide layout)
+// and the half height at +1000, the screen rect at +908..+920 (-1, -1, 1, 1) and the view rect
+// at +924..+936 (left, bottom, right, top; also -1..1). The next call (sub_82255B88) makes the
+// view from it; on the render thread sub_82630B78 sets the full render target as the viewport
+// and turns a view rect other than -1..1 into a scissor (sub_82299D20 with the rect in pixels).
+// The hook makes the half width wider by the window's aspect over 16:9 and the view rect's left
+// and right narrower by the same share: the 1280-wide layout lands in the middle of the frame
+// in its own proportions once the presenter stretches the frame across the window, and the
+// scissor cuts what the game lays out beyond the 16:9 screen (two notices it parks at about 800
+// left of the centre, more icons at 32:9). Found 2026-11-28: changing the HUD's camera in that
+// state (a wider half width) moved the HUD into the middle with the parked notices in view at
+// the left edge, the view rect cut them; the second UI pass after it (from 0x82682AAC) already
+// works in the display's aspect (+988 = the aspect, half width 1) and lines up with the middle.
+// What is drawn full screen in the HUD pass covers only the middle too: the pause menu's dimming
+// leaves the sides light. Only while a level plays (InLevel, where_hook.cpp: the game state is 2
+// and the level isn't "FrontEnd", the title's): the title, the menus before it and the loading
+// screens draw no 3D picture, so their sides would
+// show what the frame held before (at the title the intro movie's last frame); they stay
+// stretched.
 //
 // Movies: the cutscenes (movies/sl_sc*.bik, sky_800_moment_*.bik), the figures' movies
 // (movies/bash.bik, ...) and the logos are 16:9 Bink movies drawn into the 16:9 frame, which the
@@ -46,6 +53,7 @@
 #include <string>
 
 #include "ultrawide_hook.h"
+#include "where_hook.h"
 
 #include <rex/cvar.h>
 #include <rex/graphics/video_mode_util.h>
@@ -62,18 +70,16 @@ REXCVAR_DEFINE_BOOL(ultrawide_fov, true, "Graphics",
                     "On a window wider than 16:9 (resolution), show more to the sides instead of "
                     "black bars: a wider field of view and the picture stretched across the "
                     "window");
-REXCVAR_DEFINE_BOOL(ultrawide_hud, false, "Graphics",
-                    "Experimental: with ultrawide_fov on a wider window, the HUD and the menus in "
-                    "their own proportions instead of stretched; a few elements the game keeps "
-                    "off-screen show at the left edge and the pause menu's dimming leaves the sides "
-                    "light");
+REXCVAR_DEFINE_BOOL(ultrawide_hud, true, "Graphics",
+                    "With ultrawide_fov on a wider window, the HUD and the menus in the middle 16:9 "
+                    "of the window in their own proportions instead of stretched across it");
 
 namespace {
 
 constexpr double kGameAspect = 16.0 / 9.0;
-constexpr uint32_t kScreenWidth = 0x82BB45DC;   // the UI's screen width, then its height, ...
-constexpr uint32_t kScreenHeight = 0x82BB45E0;
-constexpr uint32_t kScreenHalfWidth = 0x82BB45E4;
+
+// The window's aspect the cameras got (0 while ultrawide is off), for the HUD pass.
+std::atomic<float> g_wide_aspect{0.0f};
 
 // True while a movie plays with the presenter's bars turned on for it; the aspect setting it
 // changed for that, to put back.
@@ -131,19 +137,43 @@ void UltrawideAspectHook(PPCRegister& f13) {
   if (wide <= f13.f64) return;
   if (!logged.exchange(true)) REXLOG_INFO("Ultrawide: display aspect {} -> {}", f13.f64, wide);
   f13.f64 = double(float(wide));
-  if (!REXCVAR_GET(ultrawide_hud)) return;
-  // The screen's width and half width, stored just before this (the height too).
+  g_wide_aspect = float(wide);
+}
+
+// At 0x82682998 in sub_826828C0 (stb r30,987(r11)): r11 = the renderer's state, set up for the
+// HUD pass (see the top of this file). Once a frame.
+void UltrawideHudHook(PPCRegister& r11) {
+  const float wide = g_wide_aspect.load(std::memory_order_relaxed);
+  if (wide <= 0.0f || !REXCVAR_GET(ultrawide_hud)) return;
+  // Only while a level (or the hub) plays: the title, the menus before it and the loading screens
+  // draw no 3D picture, so the sides would keep whatever the frame held before (the last frame of
+  // the intro movie); there the UI stays stretched as before.
+  // Nor while a movie plays with bars at the sides: the frame is shown in 16:9 then, so the skip
+  // prompt on top of it needs no squeezing.
   uint8_t* base = rex::system::kernel_state()->memory()->virtual_membase();
-  uint32_t bits = rex::memory::load_and_swap<uint32_t>(base + kScreenHeight);
-  float height;
-  std::memcpy(&height, &bits, 4);
-  if (height <= 0) return;
-  const float width = float(double(height) * wide), half = width / 2;
-  std::memcpy(&bits, &width, 4);
-  rex::memory::store_and_swap<uint32_t>(base + kScreenWidth, bits);
-  std::memcpy(&bits, &half, 4);
-  rex::memory::store_and_swap<uint32_t>(base + kScreenHalfWidth, bits);
-  REXLOG_INFO("Ultrawide: UI screen {} x {}", width, height);
+  if (!ssarecomp::InLevel(base) || g_movie_bars.load(std::memory_order_relaxed)) return;
+  const float share = float(kGameAspect) / wide;
+  uint8_t* state = base + r11.u32;
+  auto get = [&](uint32_t offset) {
+    const uint32_t bits = rex::memory::load_and_swap<uint32_t>(state + offset);
+    float value;
+    std::memcpy(&value, &bits, 4);
+    return value;
+  };
+  auto set = [&](uint32_t offset, float value) {
+    uint32_t bits;
+    std::memcpy(&bits, &value, 4);
+    rex::memory::store_and_swap<uint32_t>(state + offset, bits);
+  };
+  // +996 is stored fresh every frame just before (0x82682988); the view rect is set from the screen
+  // rect, not from its own last value, so nothing adds up from frame to frame.
+  set(996, get(996) / share);
+  const float left = get(908), right = get(916);
+  const float centre = (left + right) / 2, half = (right - left) / 2 * share;
+  set(924, centre - half);
+  set(932, centre + half);
+  static std::atomic<bool> logged{false};
+  if (!logged.exchange(true)) REXLOG_INFO("Ultrawide: HUD in the middle {:.0f} %", share * 100);
 }
 
 // At the start of BinkClose (sub_829EDEB8): the movie is over (or skipped).

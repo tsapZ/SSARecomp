@@ -142,6 +142,11 @@ std::vector<std::string> GemFinds(std::span<const uint8_t> before, std::span<con
 
 namespace ssarecomp {
 
+bool InLevel(uint8_t* base) {
+  static const uint32_t front_end = Crc32("FrontEnd");
+  return Load32(base, kGameState) == 2 && Load32(base, kCurrentLevel) != front_end;
+}
+
 void InstallWhere(const std::filesystem::path& game_data_root, const std::filesystem::path& user_data_root) {
   std::ifstream in(game_data_root / "gamedata.lxb", std::ios::binary);
   const std::string data((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());

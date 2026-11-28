@@ -248,19 +248,15 @@ SettingsPage GraphicsPage() {
         {"3840x2160", "3840x2160", "3840x2160"},
         {"5120x1440", "5120x1440 (32:9)", "5120x1440 (32:9)"}}});
   page.settings.push_back(
-      {"ultrawide_hud", "HUD on ultrawide (experimental)", "HUD bei Ultrawide (experimentell)",
+      {"ultrawide_hud", "HUD on ultrawide", "HUD bei Ultrawide",
        "For windows wider than 16:9 (ultrawide).\n"
-       "On: the HUD, the dialogue box and the menus in their own proportions instead of stretched.\n"
-       "Off: stretched to the window's width.\n"
-       "\n"
-       "With it on, two notices the game keeps off-screen show at the left edge, and the pause "
-       "menu's dimming leaves the sides light.",
+       "On: in the levels the HUD, the dialogue box and the pause menu sit in the middle 16:9 of "
+       "the window, in their own proportions (the title and the loading screens stay stretched).\n"
+       "Off: stretched to the window's width.",
        "F\xC3\xBCr Fenster breiter als 16:9 (Ultrawide).\n"
-       "An: HUD, Dialogfenster und Men\xC3\xBCs in ihren eigenen Proportionen statt gestreckt.\n"
-       "Aus: auf die Fensterbreite gestreckt.\n"
-       "\n"
-       "Wenn das an ist, erscheinen am linken Rand zwei Hinweise, die das Spiel sonst au\xC3\x9F" "erhalb "
-       "des Bildes h\xC3\xA4lt, und die Abdunklung im Pausenmen\xC3\xBC l\xC3\xA4sst die Seiten hell."});
+       "An: in den Levels sitzen HUD, Dialogfenster und Pausenmen\xC3\xBC in der Mitte des Fensters in "
+       "16:9, in ihren eigenen Proportionen (Titel und Ladebildschirme bleiben gestreckt).\n"
+       "Aus: auf die Fensterbreite gestreckt."});
   return page;
 }
 

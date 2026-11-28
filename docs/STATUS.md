@@ -235,13 +235,16 @@ Updated at the end of every session. Only record what a build actually did.
   aspect; the app turns the letterbox off. Found from the 16:9 floats in the image's data;
   checked by script in a 2560x1080 window: Hugo's cutscene and Chapter 1 keep their proportions
   and show more at both sides; the HUD and the dialogue box are stretched.
-- **The HUD for ultrawide, experimental** (`ultrawide_hud`, off): the UI lays itself out on the
-  screen's width and half width kept next to the aspect (0x82BB45DC / 0x82BB45E4); set to the
-  window's width at the UI's height, the HUD, the dialogue box and the menus keep their
-  proportions (the portrait stays where the game anchors it, 480 left of the centre). Off by
-  default because two notices the game parks left of the 16:9 screen come into view at the left
-  edge and the pause menu's dimming is drawn only 1280 wide. Checked by script in a 2560x1080
-  window.
+- **The HUD for ultrawide** (`ultrawide_hud`, on since 2026-11-28; before that an experimental wide
+  layout, off, which showed two notices the game parks left of the 16:9 screen): the HUD pass
+  (sub_826828C0) gets a wider orthographic half width and a narrower view rect, which the
+  renderer turns into a scissor; in the levels the HUD, the dialogue box and the pause menu sit
+  in the middle 16:9 of the window in their own proportions, and what the game lays out beyond
+  the 16:9 screen is cut. The pause menu's dimming covers only the middle. The title, the menus
+  before it (the level "FrontEnd") and the loading screens stay stretched: they draw no 3D picture,
+  so their sides would show the frame's old content (the intro movie's last frame). Checked by
+  script at 2560x1080 and 3840x1080: the title, the hub with a figure's arrival, the pause menu,
+  Chapter 1 with Hugo's talk, a level change.
 - **Movies on ultrawide** (2026-10-21): the logos, the cutscene movies and the figures' movies are
   16:9 Bink movies; while one plays the presenter shows it with black bars at the sides instead of
   stretched (present_use_actual_aspect off and present_letterbox on for that time, not saved).

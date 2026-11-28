@@ -13,6 +13,10 @@ namespace ssarecomp {
 // watches the slot saves under `user_data_root` for Soul Gems (Core of Light #71).
 void InstallWhere(const std::filesystem::path& game_data_root, const std::filesystem::path& user_data_root);
 
+// True while a level or the hub plays: the game state is 2 and the level isn't the front end (the
+// title and the menus before it count as the level "FrontEnd").
+bool InLevel(uint8_t* base);
+
 }  // namespace ssarecomp
 
 #if defined(SKYLANDERS_DEVKIT)
