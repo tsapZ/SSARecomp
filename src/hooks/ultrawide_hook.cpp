@@ -49,7 +49,6 @@
 
 #include <atomic>
 #include <cstdint>
-#include <cstring>
 #include <string>
 
 #include "ultrawide_hook.h"
@@ -71,8 +70,9 @@ REXCVAR_DEFINE_BOOL(ultrawide_fov, true, "Graphics",
                     "black bars: a wider field of view and the picture stretched across the "
                     "window");
 REXCVAR_DEFINE_BOOL(ultrawide_hud, true, "Graphics",
-                    "With ultrawide_fov on a wider window, the HUD and the menus in the middle 16:9 "
-                    "of the window in their own proportions instead of stretched across it");
+                    "With ultrawide_fov on a wider window, in the levels the HUD and the pause menu "
+                    "in the middle 16:9 of the window in their own proportions instead of stretched "
+                    "across it (the title and the loading screens stay stretched)");
 
 namespace {
 
@@ -129,6 +129,7 @@ void MovieClosed() {
 // mode) about to be stored at 0x82BB45EC.
 void UltrawideAspectHook(PPCRegister& f13) {
   static std::atomic<bool> logged{false};
+  g_wide_aspect = 0.0f;  // the cameras get the display's aspect unless set below
   if (!ssarecomp::UltrawideActive() || f13.f64 <= 0) {
     if (!logged.exchange(true)) REXLOG_INFO("Ultrawide: display aspect {}", f13.f64);
     return;
@@ -144,32 +145,31 @@ void UltrawideAspectHook(PPCRegister& f13) {
 // HUD pass (see the top of this file). Once a frame.
 void UltrawideHudHook(PPCRegister& r11) {
   const float wide = g_wide_aspect.load(std::memory_order_relaxed);
-  if (wide <= 0.0f || !REXCVAR_GET(ultrawide_hud)) return;
-  // Only while a level (or the hub) plays: the title, the menus before it and the loading screens
-  // draw no 3D picture, so the sides would keep whatever the frame held before (the last frame of
-  // the intro movie); there the UI stays stretched as before.
-  // Nor while a movie plays with bars at the sides: the frame is shown in 16:9 then, so the skip
-  // prompt on top of it needs no squeezing.
+  if (wide <= 0.0f) return;
   uint8_t* base = rex::system::kernel_state()->memory()->virtual_membase();
-  if (!ssarecomp::InLevel(base) || g_movie_bars.load(std::memory_order_relaxed)) return;
-  const float share = float(kGameAspect) / wide;
   uint8_t* state = base + r11.u32;
-  auto get = [&](uint32_t offset) {
-    const uint32_t bits = rex::memory::load_and_swap<uint32_t>(state + offset);
-    float value;
-    std::memcpy(&value, &bits, 4);
-    return value;
-  };
-  auto set = [&](uint32_t offset, float value) {
-    uint32_t bits;
-    std::memcpy(&bits, &value, 4);
-    rex::memory::store_and_swap<uint32_t>(state + offset, bits);
-  };
-  // +996 is stored fresh every frame just before (0x82682988); the view rect is set from the screen
-  // rect, not from its own last value, so nothing adds up from frame to frame.
-  set(996, get(996) / share);
+  auto get = [&](uint32_t offset) { return rex::memory::load_and_swap<float>(state + offset); };
+  auto set = [&](uint32_t offset, float value) { rex::memory::store_and_swap<float>(state + offset, value); };
+  // The view rect from the screen rect, not from its own last value: nothing adds up from frame
+  // to frame (+996 is stored fresh every frame just before, at 0x82682988).
+  const float share = float(kGameAspect) / wide;
   const float left = get(908), right = get(916);
   const float centre = (left + right) / 2, half = (right - left) / 2 * share;
+  // Only while a level (or the hub) plays: the title, the menus before it and the loading screens
+  // draw no 3D picture, so the sides would keep whatever the frame held before (the last frame of
+  // the intro movie); there the UI stays stretched as before. Nor while a movie plays with bars
+  // at the sides: the frame is shown in 16:9 then, the skip prompt on it needs no squeezing.
+  if (!REXCVAR_GET(ultrawide_hud) || !ssarecomp::InLevel(base) ||
+      g_movie_bars.load(std::memory_order_relaxed)) {
+    // The view rect comes back full every frame (with a rect narrowed from its own last value the
+    // HUD stayed whole for minutes); should a state ever keep the narrowed one, the full one back.
+    if (get(924) == centre - half && get(932) == centre + half) {
+      set(924, left);
+      set(932, right);
+    }
+    return;
+  }
+  set(996, get(996) / share);
   set(924, centre - half);
   set(932, centre + half);
   static std::atomic<bool> logged{false};
